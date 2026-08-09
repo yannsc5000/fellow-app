@@ -10,6 +10,7 @@ export const FELLOWSHIPS = [
   ["NicA","Nicotine Anonymous",["nicotine","smoking","vaping"]],
   ["PA","Pills Anonymous",["pills","prescription"]],
   ["OA","Overeaters Anonymous",["overeating","food","compulsive eating"]],
+  ["EDA","Eating Disorders Anonymous",["eating disorder","anorexia","bulimia"]],
   ["FAIR","Food Addicts in Recovery Anonymous",["food addiction","food"]],
   ["FAA","Food Addicts Anonymous",["food addiction"]],
   ["SAA","Sex Addicts Anonymous",["sex addiction"]],

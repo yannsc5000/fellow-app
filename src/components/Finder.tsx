@@ -6,7 +6,7 @@ import {
 import dynamic from "next/dynamic";
 import { searchClient } from "@/lib/typesense";
 import { COLLECTION } from "@/lib/schema";
-import { fellowshipName } from "@/lib/fellowships";
+import { fellowshipName, fellowshipColor } from "@/lib/fellowships";
 import { Icon } from "./Icon";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { DetailMap } from "./DetailMap";
@@ -110,6 +110,7 @@ function DayChip({ day, label }: { day: number; label: string }) {
 
 // Data-driven fellowship chips: "All" + every fellowship present in the index,
 // alphabetical, labeled by acronym with the full name as the accessible label.
+// Each carries its fellowship color (a dot when unselected, solid fill when active).
 function FellowshipChips() {
   const { items, refine } = useRefinementList({ attribute: "fellowship", limit: 200, sortBy: ["name:asc"] });
   const { refine: clearFellowship } = useClearRefinements({ includedAttributes: ["fellowship"] });
@@ -118,9 +119,10 @@ function FellowshipChips() {
     <div className="filter-row" role="group" aria-label="Fellowship">
       <button className="chip" aria-pressed={!anyRefined} onClick={() => clearFellowship()}>All</button>
       {items.map((i) => (
-        <button key={i.value} className="chip" aria-pressed={i.isRefined}
+        <button key={i.value} className="chip fchip" aria-pressed={i.isRefined}
+          style={{ ["--fc" as any]: fellowshipColor(i.value) }}
           title={fellowshipName(i.value)} aria-label={fellowshipName(i.value)}
-          onClick={() => refine(i.value)}>{i.value}</button>
+          onClick={() => refine(i.value)}><span className="cdot" />{i.value}</button>
       ))}
     </div>
   );
@@ -137,6 +139,15 @@ function Skeletons() {
       ))}
     </ul>
   );
+}
+
+// nearest real rail station for the card strip — only when we have precise station coords
+function railItem(m: any) {
+  if (m.online || !m.transit_json) return null;
+  try {
+    const t = JSON.parse(m.transit_json);
+    return t.find((x: any) => ["metro", "train", "tram"].includes(x.k) && x.slat != null) || null;
+  } catch { return null; }
 }
 
 // distance from the user to a hit (miles), or null if we can't compute it
@@ -178,18 +189,27 @@ function Results({ onOpen, user, onClearLocation }: { onOpen: (m: any) => void; 
       {items.map((m: any) => {
         const t = to12(m.time);
         const mi = hitMiles(m, user);
+        const rail = railItem(m);
+        const lineColor = rail ? (rail.colors?.[0] || lineColorsFromLabel(rail.t)[0] || "#9aa0a6") : null;
         return (
-          <li key={m.objectID}>
+          <li key={m.objectID} style={{ ["--fc" as any]: fellowshipColor(m.fellowship) }}>
             <button className="card" onClick={() => onOpen(m)}>
               <span className="timechip"><span className="hh">{t.hh}</span><span className="ap">{t.ap}</span></span>
-              <span>
+              <span className="cardbody">
                 <h3>{m.name}</h3>
                 <span className="meta"><b>{DAYS[m.day]}</b> · {m.online ? "Online" : m.place || m.address}</span>
+                <span className="tags">
+                  <span className="tag fellow" title={fellowshipName(m.fellowship)}>{m.fellowship}</span>
+                  {(m.types || []).slice(0, 3).map((x: string) => <span key={x} className="tag">{x}</span>)}
+                </span>
               </span>
-              <span className="dist">{m.online ? "Online" : mi != null ? `${mi.toFixed(1)} mi` : ""}</span>
-              <span className="tags">
-                <span className="tag fellow" title={fellowshipName(m.fellowship)}>{m.fellowship}</span>
-                {(m.types || []).slice(0, 3).map((x: string) => <span key={x} className="tag">{x}</span>)}
+              <span className="rt">
+                {m.online
+                  ? <><Icon name="video" size={15} /> Online</>
+                  : rail
+                    ? <><span className="line" style={{ background: lineColor as string }} /> {rail.t}</>
+                    : <><Icon name="subway" size={15} /> Transit nearby</>}
+                <span className="dist">{m.online ? "" : mi != null ? `${mi.toFixed(1)} mi` : ""}</span>
               </span>
             </button>
           </li>
@@ -345,13 +365,12 @@ function MeetingSheet({ m, onClose }: { m: any; onClose: () => void }) {
   const mapsAddr = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((m.place ? m.place + ", " : "") + m.address)}`;
   const seeAll = (q: string) => { refine(q); onClose(); };
   return (
-    <div role="dialog" aria-modal aria-label={m.name}
-      style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.5)", display: "grid", placeItems: "end center", zIndex: 100 }}
+    <div role="dialog" aria-modal aria-label={m.name} className="sheet-overlay"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div style={{ background: "var(--surface)", width: "100%", maxWidth: 820, borderRadius: "28px 28px 0 0", padding: 20, maxHeight: "90vh", overflow: "auto" }}>
-        <h2 style={{ marginTop: 0 }}>{m.name}</h2>
-        <div style={{ color: "var(--brand-ink)", fontWeight: 800 }}>{DAYS[m.day]}, {t.hh} {t.ap}</div>
-        <div style={{ color: "var(--ink-soft)" }}>
+      <div className="sheet-panel" style={{ ["--fc" as any]: fellowshipColor(m.fellowship) }}>
+        <h2>{m.name}</h2>
+        <div><span className="when"><Icon name="calmonth" size={16} /> {DAYS[m.day]}, {t.hh} {t.ap}</span></div>
+        <div className="sheet-addr">
           {m.online ? "Online meeting" : <>{m.place ? m.place + " · " : ""}<a href={mapsAddr} target="_blank" rel="noopener">{m.address}</a></>}
         </div>
         <div className="detail-links">
@@ -365,7 +384,7 @@ function MeetingSheet({ m, onClose }: { m: any; onClose: () => void }) {
           )}
         </div>
         <DetailMap m={m} defaultMode="street" />
-        {m.notes && <p style={{ background: "var(--surface-2)", padding: 16, borderRadius: 14 }}>{m.notes}</p>}
+        {m.notes && <p className="notes-block">{m.notes}</p>}
         {!m.online && (transit.length > 0 || parking.length > 0) && (
           <div className="access-grid">
             {transit.length > 0 && (
@@ -388,8 +407,8 @@ function MeetingSheet({ m, onClose }: { m: any; onClose: () => void }) {
         )}
         <div className="sheet-actions">
           {m.online
-            ? <button className="btn btn-soft" onClick={onClose}><Icon name="nearme" size={18} /> Join online</button>
-            : <a className="btn btn-soft" href={mapsAddr} target="_blank" rel="noopener"><Icon name="route" size={18} /> Directions</a>}
+            ? <button className="btn btn-fc" onClick={onClose}><Icon name="video" size={18} /> Join online</button>
+            : <a className="btn btn-fc" href={mapsAddr} target="_blank" rel="noopener"><Icon name="route" size={18} /> Directions</a>}
           <button className="btn btn-soft" onClick={onClose}><Icon name="close" size={18} /> Close</button>
         </div>
       </div>
