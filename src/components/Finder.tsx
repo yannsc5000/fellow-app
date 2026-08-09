@@ -383,7 +383,7 @@ function MeetingSheet({ m, onClose }: { m: any; onClose: () => void }) {
             </button>
           )}
         </div>
-        <DetailMap m={m} defaultMode="street" />
+        <DetailMap m={m} defaultMode="map" />
         {m.notes && <p className="notes-block">{m.notes}</p>}
         {!m.online && (transit.length > 0 || parking.length > 0) && (
           <div className="access-grid">

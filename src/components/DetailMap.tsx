@@ -14,6 +14,11 @@ export function DetailMap({
   const [mode, setMode] = useState<"map" | "street">(defaultMode === "street" && !G ? "map" : defaultMode);
   if (m.online || m.lat == null || m.lng == null) return null;
   const { lat, lng } = m;
+  // Prefer the street address for the Map (Google geocodes it precisely and labels the
+  // venue). Street View can only take coordinates and snaps to the nearest photo, so it
+  // may show a neighboring street — that's why Map, not Street View, is the default.
+  const addr = ((m.place ? m.place + ", " : "") + (m.address || "")).trim();
+  const placeQ = addr ? encodeURIComponent(addr) : `${lat},${lng}`;
 
   let content: React.ReactNode;
   if (mode === "street") {
@@ -29,7 +34,7 @@ export function DetailMap({
   } else {
     content = G
       ? <iframe title="Map" loading="lazy"
-          src={`https://www.google.com/maps/embed/v1/place?key=${G}&q=${lat},${lng}&zoom=16`} />
+          src={`https://www.google.com/maps/embed/v1/place?key=${G}&q=${placeQ}&zoom=16`} />
       : MT
         ? <a target="_blank" rel="noopener" href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}>
             <img alt="Map of the meeting location"
