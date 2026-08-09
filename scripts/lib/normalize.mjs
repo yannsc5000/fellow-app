@@ -55,10 +55,15 @@ function enrich(m) {
   const transit = [];
   const st = nearestStation(m.lat, m.lng);
   if (st && st.d <= RAIL_NEAR_MI) {
+    // Precise (DC / WMATA only): real station name, line colors, walking distance.
     transit.push({ k:'metro', t:`${st.name} · ${st.lines}`, d:`${st.d.toFixed(1)} mi to station`,
       q:`${st.name} Metro Station`, slat:st.lat, slng:st.lng });
+  } else {
+    // Everywhere else: a generic rail/transit link that Maps resolves to nearby
+    // stations in that city (until per-metro GTFS is wired for exact stops).
+    transit.push({ k:'train', t:'Transit & rail nearby', d:'Stations near here', q:`transit station near ${m.address}` });
   }
-  // Generic, location-correct anywhere (Maps resolves relative to the meeting address):
+  // Location-correct anywhere (Maps resolves relative to the meeting address):
   transit.push({ k:'bus', t:'Bus stops nearby', d:'View routes & stops', q:`bus stop near ${m.address}` });
   transit.push({ k:'bike', t:'Bikeshare nearby', d:'Docks & e-bikes', q:`bike share near ${m.address}` });
   m.transit = transit;

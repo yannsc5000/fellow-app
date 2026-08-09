@@ -122,7 +122,17 @@ function Skeletons() {
   );
 }
 
-function Results({ onOpen }: { onOpen: (m: any) => void }) {
+// distance from the user to a hit (miles), or null if we can't compute it
+function hitMiles(m: any, user: { lat: number; lng: number } | null) {
+  if (!user || m.online) return null;
+  const g = m._geoloc;
+  const lat = m.lat ?? (Array.isArray(g) ? g[0] : g?.lat);
+  const lng = m.lng ?? (Array.isArray(g) ? g[1] : g?.lng);
+  if (lat == null || lng == null) return null;
+  return haversineMi(user.lat, user.lng, lat, lng);
+}
+
+function Results({ onOpen, user }: { onOpen: (m: any) => void; user: { lat: number; lng: number } | null }) {
   const { items } = useHits();
   const { status, error } = useInstantSearch();
   const busy = status === "loading" || status === "stalled";
@@ -149,6 +159,7 @@ function Results({ onOpen }: { onOpen: (m: any) => void }) {
     <ul className="cards" aria-busy={busy}>
       {items.map((m: any) => {
         const t = to12(m.time);
+        const mi = hitMiles(m, user);
         return (
           <li key={m.objectID}>
             <button className="card" onClick={() => onOpen(m)}>
@@ -157,7 +168,7 @@ function Results({ onOpen }: { onOpen: (m: any) => void }) {
                 <h3>{m.name}</h3>
                 <span className="meta"><b>{DAYS[m.day]}</b> · {m.online ? "Online" : m.place || m.address}</span>
               </span>
-              <span className="dist">{m.dist != null ? `${Number(m.dist).toFixed(1)} mi` : "Online"}</span>
+              <span className="dist">{m.online ? "Online" : mi != null ? `${mi.toFixed(1)} mi` : ""}</span>
               <span className="tags">
                 <span className="tag fellow" title={fellowshipName(m.fellowship)}>{m.fellowship}</span>
                 {(m.types || []).slice(0, 3).map((x: string) => <span key={x} className="tag">{x}</span>)}
@@ -174,6 +185,7 @@ export default function Finder() {
   const [view, setView] = useState<"list" | "map">("list"); // list default; Near me → map
   const [geo, setGeo] = useState<string | undefined>(undefined);
   const [selected, setSelected] = useState<any>(null);
+  const user = geo ? { lat: Number(geo.split(",")[0]), lng: Number(geo.split(",")[1]) } : null;
 
   function nearMe() {
     if (!navigator.geolocation) return;
@@ -205,7 +217,7 @@ export default function Finder() {
       </div>
 
       {view === "list" ? (
-        <Results onOpen={setSelected} />
+        <Results onOpen={setSelected} user={user} />
       ) : (
         <ErrorBoundary fallback={<div className="state"><h2>Map unavailable</h2><p>Switch back to List, or reload. (If this persists, the map key may be missing.)</p></div>}>
           <MapView onOpen={setSelected} />
