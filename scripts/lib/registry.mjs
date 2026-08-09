@@ -65,4 +65,20 @@ export const SOURCES = [
 
   // ---- Other fellowships — many are on BMLT (add their root servers from awesome-bmlt)
   // or publish Meeting Guide feeds. Add per-fellowship national sources here. ----
+  // CMA — Crystal Meth Anonymous. Regional TSML feeds (verified: returned meeting JSON).
+  { id: "cma-la",  fellowship: "CMA", system: "meeting-guide", area: "CMA Los Angeles",  url: "https://cmainla.com/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "cma-az",  fellowship: "CMA", system: "meeting-guide", area: "CMA Arizona",      url: "https://cmaaz.org/wp-admin/admin-ajax.php?action=meetings" },
+  // MA — Marijuana Anonymous. National site confirmed running TSML (12_step_meeting_list
+  // plugin); WAF blocks the sandbox fetcher but it serves JSON from CI / a real server.
+  { id: "ma-national", fellowship: "MA", system: "meeting-guide", area: "Marijuana Anonymous (national)", url: "https://marijuana-anonymous.org/wp-admin/admin-ajax.php?action=meetings" },
+  // CANDIDATES — endpoint responded behind a WAF/JS challenge from the sandbox (403 /
+  // JS redirect), consistent with a TSML site. ingest() skips any that don't return a
+  // usable JSON array, so these are safe to include; verify counts from the CI run.
+  { id: "coda-national", fellowship: "CoDA", system: "meeting-guide", area: "Co-Dependents Anonymous (national)", url: "https://coda.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "ha-national",   fellowship: "HA",   system: "meeting-guide", area: "Heroin Anonymous (national)",        url: "https://heroinanonymous.org/wp-admin/admin-ajax.php?action=meetings" },
+  // SLAA — Sex & Love Addicts Anonymous. No single open national feed (the FWS site uses
+  // a custom portal), but regional intergroups run TSML. Greater Delaware Valley VERIFIED
+  // (~150 meetings) and conveniently covers PA/NJ/DE/MD/VA/DC. NY is a candidate.
+  { id: "slaa-dvi", fellowship: "SLAA", system: "meeting-guide", area: "SLAA Greater Delaware Valley (PA/NJ/DE/MD/VA/DC)", url: "https://slaadvi.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "slaa-ny",  fellowship: "SLAA", system: "meeting-guide", area: "SLAA New York",                                 url: "https://www.slaany.org/wp-admin/admin-ajax.php?action=meetings" },
 ];
