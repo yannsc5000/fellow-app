@@ -517,6 +517,7 @@ function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => void; o
           <button className="share-btn" onClick={share} aria-label={`Share ${m.name}`}>
             <Icon name="share" size={18} /> {copied ? "Copied!" : "Share"}
           </button>
+          <button className="close-x" aria-label="Close" onClick={onClose}><Icon name="close" size={20} /></button>
         </div>
         <h2>{m.name}</h2>
         <div>
