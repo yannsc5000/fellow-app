@@ -67,8 +67,15 @@ if (GEOCODE) {
   console.log(`+ geocoded ${filled}/${attempted} meetings missing coordinates`);
 }
 
-const meetings = dedupe(all)
-  .sort((a, b) => (a.day - b.day) || a.time.localeCompare(b.time))
+// Drop records without a usable day + time (some national feeds have malformed rows),
+// then sort defensively so one bad value can't crash the run.
+const usable = dedupe(all).filter(
+  (m) => Number.isInteger(m.day) && m.day >= 0 && m.day <= 6 && typeof m.time === "string" && /^\d{1,2}:\d{2}/.test(m.time)
+);
+const dropped = all.length - usable.length;
+if (dropped > 0) console.log(`· dropped ${dropped} records missing a valid day/time`);
+const meetings = usable
+  .sort((a, b) => (a.day - b.day) || String(a.time).localeCompare(String(b.time)))
   .map((m, i) => ({ ...m, id: String(i + 1) }));
 
 await writeFile(new URL("../public/data/meetings.json", import.meta.url), JSON.stringify(meetings, null, 2));

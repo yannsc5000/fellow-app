@@ -2,6 +2,7 @@
 //   TYPESENSE_ADMIN_API_KEY=... node scripts/index.mjs
 import { readFile } from "node:fs/promises";
 import Typesense from "typesense";
+import { fellowshipName, fellowshipTerms } from "./lib/fellowships.mjs";
 
 const COLLECTION = process.env.NEXT_PUBLIC_TYPESENSE_COLLECTION || "meetings";
 
@@ -20,6 +21,8 @@ const schema = {
   fields: [
     { name: "name", type: "string" },
     { name: "fellowship", type: "string", facet: true },
+    { name: "fellowship_name", type: "string", optional: true },
+    { name: "fellowship_terms", type: "string", optional: true },
     { name: "types", type: "string[]", facet: true },
     { name: "day", type: "int32", facet: true },
     { name: "time", type: "string", sort: true },
@@ -50,6 +53,8 @@ const docs = meetings.map((m) => {
   const { transit, parking, lat, lng, ...rest } = m;
   return {
     ...rest, lat, lng,
+    fellowship_name: fellowshipName(m.fellowship),
+    fellowship_terms: fellowshipTerms(m.fellowship),
     _geoloc: lat != null && lng != null ? [lat, lng] : undefined,
     transit_json: transit ? JSON.stringify(transit) : undefined,
     parking_json: parking ? JSON.stringify(parking) : undefined,

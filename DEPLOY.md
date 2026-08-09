@@ -31,10 +31,24 @@ npm run index           # creates the collection + imports into Typesense Cloud
 3. Deploy. The app is now live and queries Typesense Cloud directly.
 
 ## 4. Keep data fresh (scheduled ingest) — already wired
-`.github/workflows/ingest.yml` runs `ingest` + `index` twice daily (and on demand).
-Add these **GitHub repo secrets** (Settings → Secrets and variables → Actions):
-`TYPESENSE_HOST`, `TYPESENSE_PORT`, `TYPESENSE_PROTOCOL`, `TYPESENSE_ADMIN_API_KEY`, `TYPESENSE_COLLECTION`.
-Trigger once manually (Actions → "Ingest & index meetings" → Run workflow) to verify.
+Two CI options are included; use the one for your host:
+- **GitLab** (`.gitlab-ci.yml`): add CI/CD **variables** (Settings → CI/CD → Variables, masked):
+  `TYPESENSE_HOST`, `TYPESENSE_PORT`, `TYPESENSE_PROTOCOL`, `TYPESENSE_ADMIN_API_KEY`, `TYPESENSE_COLLECTION`.
+  Then create a schedule: Build → Pipeline schedules → New schedule (e.g. twice daily). Run once to verify.
+- **GitHub** (`.github/workflows/ingest.yml`): add the same as repo **secrets** (Settings → Secrets → Actions),
+  then Actions → "Ingest & index meetings" → Run workflow.
+
+## Verify after indexing (one command)
+```bash
+TYPESENSE_HOST=xxxx.a1.typesense.net TYPESENSE_PORT=443 TYPESENSE_PROTOCOL=https \
+TYPESENSE_ADMIN_API_KEY=<key> NEXT_PUBLIC_TYPESENSE_COLLECTION=meetings \
+npm run smoke
+```
+Checks health, document count, keyword + synonym + geo search. Exits non-zero if anything fails.
+
+## 5. Map tiles (MapTiler)
+Get a free key at maptiler.com and set `NEXT_PUBLIC_MAPTILER_KEY` in Vercel env vars.
+Without it, the app falls back to OpenStreetMap raster tiles (dev only).
 
 ## Security notes
 - The browser only ever gets the **search-only** key. Keep the **admin** key in CI/server env.

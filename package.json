@@ -12,6 +12,7 @@
     "typesense:down": "docker compose down",
     "ingest": "node scripts/ingest.mjs",
     "index": "node scripts/index.mjs",
+    "smoke": "node scripts/smoke-test.mjs",
     "bootstrap": "npm run typesense:up && npm run ingest && npm run index",
     "bootstrap:local": "npm run typesense:up && npm run ingest -- --local && npm run index"
   },

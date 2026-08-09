@@ -38,6 +38,8 @@ export const meetingsSchema = {
   fields: [
     { name: "name", type: "string" },
     { name: "fellowship", type: "string", facet: true },
+    { name: "fellowship_name", type: "string", optional: true },
+    { name: "fellowship_terms", type: "string", optional: true },
     { name: "types", type: "string[]", facet: true },
     { name: "day", type: "int32", facet: true },
     { name: "time", type: "string", sort: true },

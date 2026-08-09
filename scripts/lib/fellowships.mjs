@@ -1,0 +1,39 @@
+// Fellowship taxonomy for the indexer (mirror of src/lib/fellowships.ts).
+// Keep in sync; used to add searchable full name + synonyms to each meeting doc.
+export const FELLOWSHIPS = [
+  ["AA","Alcoholics Anonymous",["alcohol","drinking","sober"]],
+  ["NA","Narcotics Anonymous",["drugs","narcotics"]],
+  ["CA","Cocaine Anonymous",["cocaine","crack"]],
+  ["HA","Heroin Anonymous",["heroin","opioid","opiate"]],
+  ["MA","Marijuana Anonymous",["marijuana","cannabis","weed"]],
+  ["CMA","Crystal Meth Anonymous",["crystal meth","methamphetamine","meth"]],
+  ["NicA","Nicotine Anonymous",["nicotine","smoking","vaping"]],
+  ["PA","Pills Anonymous",["pills","prescription"]],
+  ["OA","Overeaters Anonymous",["overeating","food","compulsive eating"]],
+  ["FAIR","Food Addicts in Recovery Anonymous",["food addiction","food"]],
+  ["FAA","Food Addicts Anonymous",["food addiction"]],
+  ["SAA","Sex Addicts Anonymous",["sex addiction"]],
+  ["SA","Sexaholics Anonymous",["sexaholic"]],
+  ["SLAA","Sex and Love Addicts Anonymous",["sex and love","love addiction"]],
+  ["SCA","Sexual Compulsives Anonymous",["sexual compulsion"]],
+  ["SRA","Sexual Recovery Anonymous",["sexual recovery"]],
+  ["SIA","Survivors of Incest Anonymous",["incest","abuse survivor"]],
+  ["COSLAA","CoSex and Love Addicts Anonymous",["coslaa"]],
+  ["DA","Debtors Anonymous",["debt","money","spending"]],
+  ["UA","Underearners Anonymous",["underearning","income"]],
+  ["WA","Workaholics Anonymous",["workaholism","work"]],
+  ["CLA","Clutterers Anonymous",["clutter","hoarding"]],
+  ["EA","Emotions Anonymous",["emotions","anxiety","depression"]],
+  ["GA","Gamblers Anonymous",["gambling","betting"]],
+  ["CoDA","Co-Dependents Anonymous",["codependency","codependent"]],
+  ["ACA","Adult Children of Alcoholics & Dysfunctional Families",["adult children","acoa","dysfunctional family"]],
+  ["Al-Anon","Al-Anon Family Groups",["families of alcoholics","loved ones","family"]],
+  ["Alateen","Alateen",["teens","teenager","family"]],
+  ["Nar-Anon","Nar-Anon Family Groups",["families of addicts","family"]],
+  ["Gam-Anon","Gam-Anon",["families of gamblers","family"]],
+  ["Co-Anon","Co-Anon",["families of addicts","family"]],
+  ["FA","Families Anonymous",["families","family"]],
+];
+const BY = Object.fromEntries(FELLOWSHIPS.map(([c, name, kw]) => [c, { name, kw }]));
+export const fellowshipName = (c) => BY[c]?.name || c;
+export const fellowshipTerms = (c) => (BY[c] ? [BY[c].name, ...BY[c].kw].join(" ") : "");

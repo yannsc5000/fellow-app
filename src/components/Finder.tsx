@@ -1,11 +1,12 @@
 "use client";
 import { useState } from "react";
 import {
-  InstantSearch, Configure, useSearchBox, useRefinementList, useHits, useInstantSearch,
+  InstantSearch, Configure, useSearchBox, useRefinementList, useHits, useInstantSearch, useClearRefinements,
 } from "react-instantsearch";
 import dynamic from "next/dynamic";
 import { searchClient } from "@/lib/typesense";
 import { COLLECTION } from "@/lib/schema";
+import { fellowshipName } from "@/lib/fellowships";
 import { Icon } from "./Icon";
 
 // MapLibre is heavy — only load its chunk when the map view is opened.
@@ -88,6 +89,24 @@ function Toggle({ attribute, value, label }: { attribute: string; value: string;
   );
 }
 
+// Data-driven fellowship chips: "All" + every fellowship present in the index,
+// alphabetical, labeled by acronym with the full name as the accessible label.
+function FellowshipChips() {
+  const { items, refine } = useRefinementList({ attribute: "fellowship", limit: 200, sortBy: ["name:asc"] });
+  const { refine: clearFellowship } = useClearRefinements({ includedAttributes: ["fellowship"] });
+  const anyRefined = items.some((i) => i.isRefined);
+  return (
+    <div className="filter-row" role="group" aria-label="Fellowship">
+      <button className="chip" aria-pressed={!anyRefined} onClick={() => clearFellowship()}>All</button>
+      {items.map((i) => (
+        <button key={i.value} className="chip" aria-pressed={i.isRefined}
+          title={fellowshipName(i.value)} aria-label={fellowshipName(i.value)}
+          onClick={() => refine(i.value)}>{i.value}</button>
+      ))}
+    </div>
+  );
+}
+
 function Skeletons() {
   return (
     <ul className="cards" aria-hidden="true">
@@ -138,7 +157,7 @@ function Results({ onOpen }: { onOpen: (m: any) => void }) {
               </span>
               <span className="dist">{m.dist != null ? `${Number(m.dist).toFixed(1)} mi` : "Online"}</span>
               <span className="tags">
-                <span className="tag fellow">{m.fellowship}</span>
+                <span className="tag fellow" title={fellowshipName(m.fellowship)}>{m.fellowship}</span>
                 {(m.types || []).slice(0, 3).map((x: string) => <span key={x} className="tag">{x}</span>)}
               </span>
             </button>
@@ -168,11 +187,8 @@ export default function Finder() {
       <Configure hitsPerPage={100} {...(geo ? { aroundLatLng: geo } : {})} />
       <SearchBox onNearMe={nearMe} />
 
-      <div className="filter-row" role="group" aria-label="Fellowship">
-        <Toggle attribute="fellowship" value="AA" label="AA" />
-        <Toggle attribute="fellowship" value="NA" label="NA" />
-        <Toggle attribute="fellowship" value="SLAA" label="SLAA" />
-        <Toggle attribute="fellowship" value="Al-Anon" label="Al-Anon" />
+      <FellowshipChips />
+      <div className="filter-row" role="group" aria-label="Type and format">
         <Toggle attribute="types" value="Open" label="Open" />
         <Toggle attribute="types" value="Wheelchair" label="Accessible" />
         <Toggle attribute="online" value="true" label="Online" />

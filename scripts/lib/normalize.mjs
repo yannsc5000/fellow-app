@@ -6,6 +6,9 @@ import { STATIONS } from './wmata-stations.js';
 
 const DC_CENTER = { lat: 38.9072, lng: -77.0369 };
 
+// parse a number from string|number|null → finite number or null (drops NaN/bad coords)
+const num = (v) => { const n = typeof v === 'number' ? v : parseFloat(v); return Number.isFinite(n) ? n : null; };
+
 // ---- distance ----
 export function haversineMi(aLat, aLng, bLat, bLng) {
   const R = 3958.8, toRad = d => d * Math.PI / 180;
@@ -66,15 +69,15 @@ export function fromMeetingGuide(rec, i, fellowship = 'AA') {
     id: `${fellowship.toLowerCase()}-mg-${i}`,
     source: 'meeting-guide',
     fellowship,
-    name: rec.name,
-    day: rec.day,
-    time: rec.time,
+    name: rec.name || 'Meeting',
+    day: Number.isInteger(rec.day) ? rec.day : parseInt(rec.day, 10),  // NaN if missing → filtered out
+    time: typeof rec.time === 'string' ? rec.time.slice(0, 5) : null,
     end: rec.end_time || null,
     place: rec.location || null,
     address: rec.formatted_address || rec.address || '',
     online,
-    lat: online ? null : (rec.latitude ?? null),
-    lng: online ? null : (rec.longitude ?? null),
+    lat: online ? null : num(rec.latitude),
+    lng: online ? null : num(rec.longitude),
     types: labelTypes(rec.types, AA_TYPES),
     notes: rec.notes || '',
   };
@@ -100,8 +103,8 @@ export function fromBMLT(rec, i, fellowship = 'NA') {
     place: rec.location_text || null,
     address: addr,
     online,
-    lat: online ? null : (rec.latitude ? parseFloat(rec.latitude) : null),
-    lng: online ? null : (rec.longitude ? parseFloat(rec.longitude) : null),
+    lat: online ? null : num(rec.latitude),
+    lng: online ? null : num(rec.longitude),
     types: labelTypes(codes, NA_FORMATS),
     notes: rec.comments || '',
   };

@@ -4,8 +4,10 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useGeoSearch } from "react-instantsearch";
 
-// OpenStreetMap raster style (no API key). Swap for a vector style in prod.
-const STYLE: maplibregl.StyleSpecification = {
+// Basemap: use MapTiler (vector) when NEXT_PUBLIC_MAPTILER_KEY is set (production),
+// otherwise fall back to OpenStreetMap raster tiles (fine for local/dev).
+const MAPTILER_KEY = process.env.NEXT_PUBLIC_MAPTILER_KEY;
+const OSM_STYLE: maplibregl.StyleSpecification = {
   version: 8,
   sources: {
     osm: {
@@ -17,6 +19,10 @@ const STYLE: maplibregl.StyleSpecification = {
   },
   layers: [{ id: "osm", type: "raster", source: "osm" }],
 };
+// MapTiler accepts a style URL directly; "streets-v2" is a clean general basemap.
+const STYLE: string | maplibregl.StyleSpecification = MAPTILER_KEY
+  ? `https://api.maptiler.com/maps/streets-v2/style.json?key=${MAPTILER_KEY}`
+  : OSM_STYLE;
 
 export default function MapView({ onOpen }: { onOpen: (m: any) => void }) {
   const el = useRef<HTMLDivElement>(null);
