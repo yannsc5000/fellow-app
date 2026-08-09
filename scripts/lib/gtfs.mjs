@@ -86,7 +86,7 @@ export function buildIndex({ stops, routes, trips, stopTimes }) {
 }
 
 export async function loadGTFS(dir) {
-  const read = async (f) => parseCSV(await readFile(new URL(`file://${dir}/${f}`)));
+  const read = async (f) => parseCSV(await readFile(`${dir.replace(/\/+$/, "")}/${f}`, "utf8"));
   const [stops, routes, trips, stopTimes] = await Promise.all([
     read("stops.txt"), read("routes.txt"), read("trips.txt"), read("stop_times.txt"),
   ]);

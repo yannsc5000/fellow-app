@@ -2,7 +2,7 @@
 // one unified schema, and enriches each in-person meeting with its nearest
 // Metro station (computed from real coordinates) plus Maps-linkable transit and
 // parking options. Pure functions — no network — so it is unit-testable.
-import { STATIONS } from './wmata-stations.js';
+import { ALL_STATIONS } from './stations.mjs';
 
 const DC_CENTER = { lat: 38.9072, lng: -77.0369 };
 
@@ -18,7 +18,7 @@ export function haversineMi(aLat, aLng, bLat, bLng) {
 }
 export function nearestStation(lat, lng) {
   let best = null;
-  for (const st of STATIONS) {
+  for (const st of ALL_STATIONS) {
     const d = haversineMi(lat, lng, st.lat, st.lng);
     if (!best || d < best.d) best = { ...st, d };
   }
@@ -46,22 +46,27 @@ function labelTypes(codes, map) {
 }
 
 // ---- enrichment: transit + parking (Maps-linkable "nearest") ----
-// NOTE: the bundled station list is DC-only (WMATA). Only attach a rail item when a
-// station is genuinely near the meeting (<= ~20 mi); otherwise we'd anchor non-DC
-// meetings to a DC station. For true national rail, wire GTFS (see scripts/lib/gtfs.mjs).
+// Attaches the nearest real rail station across every bundled system (DC always, plus
+// any cities generated into scripts/lib/stations/ via build-stations.mjs) when one is
+// within ~20 mi. Real station name, official line colors, and true distance. Cities with
+// no station data (or meetings far from any rail) get a generic "find transit" Maps link.
 const RAIL_NEAR_MI = 20;
 function enrich(m) {
   if (m.online || m.lat == null) return m;
   const transit = [];
   const st = nearestStation(m.lat, m.lng);
   if (st && st.d <= RAIL_NEAR_MI) {
-    // Precise (DC / WMATA only): real station name, line colors, walking distance.
-    transit.push({ k:'metro', t:`${st.name} · ${st.lines}`, d:`${st.d.toFixed(1)} mi to station`,
-      q:`${st.name} Metro Station`, slat:st.lat, slng:st.lng });
+    transit.push({
+      k: st.k || 'metro',
+      t: st.lines ? `${st.name} · ${st.lines}` : st.name,
+      d: `${st.d.toFixed(1)} mi to station`,
+      q: `${st.name} station`,
+      slat: st.lat, slng: st.lng,
+      ...(st.colors && st.colors.length ? { colors: st.colors } : {}),
+    });
   } else {
-    // Everywhere else: a generic rail/transit link that Maps resolves to nearby
-    // stations in that city (until per-metro GTFS is wired for exact stops).
-    transit.push({ k:'train', t:'Transit & rail nearby', d:'Stations near here', q:`transit station near ${m.address}` });
+    // No station data near here yet — a generic rail/transit search Maps resolves locally.
+    transit.push({ k:'train', t:'Transit & rail nearby', d:'Find stations on Google Maps', q:`transit station near ${m.address}` });
   }
   // Location-correct anywhere (Maps resolves relative to the meeting address).
   // NOTE: these are live Google Maps *searches*, not verified amenities — the UI must
