@@ -27,27 +27,69 @@ async function getJSON(url) {
   return r.json();
 }
 
+// Optional headless-browser fallback for feeds behind a Cloudflare/JS bot-challenge
+// (these fail every plain fetch regardless of IP; only a real browser gets through).
+// Opt in with USE_BROWSER=1 after: npm install playwright && npx playwright install chromium
+const USE_BROWSER = process.env.USE_BROWSER === "1";
+let _browser = null, _browserTried = false;
+async function getBrowser() {
+  if (!USE_BROWSER || _browserTried) return _browser;
+  _browserTried = true;
+  try {
+    const { chromium } = await import("playwright");
+    _browser = await chromium.launch();
+    console.log("+ browser fallback enabled (Playwright/Chromium)");
+  } catch (e) {
+    console.warn(`! USE_BROWSER=1 but Playwright isn't ready (${e.message}). Run: npm install playwright && npx playwright install chromium`);
+  }
+  return _browser;
+}
+async function getJSONviaBrowser(url) {
+  const b = await getBrowser();
+  if (!b) return null;
+  const ctx = await b.newContext({ userAgent: HEADERS["User-Agent"] });
+  const pg = await ctx.newPage();
+  try {
+    await pg.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
+    await pg.waitForTimeout(6000); // let a JS challenge resolve, then read the JSON body
+    const txt = await pg.evaluate(() => (document.body ? document.body.innerText : ""));
+    return JSON.parse(txt);
+  } catch {
+    return null;
+  } finally {
+    try { await ctx.close(); } catch {}
+  }
+}
+
 async function loadSource(s) {
   if (LOCAL) {
     if (!s.localSnapshot) { console.log(`· skip ${s.id} (no local snapshot)`); return []; }
     return JSON.parse(await readFile(new URL(`./lib/${s.localSnapshot}`, import.meta.url)));
   }
   try {
-    // National BMLT (aggregator): one unfiltered GetSearchResults returns all
-    // federated meetings. (Per-state province filtering returns nothing on tomato.)
+    // National BMLT (aggregator, e.g. tomato.na-bmlt.org): the unfiltered global pull is
+    // huge and non-US-heavy, so we instead sweep US regions asking for the nearest ~1000
+    // meetings around each point (geo_width negative = auto-expand until N found). dedupe()
+    // later removes overlaps. Broad point set → solid national US coverage.
     if (s.national && s.system === "bmlt") {
-      const rows = await getJSON(s.url);
-      if (Array.isArray(rows) && rows.length) return rows;
-      // Fallback: some servers need a geographic search — sweep a few big US regions.
-      const REGIONS = [[38.9,-77.0],[40.7,-74.0],[34.0,-118.2],[41.9,-87.6],[29.8,-95.4],[47.6,-122.3],[33.7,-84.4],[39.7,-104.9],[25.8,-80.2]];
+      const REGIONS = [
+        [38.90,-77.04],[40.71,-74.01],[42.36,-71.06],[39.95,-75.17],[33.75,-84.39],[25.76,-80.19],
+        [28.54,-81.38],[35.23,-80.84],[36.16,-86.78],[41.88,-87.63],[42.33,-83.05],[44.98,-93.27],
+        [39.10,-94.58],[29.76,-95.37],[32.78,-96.80],[30.27,-97.74],[39.74,-104.99],[40.76,-111.89],
+        [33.45,-112.07],[34.05,-118.24],[37.77,-122.42],[47.61,-122.33],[45.52,-122.68],[38.58,-121.49],
+        [29.95,-90.07],[36.17,-115.14],[21.31,-157.86],[61.22,-149.90],
+      ];
       const out = [];
       for (const [lat, lng] of REGIONS) {
-        try { const r = await getJSON(`${s.url}&lat_val=${lat}&long_val=${lng}&geo_width=-500`); if (Array.isArray(r)) out.push(...r); } catch {}
+        try { const r = await getJSON(`${s.url}&lat_val=${lat}&long_val=${lng}&geo_width=-1000`); if (Array.isArray(r)) out.push(...r); } catch {}
       }
       return out;
     }
     return await getJSON(s.url);
   } catch (e) {
+    // Plain fetch failed — try the browser fallback (Cloudflare/JS-challenged feeds).
+    const viaB = await getJSONviaBrowser(s.url);
+    if (Array.isArray(viaB) && viaB.length) { console.log(`  ↳ ${s.id} recovered via browser`); return viaB; }
     console.warn(`! ${s.id} failed (${e.message}) — skipping`);
     return [];
   }
@@ -101,3 +143,4 @@ const meetings = usable
 await writeFile(new URL("../public/data/meetings.json", import.meta.url), JSON.stringify(meetings, null, 2));
 const byFel = meetings.reduce((o, m) => ((o[m.fellowship] = (o[m.fellowship] || 0) + 1), o), {});
 console.log(`\nWrote ${meetings.length} meetings:`, byFel);
+if (_browser) { try { await _browser.close(); } catch {} }

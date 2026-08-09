@@ -13,7 +13,7 @@
 //    <link rel="alternate" type="application/json"> tag in its HTML <head>, or the
 //    TSML admin-ajax endpoint (…/wp-admin/admin-ajax.php?action=meetings).
 
-const BMLT_TOMATO = "https://tomato.bmlt.app/main_server/client_interface/json/?switcher=GetSearchResults"
+const BMLT_TOMATO = "https://tomato.na-bmlt.org/main_server/client_interface/json/?switcher=GetSearchResults"
   + "&data_field_key=meeting_name,weekday_tzid,start_time,duration_time,location_text,"
   + "location_street,location_municipality,location_province,latitude,longitude,formats,comments";
 
