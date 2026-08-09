@@ -37,6 +37,8 @@ body{background:
 .search-clear{border:0;background:var(--surface-2);color:var(--ink-soft);width:44px;height:44px;border-radius:12px;
   display:grid;place-items:center;cursor:pointer;flex:0 0 auto}
 .search-clear:hover{background:var(--line);color:var(--ink)}
+/* natural-language "reading:" hint under the search bar */
+.parse-hint{display:flex;align-items:center;gap:6px;margin:8px 2px 0;color:var(--brand-ink);font-size:13px;font-weight:700}
 
 /* Buttons */
 .btn{font-family:inherit;font-weight:750;font-size:17px;cursor:pointer;border:2px solid transparent;border-radius:16px;text-decoration:none;

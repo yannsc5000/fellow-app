@@ -18,7 +18,7 @@ export const typesenseAdapter = new TypesenseInstantSearchAdapter({
   // query text is matched against these fields
   additionalSearchParameters: {
     // include fellowship name + synonyms so "overeaters" finds OA, etc.
-    query_by: "name,place,address,notes,fellowship,fellowship_name,fellowship_terms",
+    query_by: "name,place,address,notes,fellowship,fellowship_name,fellowship_terms,types",
     sort_by: "day:asc,time:asc",   // flat chronological weekly order
   },
   geoLocationField: "_geoloc",

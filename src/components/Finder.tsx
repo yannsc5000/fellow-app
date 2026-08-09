@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   InstantSearch, Configure, useSearchBox, useRefinementList, useHits, useInstantSearch, useClearRefinements, useStats,
 } from "react-instantsearch";
@@ -8,6 +8,7 @@ import { searchClient } from "@/lib/typesense";
 import { COLLECTION } from "@/lib/schema";
 import { fellowshipName, fellowshipColor } from "@/lib/fellowships";
 import { CONTACT_EMAIL } from "@/lib/config";
+import { parseQuery, type Parsed } from "@/lib/parseQuery";
 import { Icon } from "./Icon";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { DetailMap } from "./DetailMap";
@@ -103,24 +104,34 @@ function AccessItem({ p, m, iconName }: { p: any; m: any; iconName: string }) {
   );
 }
 
-function SearchBox({ onNearMe }: { onNearMe: () => void }) {
-  const { query, refine } = useSearchBox();
+function SearchBox({ value, onChange, onClear, onSubmit }: {
+  value: string; onChange: (v: string) => void; onClear: () => void; onSubmit: () => void;
+}) {
   const inputRef = useRef<HTMLInputElement>(null);
   return (
     <div className="searchbar" role="search">
       <label htmlFor="q" style={{ position: "absolute", left: -9999 }}>Search meetings</label>
-      <input ref={inputRef} id="q" type="search" placeholder="Search a place, ZIP, group, or fellowship"
-        value={query} onChange={(e) => refine(e.currentTarget.value)} />
-      {query && (
-        <button type="button" className="search-clear" aria-label="Clear search" onClick={() => refine("")}>
+      <input ref={inputRef} id="q" type="search" placeholder="Try “Sunday morning AA” or “Boston”"
+        value={value} onChange={(e) => onChange(e.currentTarget.value)}
+        onKeyDown={(e) => { if (e.key === "Enter") { inputRef.current?.blur(); onSubmit(); } }} />
+      {value && (
+        <button type="button" className="search-clear" aria-label="Clear search" onClick={onClear}>
           <Icon name="close" size={18} />
         </button>
       )}
-      <button className="btn btn-near" aria-label="Find meetings" onClick={() => { inputRef.current?.blur(); if (!query.trim()) onNearMe(); }}>
+      <button className="btn btn-near" aria-label="Find meetings" onClick={() => { inputRef.current?.blur(); onSubmit(); }}>
         <Icon name="search" size={18} /> Find
       </button>
     </div>
   );
+}
+
+// Pushes the parsed free-text into InstantSearch's query. The visible input stays raw
+// (what the user typed); this drives the actual search with the residual text.
+function QueryDriver({ text }: { text: string }) {
+  const { query, refine } = useSearchBox();
+  useEffect(() => { if (query !== text) refine(text); }, [text]); // eslint-disable-line react-hooks/exhaustive-deps
+  return null;
 }
 
 function Toggle({ attribute, value, label }: { attribute: string; value: string; label: string }) {
@@ -270,27 +281,43 @@ type Place = { lat: number; lng: number; label: string } | null;
 const AREA_RADIUS_M = 80467; // ~50 miles — "in your area"
 const TODAY = new Date().getDay(); // 0=Sun..6=Sat
 
+// ZIP → coordinates (keyless). Used by the location control and natural-language ZIP.
+async function zipToPlace(zip: string): Promise<Place> {
+  try {
+    const r = await fetch(`https://api.zippopotam.us/us/${zip}`);
+    if (!r.ok) return null;
+    const d = await r.json();
+    const pl = d.places[0];
+    return { lat: Number(pl.latitude), lng: Number(pl.longitude), label: zip };
+  } catch { return null; }
+}
+
 // Applies the area filter. We filter to a radius around the chosen location for
 // in-person browsing; online meetings are location-agnostic, so when "Online" is
 // active we don't constrain by distance (the adapter also requires a radius whenever
 // aroundLatLng is set, so this is the one Configure that owns geo).
-function GeoConfigure({ place, startsSoon }: { place: Place; startsSoon: boolean }) {
+function GeoConfigure({ place, startsSoon, parsed }: { place: Place; startsSoon: boolean; parsed: Parsed }) {
   const { items } = useRefinementList({ attribute: "online" });
-  const { query } = useSearchBox();
   const onlineOnly = items.some((i) => i.value === "true" && i.isRefined);
-  const searching = !!query.trim();
   // Only constrain to the "near me" radius while BROWSING. When the user is actively
-  // searching (e.g. a city name like "Boston"), drop the radius so the query finds
-  // matches anywhere — otherwise results get clipped to their home area.
+  // searching free text (e.g. a city like "Boston"), drop the radius so the query finds
+  // matches anywhere. A pure day/time query (e.g. "sunday morning") keeps the radius.
+  const searching = !!parsed.text.trim();
   const geo = place && !onlineOnly && !searching
     ? { aroundLatLng: `${place.lat},${place.lng}`, aroundRadius: AREA_RADIUS_M }
     : {};
-  // "Starts soon": today's meetings whose start time is within [-20, +90] minutes of now.
+  // Time filters: "Starts soon" (next 90 min today) takes precedence; otherwise apply the
+  // day + time-of-day parsed from the query. Both map to the indexed `minutes` field.
   let numericFilters: string[] | undefined;
   if (startsSoon) {
     const now = new Date();
     const nowMin = now.getHours() * 60 + now.getMinutes();
     numericFilters = [`day=${now.getDay()}`, `minutes>=${Math.max(0, nowMin - 20)}`, `minutes<=${Math.min(1439, nowMin + 90)}`];
+  } else {
+    const nf: string[] = [];
+    if (parsed.day != null) nf.push(`day=${parsed.day}`);
+    if (parsed.window) nf.push(`minutes>=${parsed.window.lo}`, `minutes<=${parsed.window.hi}`);
+    if (nf.length) numericFilters = nf;
   }
   return <Configure hitsPerPage={100} {...geo} {...(numericFilters ? { numericFilters } : {})} />;
 }
@@ -355,6 +382,9 @@ export default function Finder() {
   const [selected, setSelected] = useState<any>(null);
   const [located, setLocated] = useState(false); // already tried device location?
   const [startsSoon, setStartsSoon] = useState(false);
+  const [raw, setRaw] = useState("");                       // exactly what the user typed
+  const parsed = useMemo(() => parseQuery(raw), [raw]);     // → filters + residual text
+  const nearMeRef = useRef(false);
 
   // Best-effort, keyless reverse geocode so the button can show the user's ZIP.
   async function labelFor(lat: number, lng: number): Promise<string> {
@@ -386,12 +416,32 @@ export default function Finder() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Natural-language "near me" in the query → use device location (once per phrase).
+  useEffect(() => {
+    if (parsed.nearMe && !nearMeRef.current) { nearMeRef.current = true; nearMe(); }
+    if (!parsed.nearMe) nearMeRef.current = false;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [parsed.nearMe]);
+  // Natural-language ZIP in the query → center on that ZIP.
+  useEffect(() => {
+    if (!parsed.zip) return;
+    let cancelled = false;
+    zipToPlace(parsed.zip).then((p) => { if (!cancelled && p) setPlace(p); });
+    return () => { cancelled = true; };
+  }, [parsed.zip]);
+
   const user = place ? { lat: place.lat, lng: place.lng } : null;
 
   return (
     <InstantSearch searchClient={searchClient} indexName={COLLECTION} future={{ preserveSharedStateOnUnmount: true }}>
-      <GeoConfigure place={place} startsSoon={startsSoon} />
-      <SearchBox onNearMe={nearMe} />
+      <GeoConfigure place={place} startsSoon={startsSoon} parsed={parsed} />
+      <QueryDriver text={parsed.text} />
+      <SearchBox value={raw} onChange={setRaw} onClear={() => setRaw("")} onSubmit={() => { if (!raw.trim()) nearMe(); }} />
+      {parsed.labels.length > 0 && (
+        <div className="parse-hint">
+          <Icon name="search" size={13} /> Reading: {parsed.labels.join(" · ")}{parsed.text ? ` · “${parsed.text}”` : ""}
+        </div>
+      )}
 
       <FellowshipChips />
       <div className="filter-row" role="group" aria-label="Day, type and format">
@@ -422,14 +472,13 @@ export default function Finder() {
         </ErrorBoundary>
       )}
 
-      {selected && <MeetingSheet m={selected} onClose={() => setSelected(null)} />}
+      {selected && <MeetingSheet m={selected} onClose={() => setSelected(null)} onSeeAll={setRaw} />}
     </InstantSearch>
   );
 }
 
-function MeetingSheet({ m, onClose }: { m: any; onClose: () => void }) {
+function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => void; onSeeAll: (q: string) => void }) {
   const t = to12(m.time);
-  const { refine } = useSearchBox();
   const panelRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
   // A11y: move focus into the dialog on open and close it with Escape.
@@ -459,7 +508,7 @@ function MeetingSheet({ m, onClose }: { m: any; onClose: () => void }) {
   const mapsAddr = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((m.place ? m.place + ", " : "") + m.address)}`;
   const correctionBody = `Meeting: ${m.name}\nWhen: ${DAYS[m.day]} ${t.hh} ${t.ap}\n${m.online ? "Online meeting" : [m.place, m.address].filter(Boolean).join(", ")}\nFellowship: ${m.fellowship}\n\nWhat needs fixing?\n`;
   const correctionHref = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Fellow correction: " + m.name)}&body=${encodeURIComponent(correctionBody)}`;
-  const seeAll = (q: string) => { refine(q); onClose(); };
+  const seeAll = (q: string) => { onSeeAll(q); onClose(); };
   return (
     <div role="dialog" aria-modal aria-label={m.name} className="sheet-overlay"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
