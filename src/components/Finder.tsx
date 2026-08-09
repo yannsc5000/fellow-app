@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import {
-  InstantSearch, Configure, useSearchBox, useRefinementList, useHits, useInstantSearch, useClearRefinements,
+  InstantSearch, Configure, useSearchBox, useRefinementList, useHits, useInstantSearch, useClearRefinements, useStats,
 } from "react-instantsearch";
 import dynamic from "next/dynamic";
 import { searchClient } from "@/lib/typesense";
@@ -105,17 +105,20 @@ function AccessItem({ p, m, iconName }: { p: any; m: any; iconName: string }) {
 
 function SearchBox({ onNearMe }: { onNearMe: () => void }) {
   const { query, refine } = useSearchBox();
+  const inputRef = useRef<HTMLInputElement>(null);
   return (
     <div className="searchbar" role="search">
       <label htmlFor="q" style={{ position: "absolute", left: -9999 }}>Search meetings</label>
-      <input id="q" type="search" placeholder="Search meetings, places, or ZIP"
+      <input ref={inputRef} id="q" type="search" placeholder="Search a place, ZIP, group, or fellowship"
         value={query} onChange={(e) => refine(e.currentTarget.value)} />
       {query && (
         <button type="button" className="search-clear" aria-label="Clear search" onClick={() => refine("")}>
           <Icon name="close" size={18} />
         </button>
       )}
-      <button className="btn btn-near" onClick={onNearMe}><Icon name="nearme" size={18} /> Near me</button>
+      <button className="btn btn-near" aria-label="Find meetings" onClick={() => { inputRef.current?.blur(); if (!query.trim()) onNearMe(); }}>
+        <Icon name="search" size={18} /> Find
+      </button>
     </div>
   );
 }
@@ -273,8 +276,13 @@ const TODAY = new Date().getDay(); // 0=Sun..6=Sat
 // aroundLatLng is set, so this is the one Configure that owns geo).
 function GeoConfigure({ place, startsSoon }: { place: Place; startsSoon: boolean }) {
   const { items } = useRefinementList({ attribute: "online" });
+  const { query } = useSearchBox();
   const onlineOnly = items.some((i) => i.value === "true" && i.isRefined);
-  const geo = place && !onlineOnly
+  const searching = !!query.trim();
+  // Only constrain to the "near me" radius while BROWSING. When the user is actively
+  // searching (e.g. a city name like "Boston"), drop the radius so the query finds
+  // matches anywhere — otherwise results get clipped to their home area.
+  const geo = place && !onlineOnly && !searching
     ? { aroundLatLng: `${place.lat},${place.lng}`, aroundRadius: AREA_RADIUS_M }
     : {};
   // "Starts soon": today's meetings whose start time is within [-20, +90] minutes of now.
@@ -335,6 +343,12 @@ function LocationControl({ place, onZip, onNearMe, onClear }:
   );
 }
 
+function ResultsCount({ place, startsSoon }: { place: Place; startsSoon: boolean }) {
+  const { nbHits } = useStats();
+  const suffix = startsSoon ? " starting soon" : place ? ` near ${place.label}` : "";
+  return <div className="count-line" aria-live="polite">{nbHits.toLocaleString()} meeting{nbHits === 1 ? "" : "s"}{suffix}</div>;
+}
+
 export default function Finder() {
   const [view, setView] = useState<"list" | "map">("list"); // list default; Near me → map
   const [place, setPlace] = useState<Place>(null);
@@ -391,6 +405,7 @@ export default function Finder() {
         <Toggle attribute="online" value="true" label="Online" />
       </div>
 
+      <ResultsCount place={place} startsSoon={startsSoon} />
       <div className="results-head">
         <LocationControl place={place} onZip={setPlace} onNearMe={nearMe} onClear={() => setPlace(null)} />
         <div className="seg" role="group" aria-label="View">

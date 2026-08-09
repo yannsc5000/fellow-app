@@ -77,6 +77,7 @@ body{background:
 /* Results head + location */
 .results-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;flex-wrap:wrap}
 .results-count{font-weight:800}
+.count-line{font-weight:850;font-size:16px;padding:10px 2px 2px;color:var(--ink)}
 .loc-btn{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:2px solid var(--line);
   border-radius:14px;padding:8px 14px;min-height:44px;font-family:inherit;font-weight:750;font-size:15px;color:var(--ink);cursor:pointer;box-shadow:var(--shadow-sm)}
 .loc-btn:hover{border-color:var(--brand)}
