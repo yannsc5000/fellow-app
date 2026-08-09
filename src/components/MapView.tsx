@@ -1,8 +1,9 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useGeoSearch } from "react-instantsearch";
+import { DetailMap } from "./DetailMap";
 
 // Basemap: use MapTiler (vector) when NEXT_PUBLIC_MAPTILER_KEY is set (production),
 // otherwise fall back to OpenStreetMap raster tiles (fine for local/dev).
@@ -29,6 +30,7 @@ export default function MapView({ onOpen }: { onOpen: (m: any) => void }) {
   const map = useRef<maplibregl.Map | null>(null);
   const markers = useRef<maplibregl.Marker[]>([]);
   const { items } = useGeoSearch();
+  const [focused, setFocused] = useState<any>(null); // pin tapped → preview card w/ Map/Street toggle
 
   useEffect(() => {
     if (!el.current || map.current) return;
@@ -66,13 +68,30 @@ export default function MapView({ onOpen }: { onOpen: (m: any) => void }) {
       const dot = document.createElement("button");
       dot.setAttribute("aria-label", hit.name);
       dot.style.cssText = "width:26px;height:26px;border-radius:50% 50% 50% 4px;transform:rotate(45deg);background:#0f766e;border:3px solid #fff;cursor:pointer";
-      dot.onclick = () => onOpen(hit);
+      dot.onclick = () => setFocused({ ...hit, lat, lng });
       const mk = new maplibregl.Marker({ element: dot }).setLngLat([lng, lat]).addTo(map.current!);
       markers.current.push(mk);
       bounds.extend([lng, lat]);
     });
     if (!bounds.isEmpty()) map.current.fitBounds(bounds, { padding: 48, maxZoom: 14 });
-  }, [items, onOpen]);
+  }, [items]);
 
-  return <div className="map-wrap" ref={el} aria-label="Map of meetings" role="application" />;
+  return (
+    <div className="map-wrap-wrap">
+      <div className="map-wrap" ref={el} aria-label="Map of meetings" role="application" />
+      {focused && (
+        <div className="map-focus-card">
+          <div className="mfc-head">
+            <strong>{focused.name}</strong>
+            <button className="close-x" aria-label="Close" onClick={() => setFocused(null)}>✕</button>
+          </div>
+          <div className="mfc-sub">{focused.place || focused.address}</div>
+          <DetailMap m={focused} defaultMode="map" height={160} />
+          <button className="btn btn-soft" style={{ marginTop: 10, width: "100%" }} onClick={() => onOpen(focused)}>
+            Full details
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }

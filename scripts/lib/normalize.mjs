@@ -46,15 +46,22 @@ function labelTypes(codes, map) {
 }
 
 // ---- enrichment: transit + parking (Maps-linkable "nearest") ----
+// NOTE: the bundled station list is DC-only (WMATA). Only attach a rail item when a
+// station is genuinely near the meeting (<= ~20 mi); otherwise we'd anchor non-DC
+// meetings to a DC station. For true national rail, wire GTFS (see scripts/lib/gtfs.mjs).
+const RAIL_NEAR_MI = 20;
 function enrich(m) {
   if (m.online || m.lat == null) return m;
+  const transit = [];
   const st = nearestStation(m.lat, m.lng);
-  m.transit = [
-    { k:'metro', t:`${st.name} · ${st.lines}`, d:`${st.d.toFixed(1)} mi to station`,
-      q:`${st.name} Metro Station`, slat:st.lat, slng:st.lng },
-    { k:'bus', t:'Bus stops nearby', d:'View routes & stops', q:`bus stop near ${m.address}` },
-    { k:'bike', t:'Capital Bikeshare nearby', d:'Docks & e-bikes', q:`Capital Bikeshare near ${m.address}` },
-  ];
+  if (st && st.d <= RAIL_NEAR_MI) {
+    transit.push({ k:'metro', t:`${st.name} · ${st.lines}`, d:`${st.d.toFixed(1)} mi to station`,
+      q:`${st.name} Metro Station`, slat:st.lat, slng:st.lng });
+  }
+  // Generic, location-correct anywhere (Maps resolves relative to the meeting address):
+  transit.push({ k:'bus', t:'Bus stops nearby', d:'View routes & stops', q:`bus stop near ${m.address}` });
+  transit.push({ k:'bike', t:'Bikeshare nearby', d:'Docks & e-bikes', q:`bike share near ${m.address}` });
+  m.transit = transit;
   m.parking = [
     { k:'garage', t:'Parking near here', d:'Garages & lots', q:`parking near ${m.address}` },
     { k:'street', t:'Street parking', d:'On-street nearby', q:`street parking near ${m.address}` },

@@ -55,9 +55,9 @@
       },
       {
         "k": "bike",
-        "t": "Capital Bikeshare nearby",
+        "t": "Bikeshare nearby",
         "d": "Docks & e-bikes",
-        "q": "Capital Bikeshare near 7611 Clarendon Rd, Bethesda, MD 20814, USA"
+        "q": "bike share near 7611 Clarendon Rd, Bethesda, MD 20814, USA"
       }
     ],
     "parking": [
@@ -112,9 +112,9 @@
       },
       {
         "k": "bike",
-        "t": "Capital Bikeshare nearby",
+        "t": "Bikeshare nearby",
         "d": "Docks & e-bikes",
-        "q": "Capital Bikeshare near 1035 Lamont St NW, Washington, DC 20010, USA"
+        "q": "bike share near 1035 Lamont St NW, Washington, DC 20010, USA"
       }
     ],
     "parking": [
@@ -168,9 +168,9 @@
       },
       {
         "k": "bike",
-        "t": "Capital Bikeshare nearby",
+        "t": "Bikeshare nearby",
         "d": "Docks & e-bikes",
-        "q": "Capital Bikeshare near 6810 Eastern Ave NW, Washington, DC 20012, USA"
+        "q": "bike share near 6810 Eastern Ave NW, Washington, DC 20012, USA"
       }
     ],
     "parking": [
@@ -224,9 +224,9 @@
       },
       {
         "k": "bike",
-        "t": "Capital Bikeshare nearby",
+        "t": "Bikeshare nearby",
         "d": "Docks & e-bikes",
-        "q": "Capital Bikeshare near 1341 Wisconsin Ave NW, Washington, DC 20007, USA"
+        "q": "bike share near 1341 Wisconsin Ave NW, Washington, DC 20007, USA"
       }
     ],
     "parking": [
@@ -281,9 +281,9 @@
       },
       {
         "k": "bike",
-        "t": "Capital Bikeshare nearby",
+        "t": "Bikeshare nearby",
         "d": "Docks & e-bikes",
-        "q": "Capital Bikeshare near 1623 Connecticut Ave NW, Washington, DC 20009, USA"
+        "q": "bike share near 1623 Connecticut Ave NW, Washington, DC 20009, USA"
       }
     ],
     "parking": [
@@ -338,9 +338,9 @@
       },
       {
         "k": "bike",
-        "t": "Capital Bikeshare nearby",
+        "t": "Bikeshare nearby",
         "d": "Docks & e-bikes",
-        "q": "Capital Bikeshare near 4027 13th St NW, Washington, DC 20011, USA"
+        "q": "bike share near 4027 13th St NW, Washington, DC 20011, USA"
       }
     ],
     "parking": [
@@ -396,9 +396,9 @@
       },
       {
         "k": "bike",
-        "t": "Capital Bikeshare nearby",
+        "t": "Bikeshare nearby",
         "d": "Docks & e-bikes",
-        "q": "Capital Bikeshare near 1623 Connecticut Ave NW, Washington, DC 20009, USA"
+        "q": "bike share near 1623 Connecticut Ave NW, Washington, DC 20009, USA"
       }
     ],
     "parking": [
@@ -453,9 +453,9 @@
       },
       {
         "k": "bike",
-        "t": "Capital Bikeshare nearby",
+        "t": "Bikeshare nearby",
         "d": "Docks & e-bikes",
-        "q": "Capital Bikeshare near 617 Rhode Island Ave NE, Washington, DC 20002, USA"
+        "q": "bike share near 617 Rhode Island Ave NE, Washington, DC 20002, USA"
       }
     ],
     "parking": [
@@ -510,9 +510,9 @@
       },
       {
         "k": "bike",
-        "t": "Capital Bikeshare nearby",
+        "t": "Bikeshare nearby",
         "d": "Docks & e-bikes",
-        "q": "Capital Bikeshare near 212 East Capitol St NE, Washington, DC 20003, USA"
+        "q": "bike share near 212 East Capitol St NE, Washington, DC 20003, USA"
       }
     ],
     "parking": [
@@ -567,9 +567,9 @@
       },
       {
         "k": "bike",
-        "t": "Capital Bikeshare nearby",
+        "t": "Bikeshare nearby",
         "d": "Docks & e-bikes",
-        "q": "Capital Bikeshare near 1623 Connecticut Ave NW, Washington, DC"
+        "q": "bike share near 1623 Connecticut Ave NW, Washington, DC"
       }
     ],
     "parking": [
@@ -623,9 +623,9 @@
       },
       {
         "k": "bike",
-        "t": "Capital Bikeshare nearby",
+        "t": "Bikeshare nearby",
         "d": "Docks & e-bikes",
-        "q": "Capital Bikeshare near 2430 K St NW, Washington, DC 20037, USA"
+        "q": "bike share near 2430 K St NW, Washington, DC 20037, USA"
       }
     ],
     "parking": [
@@ -680,9 +680,9 @@
       },
       {
         "k": "bike",
-        "t": "Capital Bikeshare nearby",
+        "t": "Bikeshare nearby",
         "d": "Docks & e-bikes",
-        "q": "Capital Bikeshare near 1701 7th St NW, Washington, DC 20001, USA"
+        "q": "bike share near 1701 7th St NW, Washington, DC 20001, USA"
       }
     ],
     "parking": [
@@ -737,9 +737,9 @@
       },
       {
         "k": "bike",
-        "t": "Capital Bikeshare nearby",
+        "t": "Bikeshare nearby",
         "d": "Docks & e-bikes",
-        "q": "Capital Bikeshare near 1701 7th St NW, Washington, DC"
+        "q": "bike share near 1701 7th St NW, Washington, DC"
       }
     ],
     "parking": [
@@ -794,9 +794,9 @@
       },
       {
         "k": "bike",
-        "t": "Capital Bikeshare nearby",
+        "t": "Bikeshare nearby",
         "d": "Docks & e-bikes",
-        "q": "Capital Bikeshare near 1333 H St NE, Washington, DC 20002, USA"
+        "q": "bike share near 1333 H St NE, Washington, DC 20002, USA"
       }
     ],
     "parking": [
@@ -850,9 +850,9 @@
       },
       {
         "k": "bike",
-        "t": "Capital Bikeshare nearby",
+        "t": "Bikeshare nearby",
         "d": "Docks & e-bikes",
-        "q": "Capital Bikeshare near 1800 Good Hope Rd SE, Washington, DC"
+        "q": "bike share near 1800 Good Hope Rd SE, Washington, DC"
       }
     ],
     "parking": [
@@ -906,9 +906,9 @@
       },
       {
         "k": "bike",
-        "t": "Capital Bikeshare nearby",
+        "t": "Bikeshare nearby",
         "d": "Docks & e-bikes",
-        "q": "Capital Bikeshare near 1041 Wisconsin Ave NW, Washington, DC 20007, USA"
+        "q": "bike share near 1041 Wisconsin Ave NW, Washington, DC 20007, USA"
       }
     ],
     "parking": [
@@ -963,9 +963,9 @@
       },
       {
         "k": "bike",
-        "t": "Capital Bikeshare nearby",
+        "t": "Bikeshare nearby",
         "d": "Docks & e-bikes",
-        "q": "Capital Bikeshare near 212 S Washington St, Alexandria, VA 22314, USA"
+        "q": "bike share near 212 S Washington St, Alexandria, VA 22314, USA"
       }
     ],
     "parking": [
@@ -1019,9 +1019,9 @@
       },
       {
         "k": "bike",
-        "t": "Capital Bikeshare nearby",
+        "t": "Bikeshare nearby",
         "d": "Docks & e-bikes",
-        "q": "Capital Bikeshare near 3910 Lorcom Ln, Arlington, VA 22207, USA"
+        "q": "bike share near 3910 Lorcom Ln, Arlington, VA 22207, USA"
       }
     ],
     "parking": [
