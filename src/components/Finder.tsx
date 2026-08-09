@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   InstantSearch, Configure, useSearchBox, useRefinementList, useHits, useInstantSearch, useClearRefinements,
 } from "react-instantsearch";
@@ -360,6 +360,14 @@ export default function Finder() {
 function MeetingSheet({ m, onClose }: { m: any; onClose: () => void }) {
   const t = to12(m.time);
   const { refine } = useSearchBox();
+  const panelRef = useRef<HTMLDivElement>(null);
+  // A11y: move focus into the dialog on open and close it with Escape.
+  useEffect(() => {
+    panelRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
   const transit = m.transit_json ? JSON.parse(m.transit_json) : [];
   const parking = m.parking_json ? JSON.parse(m.parking_json) : [];
   const mapsAddr = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((m.place ? m.place + ", " : "") + m.address)}`;
@@ -367,7 +375,7 @@ function MeetingSheet({ m, onClose }: { m: any; onClose: () => void }) {
   return (
     <div role="dialog" aria-modal aria-label={m.name} className="sheet-overlay"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="sheet-panel" style={{ ["--fc" as any]: fellowshipColor(m.fellowship) }}>
+      <div className="sheet-panel" ref={panelRef} tabIndex={-1} style={{ ["--fc" as any]: fellowshipColor(m.fellowship), outline: "none" }}>
         <h2>{m.name}</h2>
         <div><span className="when"><Icon name="calmonth" size={16} /> {DAYS[m.day]}, {t.hh} {t.ap}</span></div>
         <div className="sheet-addr">
@@ -383,8 +391,8 @@ function MeetingSheet({ m, onClose }: { m: any; onClose: () => void }) {
             </button>
           )}
         </div>
-        <DetailMap m={m} defaultMode="map" />
         {m.notes && <p className="notes-block">{m.notes}</p>}
+        <DetailMap m={m} defaultMode="map" />
         {!m.online && (transit.length > 0 || parking.length > 0) && (
           <div className="access-grid">
             {transit.length > 0 && (

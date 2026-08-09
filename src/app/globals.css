@@ -34,7 +34,7 @@ body{background:
 .searchbar input::placeholder{color:#9a948b}
 .searchbar input:focus{outline:none}
 .searchbar input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
-.search-clear{border:0;background:var(--surface-2);color:var(--ink-soft);width:40px;height:40px;border-radius:12px;
+.search-clear{border:0;background:var(--surface-2);color:var(--ink-soft);width:44px;height:44px;border-radius:12px;
   display:grid;place-items:center;cursor:pointer;flex:0 0 auto}
 .search-clear:hover{background:var(--line);color:var(--ink)}
 
@@ -45,8 +45,8 @@ body{background:
 .btn-soft:hover{background:color-mix(in srgb, var(--brand) 22%, var(--surface))}
 .btn-primary{background:var(--brand);color:#fff}
 .btn-fc{background:var(--fc,var(--brand));color:#fff;border:0}
-.btn-near{color:#fff;border:0;background:linear-gradient(135deg,#ff9a3d 0%,#f97316 50%,#ea580c 100%);
-  box-shadow:0 5px 14px rgba(234,88,12,.32);text-shadow:0 1px 1px rgba(120,40,0,.30);flex:0 0 auto;font-size:15px}
+.btn-near{color:#fff;border:0;background:linear-gradient(135deg,#cb4a0a 0%,#c2410c 55%,#9a3412 100%);
+  box-shadow:0 5px 14px rgba(194,65,12,.34);flex:0 0 auto;font-size:15px}
 .btn-ghost{background:var(--surface);color:var(--ink);border-color:var(--line)}
 
 /* Chip rows */
@@ -164,3 +164,20 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .map-focus-card .mfc-sub{color:var(--ink-soft);font-size:14px;margin:2px 0 4px}
 .map-focus-card .close-x{border:0;background:var(--surface-2);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;flex:0 0 auto}
 .notes-block{background:var(--surface-2);border:1px solid var(--line);padding:16px;border-radius:14px}
+
+/* About / prose page */
+.prose{max-width:760px;line-height:1.65}
+.prose h1{font-size:30px;font-weight:850;letter-spacing:-.02em;margin:6px 0 14px}
+.prose h2{font-size:21px;font-weight:800;margin:30px 0 8px}
+.prose h3{font-size:17px;font-weight:800;margin:22px 0 6px}
+.prose p{margin:10px 0}
+.prose ul{margin:10px 0;padding-left:22px}
+.prose li{margin:8px 0}
+.prose a{color:var(--brand-ink);font-weight:650;text-underline-offset:3px}
+.prose .back{display:inline-block;font-weight:750;text-decoration:none;color:var(--brand-ink)}
+.prose .back:hover{text-decoration:underline}
+/* Footer */
+.site-footer{margin-top:40px;padding:22px 0 8px;border-top:1px solid var(--line);color:var(--ink-soft);font-size:14px;line-height:1.6}
+.site-footer p{margin:6px 0}
+.site-footer a{color:var(--brand-ink);font-weight:700;text-decoration:none}
+.site-footer a:hover{text-decoration:underline;text-underline-offset:3px}

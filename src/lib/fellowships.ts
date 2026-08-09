@@ -45,12 +45,12 @@ export const fellowshipName = (code: string) => BY_CODE[code]?.name || code;
 // color hints at the category; unknown codes fall back to a neutral stone.
 export const FELLOWSHIP_COLORS: Record<string, string> = {
   AA: "#4F46E5",
-  NA: "#0D9488", CA: "#0369A1", CMA: "#7C3AED", MA: "#15803D", HA: "#BE123C", NicA: "#0E7490", PA: "#4338CA",
-  OA: "#EA580C", EDA: "#B45309", FAIR: "#92400E", FAA: "#78350F",
+  NA: "#0D7D71", CA: "#0369A1", CMA: "#7C3AED", MA: "#15803D", HA: "#BE123C", NicA: "#0E7490", PA: "#4338CA",
+  OA: "#C2410C", EDA: "#B45309", FAIR: "#92400E", FAA: "#78350F",
   SLAA: "#E11D48", SAA: "#DB2777", SA: "#BE185D", SCA: "#C026D3", SRA: "#9333EA", SIA: "#7E22CE", COSLAA: "#A21CAF",
-  DA: "#0F766E", UA: "#047857", WA: "#0891B2", CLA: "#6D28D9",
+  DA: "#0F766E", UA: "#047857", WA: "#0B6E8C", CLA: "#6D28D9",
   EA: "#2563EB", GA: "#DC2626",
-  CoDA: "#0284C7", ACA: "#1D4ED8", "Al-Anon": "#075985", Alateen: "#155E75",
+  CoDA: "#0670A8", ACA: "#1D4ED8", "Al-Anon": "#075985", Alateen: "#155E75",
   "Nar-Anon": "#1E40AF", "Gam-Anon": "#3730A3", "Co-Anon": "#5B21B6", FA: "#6D28D9",
 };
 export const fellowshipColor = (code: string) => FELLOWSHIP_COLORS[code] || "#57534E";

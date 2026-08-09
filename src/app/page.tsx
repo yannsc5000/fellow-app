@@ -15,6 +15,13 @@ export default function Page() {
         </div>
       </header>
       <Finder />
+      <footer className="site-footer">
+        <p>
+          Fellow is an independent, non-commercial project — not affiliated with any 12-step
+          fellowship. Meeting data comes from public intergroup feeds.
+        </p>
+        <p><a href="/about">About &amp; sources</a> · <a href="/about#privacy">Privacy &amp; anonymity</a></p>
+      </footer>
     </main>
   );
 }

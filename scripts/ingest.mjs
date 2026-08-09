@@ -129,13 +129,19 @@ if (GEOCODE) {
   console.log(`+ geocoded ${filled}/${attempted} meetings missing coordinates`);
 }
 
-// Drop records without a usable day + time (some national feeds have malformed rows),
-// then sort defensively so one bad value can't crash the run.
-const usable = dedupe(all).filter(
-  (m) => Number.isInteger(m.day) && m.day >= 0 && m.day <= 6 && typeof m.time === "string" && /^\d{1,2}:\d{2}/.test(m.time)
-);
-const dropped = all.length - usable.length;
-if (dropped > 0) console.log(`· dropped ${dropped} records missing a valid day/time`);
+// Drop records we can't show honestly: bad/missing day, missing name, or a missing/
+// placeholder time. Feeds commonly emit "00:00" when a meeting has no scheduled time,
+// which would surface as a misleading "12:00 AM" — so we treat 00:00 as unknown and drop
+// it. Then sort defensively so one bad value can't crash the run.
+const deduped = dedupe(all);
+const validDay = (m) => Number.isInteger(m.day) && m.day >= 0 && m.day <= 6;
+const validTime = (m) => typeof m.time === "string" && /^\d{1,2}:\d{2}/.test(m.time) && m.time.slice(0, 5) !== "00:00";
+const validName = (m) => !!(m.name && String(m.name).trim());
+const usable = deduped.filter((m) => validDay(m) && validTime(m) && validName(m));
+const midnight = deduped.filter((m) => typeof m.time === "string" && m.time.slice(0, 5) === "00:00").length;
+const noName = deduped.filter((m) => !validName(m)).length;
+const dropped = deduped.length - usable.length;
+if (dropped > 0) console.log(`· dropped ${dropped} records — ${midnight} placeholder 00:00 time, ${noName} missing name, rest missing a valid day/time`);
 const meetings = usable
   .sort((a, b) => (a.day - b.day) || String(a.time).localeCompare(String(b.time)))
   .map((m, i) => ({ ...m, id: String(i + 1) }));
