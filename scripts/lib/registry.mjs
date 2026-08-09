@@ -81,4 +81,17 @@ export const SOURCES = [
   // (~150 meetings) and conveniently covers PA/NJ/DE/MD/VA/DC. NY is a candidate.
   { id: "slaa-dvi", fellowship: "SLAA", system: "meeting-guide", area: "SLAA Greater Delaware Valley (PA/NJ/DE/MD/VA/DC)", url: "https://slaadvi.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "slaa-ny",  fellowship: "SLAA", system: "meeting-guide", area: "SLAA New York",                                 url: "https://www.slaany.org/wp-admin/admin-ajax.php?action=meetings" },
+  // EDA — Eating Disorders Anonymous. National TSML feed VERIFIED (~100 meetings).
+  { id: "eda-national", fellowship: "EDA", system: "meeting-guide", area: "Eating Disorders Anonymous (national)", url: "https://eatingdisordersanonymous.org/wp-admin/admin-ajax.php?action=meetings" },
+  // Al-Anon — national site is closed, but state intergroups run TSML. GA + PA VERIFIED
+  // (~150 / ~100). Alateen meetings are included within these feeds (tagged), so they
+  // surface under Al-Anon rather than as a separate source (avoids double-pull dupes).
+  { id: "alanon-ga", fellowship: "Al-Anon", system: "meeting-guide", area: "Georgia Al-Anon",       url: "https://www.ga-al-anon.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "alanon-pa", fellowship: "Al-Anon", system: "meeting-guide", area: "Pennsylvania Al-Anon",  url: "https://pa-al-anon.org/wp-admin/admin-ajax.php?action=meetings" },
+  // CANDIDATES — confirmed TSML (12_step_meeting_list meta tag) but WAF/robots-blocked
+  // from the sandbox; pull fine from CI. DA source is DC-area (double-down bonus).
+  { id: "da-dc",           fellowship: "DA",       system: "meeting-guide", area: "Capital Area Debtors Anonymous (Washington DC)", url: "https://debtorsanonymousdc.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "ua-national",     fellowship: "UA",       system: "meeting-guide", area: "Underearners Anonymous (national)",              url: "https://www.underearnersanonymous.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aca-az",          fellowship: "ACA",      system: "meeting-guide", area: "ACA Arizona Intergroup",                         url: "https://aca-arizona.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "naranon-national",fellowship: "Nar-Anon", system: "meeting-guide", area: "Nar-Anon Family Groups (national)",             url: "https://nar-anon.org/wp-admin/admin-ajax.php?action=meetings" },
 ];

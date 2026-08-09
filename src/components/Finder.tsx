@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   InstantSearch, Configure, useSearchBox, useRefinementList, useHits, useInstantSearch, useClearRefinements,
 } from "react-instantsearch";
@@ -30,12 +30,16 @@ function haversineMi(aLat: number, aLng: number, bLat: number, bLng: number) {
   const s = Math.sin(dLat / 2) ** 2 + Math.cos(r(aLat)) * Math.cos(r(bLat)) * Math.sin(dLng / 2) ** 2;
   return R * 2 * Math.asin(Math.sqrt(s));
 }
-function walkText(p: any, m: any) {
-  let mi: number;
-  if (p.slat != null && m.lat != null) mi = haversineMi(m.lat, m.lng, p.slat, p.slng) * 1.25;
-  else { const demo: Record<string, number> = { bus: 0.1, bike: 0.2, train: 0.5, garage: 0.2, street: 0.06, zone: 0.1, free: 0.05 }; mi = demo[p.k] ?? 0.1; }
-  const min = Math.max(1, Math.round(mi * 20));
-  return `Approx walking distance: ${min} min · ${mi.toFixed(mi < 0.1 ? 2 : 1)} mi`;
+// Only show a walking distance when we actually have the amenity's own coordinates
+// (currently just real transit stations, e.g. WMATA). Everything else is a live Google
+// Maps *search*, so we show its honest description — never a fabricated distance.
+function accessSubtitle(p: any, m: any) {
+  if (p.slat != null && p.slng != null && m.lat != null && m.lng != null) {
+    const mi = haversineMi(m.lat, m.lng, p.slat, p.slng) * 1.25;
+    const min = Math.max(1, Math.round(mi * 20));
+    return `Approx walking distance: ${min} min · ${mi.toFixed(mi < 0.1 ? 2 : 1)} mi`;
+  }
+  return p.d || "Search on Google Maps";
 }
 const T_ICON: Record<string, string> = { metro: "subway", train: "subway", bus: "bus", bike: "bike", streetcar: "tram" };
 const P_ICON: Record<string, string> = { garage: "parking", street: "route", zone: "signpost", free: "parking" };
@@ -65,7 +69,7 @@ function AccessItem({ p, m, iconName }: { p: any; m: any; iconName: string }) {
   return (
     <a className="park-item" href={href} target="_blank" rel="noopener" aria-label={`Directions from ${p.t} to ${m.place || m.address}`}>
       <span className="pico" style={picoStyle(p)}><Icon name={iconName} size={20} /></span>
-      <span><span className="pt">{p.t}</span><span className="pd">{walkText(p, m)}</span></span>
+      <span><span className="pt">{p.t}</span><span className="pd">{accessSubtitle(p, m)}</span></span>
       <Icon name="chevron" size={20} className="chev" />
     </a>
   );
@@ -89,6 +93,14 @@ function Toggle({ attribute, value, label }: { attribute: string; value: string;
   return (
     <button className="chip" aria-pressed={on} onClick={() => refine(value)}>{label}</button>
   );
+}
+
+// Quick day filter (Today / Tomorrow). day is stored 0=Sun..6=Sat.
+function DayChip({ day, label }: { day: number; label: string }) {
+  const { items, refine } = useRefinementList({ attribute: "day", limit: 20 });
+  const val = String(day);
+  const on = items.some((i) => i.value === val && i.isRefined);
+  return <button className="chip" aria-pressed={on} onClick={() => refine(val)}>{label}</button>;
 }
 
 // Data-driven fellowship chips: "All" + every fellowship present in the index,
@@ -132,7 +144,7 @@ function hitMiles(m: any, user: { lat: number; lng: number } | null) {
   return haversineMi(user.lat, user.lng, lat, lng);
 }
 
-function Results({ onOpen, user }: { onOpen: (m: any) => void; user: { lat: number; lng: number } | null }) {
+function Results({ onOpen, user, onClearLocation }: { onOpen: (m: any) => void; user: { lat: number; lng: number } | null; onClearLocation: () => void }) {
   const { items } = useHits();
   const { status, error } = useInstantSearch();
   const busy = status === "loading" || status === "stalled";
@@ -151,7 +163,8 @@ function Results({ onOpen, user }: { onOpen: (m: any) => void; user: { lat: numb
     return (
       <div className="state">
         <h2>No meetings match</h2>
-        <p>Try removing a filter, widening your search, or switching to online meetings.</p>
+        <p>{user ? "No meetings found within about 50 miles yet. Try widening your search or view online meetings." : "Try removing a filter, widening your search, or switching to online meetings."}</p>
+        {user && <button className="btn btn-soft" onClick={onClearLocation}>Search everywhere</button>}
       </div>
     );
   }
@@ -181,35 +194,125 @@ function Results({ onOpen, user }: { onOpen: (m: any) => void; user: { lat: numb
   );
 }
 
+type Place = { lat: number; lng: number; label: string } | null;
+const AREA_RADIUS_M = 80467; // ~50 miles — "in your area"
+const TODAY = new Date().getDay(); // 0=Sun..6=Sat
+
+// Applies the area filter. We filter to a radius around the chosen location for
+// in-person browsing; online meetings are location-agnostic, so when "Online" is
+// active we don't constrain by distance (the adapter also requires a radius whenever
+// aroundLatLng is set, so this is the one Configure that owns geo).
+function GeoConfigure({ place }: { place: Place }) {
+  const { items } = useRefinementList({ attribute: "online" });
+  const onlineOnly = items.some((i) => i.value === "true" && i.isRefined);
+  const geo = place && !onlineOnly
+    ? { aroundLatLng: `${place.lat},${place.lng}`, aroundRadius: AREA_RADIUS_M }
+    : {};
+  return <Configure hitsPerPage={100} {...geo} />;
+}
+
+// The tappable location control: shows the current ZIP/area and lets people change it
+// by typing a ZIP or using their device location.
+function LocationControl({ place, onZip, onNearMe, onClear }:
+  { place: Place; onZip: (p: Place) => void; onNearMe: () => void; onClear: () => void }) {
+  const [editing, setEditing] = useState(false);
+  const [zip, setZip] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!/^\d{5}$/.test(zip)) { setErr("Enter a 5-digit ZIP"); return; }
+    setBusy(true); setErr("");
+    try {
+      const r = await fetch(`https://api.zippopotam.us/us/${zip}`);
+      if (!r.ok) throw new Error();
+      const d = await r.json();
+      const pl = d.places[0];
+      onZip({ lat: Number(pl.latitude), lng: Number(pl.longitude), label: zip });
+      setEditing(false); setZip("");
+    } catch { setErr("ZIP not found"); }
+    finally { setBusy(false); }
+  }
+
+  if (editing) {
+    return (
+      <form className="loc-form" onSubmit={submit}>
+        <input inputMode="numeric" maxLength={5} autoFocus aria-label="ZIP code" placeholder="ZIP code"
+          value={zip} onChange={(e) => setZip(e.currentTarget.value.replace(/\D/g, ""))} />
+        <button className="btn btn-soft" type="submit" disabled={busy}>{busy ? "…" : "Go"}</button>
+        <button type="button" className="loc-link" onClick={() => { onNearMe(); setEditing(false); }}>
+          <Icon name="nearme" size={14} /> Use my location
+        </button>
+        <button type="button" className="loc-link" onClick={() => { setEditing(false); setErr(""); }}>Cancel</button>
+        {err && <span className="loc-err" role="alert">{err}</span>}
+      </form>
+    );
+  }
+  return (
+    <button className="loc-btn" onClick={() => setEditing(true)}
+      aria-label={place ? `Location: ${place.label}. Tap to change.` : "Set your location"}>
+      <Icon name="pin" size={16} />
+      {place ? <span>Near <b>{place.label}</b></span> : <span>Set your location</span>}
+      <span className="loc-change">Change</span>
+    </button>
+  );
+}
+
 export default function Finder() {
   const [view, setView] = useState<"list" | "map">("list"); // list default; Near me → map
-  const [geo, setGeo] = useState<string | undefined>(undefined);
+  const [place, setPlace] = useState<Place>(null);
   const [selected, setSelected] = useState<any>(null);
-  const user = geo ? { lat: Number(geo.split(",")[0]), lng: Number(geo.split(",")[1]) } : null;
+  const [located, setLocated] = useState(false); // already tried device location?
 
-  function nearMe() {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition((p) => {
-      setGeo(`${p.coords.latitude},${p.coords.longitude}`);
-      setView("map"); // spatial context is what you want after "Near me"
-    });
+  // Best-effort, keyless reverse geocode so the button can show the user's ZIP.
+  async function labelFor(lat: number, lng: number): Promise<string> {
+    try {
+      const r = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`);
+      const d = await r.json();
+      return d.postcode || d.city || d.locality || "your area";
+    } catch { return "your area"; }
   }
+  async function useCoords(lat: number, lng: number, toMap: boolean) {
+    setPlace({ lat, lng, label: "your area" });
+    if (toMap) setView("map");
+    const label = await labelFor(lat, lng);
+    setPlace({ lat, lng, label });
+  }
+  function nearMe() {
+    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition((p) => useCoords(p.coords.latitude, p.coords.longitude, true));
+  }
+  // On first load, default results to the user's area (if they allow location).
+  useEffect(() => {
+    if (place || located || typeof navigator === "undefined" || !navigator.geolocation) return;
+    setLocated(true);
+    navigator.geolocation.getCurrentPosition(
+      (p) => useCoords(p.coords.latitude, p.coords.longitude, false),
+      () => {}, // denied/unavailable → stay national; they can set a ZIP
+      { timeout: 8000, maximumAge: 600000 },
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const user = place ? { lat: place.lat, lng: place.lng } : null;
 
   return (
     <InstantSearch searchClient={searchClient} indexName={COLLECTION} future={{ preserveSharedStateOnUnmount: true }}>
-      {/* aroundLatLng: when set, the Typesense adapter sorts/filters by distance */}
-      <Configure hitsPerPage={100} {...(geo ? { aroundLatLng: geo } : {})} />
+      <GeoConfigure place={place} />
       <SearchBox onNearMe={nearMe} />
 
       <FellowshipChips />
-      <div className="filter-row" role="group" aria-label="Type and format">
+      <div className="filter-row" role="group" aria-label="Day, type and format">
+        <DayChip day={TODAY} label="Today" />
+        <DayChip day={(TODAY + 1) % 7} label="Tomorrow" />
         <Toggle attribute="types" value="Open" label="Open" />
         <Toggle attribute="types" value="Wheelchair" label="Accessible" />
         <Toggle attribute="online" value="true" label="Online" />
       </div>
 
       <div className="results-head">
-        <div className="results-count">Meetings near you</div>
+        <LocationControl place={place} onZip={setPlace} onNearMe={nearMe} onClear={() => setPlace(null)} />
         <div className="seg" role="group" aria-label="View">
           <button aria-pressed={view === "list"} onClick={() => setView("list")}>List</button>
           <button aria-pressed={view === "map"} onClick={() => setView("map")}>Map</button>
@@ -217,7 +320,7 @@ export default function Finder() {
       </div>
 
       {view === "list" ? (
-        <Results onOpen={setSelected} user={user} />
+        <Results onOpen={setSelected} user={user} onClearLocation={() => setPlace(null)} />
       ) : (
         <ErrorBoundary fallback={<div className="state"><h2>Map unavailable</h2><p>Switch back to List, or reload. (If this persists, the map key may be missing.)</p></div>}>
           <MapView onOpen={setSelected} />

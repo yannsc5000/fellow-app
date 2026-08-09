@@ -63,13 +63,16 @@ function enrich(m) {
     // stations in that city (until per-metro GTFS is wired for exact stops).
     transit.push({ k:'train', t:'Transit & rail nearby', d:'Stations near here', q:`transit station near ${m.address}` });
   }
-  // Location-correct anywhere (Maps resolves relative to the meeting address):
-  transit.push({ k:'bus', t:'Bus stops nearby', d:'View routes & stops', q:`bus stop near ${m.address}` });
-  transit.push({ k:'bike', t:'Bikeshare nearby', d:'Docks & e-bikes', q:`bike share near ${m.address}` });
+  // Location-correct anywhere (Maps resolves relative to the meeting address).
+  // NOTE: these are live Google Maps *searches*, not verified amenities — the UI must
+  // NOT show a fabricated walking distance for them (only the real station above has one).
+  // Bikeshare is intentionally omitted: it's absent in most areas, so listing it implied
+  // availability that usually isn't there.
+  transit.push({ k:'bus', t:'Bus stops nearby', d:'Find routes & stops on Google Maps', q:`bus stop near ${m.address}` });
   m.transit = transit;
   m.parking = [
-    { k:'garage', t:'Parking near here', d:'Garages & lots', q:`parking near ${m.address}` },
-    { k:'street', t:'Street parking', d:'On-street nearby', q:`street parking near ${m.address}` },
+    { k:'garage', t:'Parking nearby', d:'Find garages & lots on Google Maps', q:`parking near ${m.address}` },
+    { k:'street', t:'Street parking', d:'Find on-street parking on Google Maps', q:`street parking near ${m.address}` },
   ];
   return m;
 }
