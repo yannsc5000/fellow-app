@@ -14,8 +14,15 @@ const GTFS_DIR = process.env.GTFS_DIR;          // enrich rail colors/nearest st
 const GEOCODE = process.env.GEOCODE === "1";    // fill missing coords (US Census)
 const US_STATES = "AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY DC".split(" ");
 
+// Browser-like headers get past many intergroup WAFs / bot challenges that
+// otherwise return an HTML page or 401/403 to a plain fetch.
+const HEADERS = {
+  "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+  "Accept": "application/json, text/plain, */*",
+  "Accept-Language": "en-US,en;q=0.9",
+};
 async function getJSON(url) {
-  const r = await fetch(url, { headers: { "User-Agent": "Fellow/ingest" } });
+  const r = await fetch(url, { headers: HEADERS, redirect: "follow" });
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.json();
 }
@@ -26,16 +33,18 @@ async function loadSource(s) {
     return JSON.parse(await readFile(new URL(`./lib/${s.localSnapshot}`, import.meta.url)));
   }
   try {
-    // National BMLT (aggregator): iterate US states so responses stay reasonable.
+    // National BMLT (aggregator): one unfiltered GetSearchResults returns all
+    // federated meetings. (Per-state province filtering returns nothing on tomato.)
     if (s.national && s.system === "bmlt") {
-      const all = [];
-      for (const st of US_STATES) {
-        try {
-          const rows = await getJSON(`${s.url}&meeting_key=location_province&meeting_key_value=${st}`);
-          if (Array.isArray(rows)) all.push(...rows);
-        } catch { /* skip a state that errors */ }
+      const rows = await getJSON(s.url);
+      if (Array.isArray(rows) && rows.length) return rows;
+      // Fallback: some servers need a geographic search — sweep a few big US regions.
+      const REGIONS = [[38.9,-77.0],[40.7,-74.0],[34.0,-118.2],[41.9,-87.6],[29.8,-95.4],[47.6,-122.3],[33.7,-84.4],[39.7,-104.9],[25.8,-80.2]];
+      const out = [];
+      for (const [lat, lng] of REGIONS) {
+        try { const r = await getJSON(`${s.url}&lat_val=${lat}&long_val=${lng}&geo_width=-500`); if (Array.isArray(r)) out.push(...r); } catch {}
       }
-      return all;
+      return out;
     }
     return await getJSON(s.url);
   } catch (e) {

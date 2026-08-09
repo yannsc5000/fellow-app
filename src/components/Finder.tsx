@@ -8,6 +8,7 @@ import { searchClient } from "@/lib/typesense";
 import { COLLECTION } from "@/lib/schema";
 import { fellowshipName } from "@/lib/fellowships";
 import { Icon } from "./Icon";
+import { ErrorBoundary } from "./ErrorBoundary";
 
 // MapLibre is heavy — only load its chunk when the map view is opened.
 const MapView = dynamic(() => import("./MapView"), {
@@ -202,7 +203,13 @@ export default function Finder() {
         </div>
       </div>
 
-      {view === "list" ? <Results onOpen={setSelected} /> : <MapView onOpen={setSelected} />}
+      {view === "list" ? (
+        <Results onOpen={setSelected} />
+      ) : (
+        <ErrorBoundary fallback={<div className="state"><h2>Map unavailable</h2><p>Switch back to List, or reload. (If this persists, the map key may be missing.)</p></div>}>
+          <MapView onOpen={setSelected} />
+        </ErrorBoundary>
+      )}
 
       {selected && <MeetingSheet m={selected} onClose={() => setSelected(null)} />}
     </InstantSearch>

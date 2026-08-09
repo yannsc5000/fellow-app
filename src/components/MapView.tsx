@@ -32,11 +32,22 @@ export default function MapView({ onOpen }: { onOpen: (m: any) => void }) {
 
   useEffect(() => {
     if (!el.current || map.current) return;
-    map.current = new maplibregl.Map({
-      container: el.current, style: STYLE,
-      center: [-77.0369, 38.9072], zoom: 11,
-    });
-    map.current.addControl(new maplibregl.NavigationControl(), "top-right");
+    try {
+      map.current = new maplibregl.Map({
+        container: el.current, style: STYLE,
+        center: [-77.0369, 38.9072], zoom: 11,
+      });
+      map.current.addControl(new maplibregl.NavigationControl(), "top-right");
+      // If the style (e.g. a bad MapTiler key) fails, fall back to OSM instead of crashing.
+      map.current.on("error", (ev: any) => {
+        const msg = String(ev?.error?.message || "");
+        if (STYLE !== OSM_STYLE && /style|40[13]|Forbidden|Unauthorized/i.test(msg)) {
+          try { map.current?.setStyle(OSM_STYLE); } catch {}
+        }
+      });
+    } catch (e) {
+      console.error("Map init failed:", e);
+    }
     return () => { map.current?.remove(); map.current = null; };
   }, []);
 
