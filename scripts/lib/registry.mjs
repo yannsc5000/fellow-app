@@ -14,7 +14,7 @@
 //    TSML admin-ajax endpoint (…/wp-admin/admin-ajax.php?action=meetings).
 
 const BMLT_TOMATO = "https://tomato.na-bmlt.org/main_server/client_interface/json/?switcher=GetSearchResults"
-  + "&data_field_key=meeting_name,weekday_tzid,start_time,duration_time,location_text,"
+  + "&data_field_key=meeting_name,weekday_tinyint,start_time,duration_time,location_text,"
   + "location_street,location_municipality,location_province,latitude,longitude,formats,comments";
 
 export const SOURCES = [

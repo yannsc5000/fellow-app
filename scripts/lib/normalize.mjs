@@ -100,9 +100,9 @@ export function fromMeetingGuide(rec, i, fellowship = 'AA') {
   return enrich(m);
 }
 
-// BMLT weekday_tzid: 1=Sunday .. 7=Saturday  → our day: 0=Sunday .. 6=Saturday
+// BMLT weekday_tinyint: 1=Sunday .. 7=Saturday  → our day: 0=Sunday .. 6=Saturday
 export function fromBMLT(rec, i, fellowship = 'NA') {
-  const day = ((parseInt(rec.weekday_tzid, 10) || 1) - 1) % 7;
+  const day = ((parseInt(rec.weekday_tinyint, 10) || 1) - 1) % 7;
   const codes = (rec.formats || '').split(',').map(s => s.trim()).filter(Boolean);
   const online = codes.some(c => ['ONL','HYB','VM'].includes(c));
   const addr = [rec.location_street, rec.location_municipality, rec.location_province]
