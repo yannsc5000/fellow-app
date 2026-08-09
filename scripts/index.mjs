@@ -63,6 +63,22 @@ const docs = meetings.map((m) => {
   };
 });
 
+// Safety guard: never let a partial/blocked ingest wipe a much larger live index.
+// If this run produced far fewer meetings than what's already indexed, it almost
+// always means feeds were blocked this run — abort instead of replacing good data.
+// Override intentionally with FORCE_INDEX=1 (e.g. a deliberate shrink).
+const MIN_RATIO = Number(process.env.INDEX_MIN_RATIO || 0.7);
+let current = 0;
+try { current = (await client.collections(COLLECTION).retrieve()).num_documents || 0; } catch {}
+if (current > 0 && docs.length < current * MIN_RATIO && process.env.FORCE_INDEX !== "1") {
+  console.error(
+    `✋ Refusing to index: this run has ${docs.length} meetings but the live index has ${current} ` +
+    `(< ${Math.round(MIN_RATIO * 100)}%). Feeds were likely blocked this run. Re-run a full ingest ` +
+    `(USE_BROWSER=1), or set FORCE_INDEX=1 to override.`
+  );
+  process.exit(1);
+}
+
 try { await client.collections(COLLECTION).delete(); } catch {}
 await client.collections().create(schema);
 const res = await client.collections(COLLECTION).documents().import(docs, { action: "upsert" });
