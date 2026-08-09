@@ -216,6 +216,51 @@ export default function Finder() {
   );
 }
 
+// Location map on the detail sheet, with a Map / Street View toggle.
+// Street View + Google map use a (free) Google Maps Embed API key when present;
+// otherwise Map falls back to MapTiler static → OpenStreetMap, and Street View
+// opens in Google Maps in a new tab.
+function DetailMap({ m }: { m: any }) {
+  const [mode, setMode] = useState<"map" | "street">("map");
+  if (m.online || m.lat == null || m.lng == null) return null;
+  const { lat, lng } = m;
+  const G = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
+  const MT = process.env.NEXT_PUBLIC_MAPTILER_KEY;
+
+  let content: React.ReactNode;
+  if (mode === "street") {
+    content = G
+      ? <iframe title="Street View" loading="lazy" allowFullScreen
+          src={`https://www.google.com/maps/embed/v1/streetview?key=${G}&location=${lat},${lng}&fov=90`} />
+      : <div className="sv-fallback">
+          <a className="btn btn-soft" target="_blank" rel="noopener"
+             href={`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}`}>
+            Open Street View ↗
+          </a>
+        </div>;
+  } else {
+    content = G
+      ? <iframe title="Map" loading="lazy"
+          src={`https://www.google.com/maps/embed/v1/place?key=${G}&q=${lat},${lng}&zoom=16`} />
+      : MT
+        ? <a target="_blank" rel="noopener" href={`https://www.google.com/maps/search/?api=1&query=${lat},${lng}`}>
+            <img alt="Map of the meeting location"
+              src={`https://api.maptiler.com/maps/streets-v2/static/${lng},${lat},15/600x260@2x.png?key=${MT}&markers=${lng},${lat}`} />
+          </a>
+        : <iframe title="Map" loading="lazy"
+            src={`https://www.openstreetmap.org/export/embed.html?bbox=${lng-0.005},${lat-0.003},${lng+0.005},${lat+0.003}&layer=mapnik&marker=${lat},${lng}`} />;
+  }
+  return (
+    <div>
+      <div className="map-toggle" role="group" aria-label="Location view">
+        <button aria-pressed={mode === "map"} onClick={() => setMode("map")}>Map</button>
+        <button aria-pressed={mode === "street"} onClick={() => setMode("street")}>Street View</button>
+      </div>
+      <div className="detail-map">{content}</div>
+    </div>
+  );
+}
+
 function MeetingSheet({ m, onClose }: { m: any; onClose: () => void }) {
   const t = to12(m.time);
   const transit = m.transit_json ? JSON.parse(m.transit_json) : [];
@@ -231,6 +276,7 @@ function MeetingSheet({ m, onClose }: { m: any; onClose: () => void }) {
         <div style={{ color: "var(--ink-soft)" }}>
           {m.online ? "Online meeting" : <>{m.place ? m.place + " · " : ""}<a href={mapsAddr} target="_blank" rel="noopener">{m.address}</a></>}
         </div>
+        <DetailMap m={m} />
         {m.notes && <p style={{ background: "var(--surface-2)", padding: 16, borderRadius: 14 }}>{m.notes}</p>}
         {!m.online && (transit.length > 0 || parking.length > 0) && (
           <div className="access-grid">
