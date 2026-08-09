@@ -57,8 +57,12 @@ export default function MapView({ onOpen }: { onOpen: (m: any) => void }) {
     markers.current = [];
     const bounds = new maplibregl.LngLatBounds();
     items.forEach((hit: any) => {
-      if (!hit._geoloc) return;
-      const [lat, lng] = hit._geoloc;
+      const g = hit._geoloc;
+      if (!g) return;
+      // adapter may give {lat,lng} (Algolia) or [lat,lng] (raw) — handle both
+      const lat = Array.isArray(g) ? g[0] : g.lat;
+      const lng = Array.isArray(g) ? g[1] : g.lng;
+      if (lat == null || lng == null) return;
       const dot = document.createElement("button");
       dot.setAttribute("aria-label", hit.name);
       dot.style.cssText = "width:26px;height:26px;border-radius:50% 50% 50% 4px;transform:rotate(45deg);background:#0f766e;border:3px solid #fff;cursor:pointer";
