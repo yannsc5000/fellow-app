@@ -82,6 +82,11 @@ function SearchBox({ onNearMe }: { onNearMe: () => void }) {
       <label htmlFor="q" style={{ position: "absolute", left: -9999 }}>Search meetings</label>
       <input id="q" type="search" placeholder="Search meetings, places, or ZIP"
         value={query} onChange={(e) => refine(e.currentTarget.value)} />
+      {query && (
+        <button type="button" className="search-clear" aria-label="Clear search" onClick={() => refine("")}>
+          <Icon name="close" size={18} />
+        </button>
+      )}
       <button className="btn btn-near" onClick={onNearMe}><Icon name="nearme" size={18} /> Near me</button>
     </div>
   );

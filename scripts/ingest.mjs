@@ -54,11 +54,22 @@ async function loadSource(s) {
 }
 
 const all = [];
+const report = [];
 for (const s of SOURCES) {
   const raw = await loadSource(s);
   const mapped = normalizeSource(raw, { system: s.system, fellowship: s.fellowship });
   console.log(`+ ${s.id} [${s.fellowship}] ${mapped.length} meetings`);
+  report.push({ id: s.id, fellowship: s.fellowship, area: s.area, n: mapped.length });
   all.push(...mapped);
+}
+
+// Surface sources that returned nothing. On a cloud CI runner this is almost always
+// the site's WAF blocking the runner's datacenter IP (not a bad URL). If the feed
+// opens fine in a browser, run this ingest from your own computer to include it.
+const empty = report.filter((r) => r.n === 0);
+if (empty.length) {
+  console.log(`\n⚠ ${empty.length}/${report.length} source(s) returned 0 meetings — likely IP-blocked from this runner:`);
+  for (const r of empty) console.log(`   - ${r.id} [${r.fellowship}] — ${r.area}`);
 }
 
 if (GTFS_DIR) {

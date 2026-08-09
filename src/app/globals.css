@@ -23,6 +23,11 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:v
 .searchbar:focus-within{border-color:var(--brand)}
 .searchbar input{flex:1;border:0;background:transparent;font-size:19px;color:var(--ink);padding:14px 0;font-family:inherit}
 .searchbar input:focus{outline:none}
+/* one consistent, always-present clear button (hide the flaky native one) */
+.searchbar input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
+.search-clear{border:0;background:var(--surface-2);color:var(--ink-soft);width:40px;height:40px;border-radius:12px;
+  display:grid;place-items:center;cursor:pointer;flex:0 0 auto}
+.search-clear:hover{background:var(--line);color:var(--ink)}
 .btn{font-family:inherit;font-weight:700;font-size:17px;cursor:pointer;border:2px solid transparent;border-radius:16px;text-decoration:none;
   min-height:var(--touch);padding:0 20px;display:inline-flex;align-items:center;justify-content:center;gap:8px}
 .btn-soft{background:var(--brand-tint);color:var(--brand-ink);border:0;font-size:15px}
