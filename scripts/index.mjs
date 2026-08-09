@@ -35,7 +35,9 @@ const schema = {
     { name: "transit_json", type: "string", optional: true, index: false },
     { name: "parking_json", type: "string", optional: true, index: false },
   ],
-  default_sorting_field: "dist",
+  // No default_sorting_field: `dist` is optional (online meetings have none), and
+  // Typesense forbids an optional default sort field. We always pass sort_by explicitly
+  // (day:asc,time:asc, or geo distance for "near me").
 };
 
 // Wait for Typesense to be healthy (so `bootstrap` doesn't race container startup).

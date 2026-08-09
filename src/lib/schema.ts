@@ -52,7 +52,6 @@ export const meetingsSchema = {
     { name: "transit_json", type: "string", optional: true, index: false },
     { name: "parking_json", type: "string", optional: true, index: false },
   ],
-  default_sorting_field: "dist",
 } as const;
 
 export function toDoc(m: Meeting): MeetingDoc {
