@@ -63,6 +63,64 @@ export const SOURCES = [
   // TODO: LA uses a non-TSML format (returns HTML) — needs its own adapter.
   // Grow toward the full ~400 intergroups (see NATIONAL-ROLLOUT.md discovery approach).
 
+  // ---- Metro expansion (regional research pass). Mix of VERIFIED and CANDIDATE
+  // (CANDIDATE = confirmed TSML via the 12_step_meeting_list tag but WAF-blocked from a
+  // plain fetch; run ingest with USE_BROWSER=1 to pull those). ----
+  // Northeast / Mid-Atlantic
+  { id: "aa-baltimore",    fellowship: "AA", system: "meeting-guide", area: "Baltimore MD",                url: "https://baltimoreaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-cnj",          fellowship: "AA", system: "meeting-guide", area: "Central/South New Jersey",    url: "https://cjiaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-ct",           fellowship: "AA", system: "meeting-guide", area: "Connecticut (Hartford)",      url: "https://ct-aa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-ri",           fellowship: "AA", system: "meeting-guide", area: "Rhode Island (Providence)",   url: "https://aainri.com/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-buffalo",      fellowship: "AA", system: "meeting-guide", area: "Buffalo NY",                   url: "https://buffaloaany.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-rochester",    fellowship: "AA", system: "meeting-guide", area: "Rochester NY",                 url: "https://meetings.rochesteraa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-longisland",   fellowship: "AA", system: "meeting-guide", area: "Long Island NY (Nassau)",     url: "https://nassauintergroup.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-albany",       fellowship: "AA", system: "meeting-guide", area: "Albany NY",                    url: "https://aaalbanyny.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-richmond",     fellowship: "AA", system: "meeting-guide", area: "Richmond VA",                  url: "https://aarichmond.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-hamptonroads", fellowship: "AA", system: "meeting-guide", area: "Hampton Roads VA",            url: "https://tidewaterintergroup.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-portland-me",  fellowship: "AA", system: "meeting-guide", area: "Portland ME",                  url: "https://csoaamaine.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-nh",           fellowship: "AA", system: "meeting-guide", area: "New Hampshire",                url: "https://nhaa.net/wp-admin/admin-ajax.php?action=meetings" },
+  // South / Southeast / Texas
+  { id: "aa-nashville",    fellowship: "AA", system: "meeting-guide", area: "Nashville TN",                 url: "https://aanashville.org/wp/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-memphis",      fellowship: "AA", system: "meeting-guide", area: "Memphis TN",                   url: "https://www.memphis-aa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-charlotte",    fellowship: "AA", system: "meeting-guide", area: "Charlotte NC",                 url: "https://charlotteaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-raleigh",      fellowship: "AA", system: "meeting-guide", area: "Raleigh/Durham NC",           url: "https://raleighaa.com/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-tampa",        fellowship: "AA", system: "meeting-guide", area: "Tampa/St. Petersburg FL",     url: "https://meetings.aatampa-area.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-orlando",      fellowship: "AA", system: "meeting-guide", area: "Orlando FL",                   url: "https://cflintergroup.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-jacksonville", fellowship: "AA", system: "meeting-guide", area: "Jacksonville FL",             url: "https://neflaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-south-palm-beach", fellowship: "AA", system: "meeting-guide", area: "South Palm Beach County FL (Delray/Boca)", url: "https://www.aainpalmbeach.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-palm-beach",   fellowship: "AA", system: "meeting-guide", area: "Palm Beach County FL",         url: "https://aa-palmbeachcounty.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-birmingham",   fellowship: "AA", system: "meeting-guide", area: "Birmingham AL",               url: "https://birminghamaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-louisville",   fellowship: "AA", system: "meeting-guide", area: "Louisville KY",               url: "https://loukyaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-okc",          fellowship: "AA", system: "meeting-guide", area: "Oklahoma City OK",            url: "https://okcintergroup.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-tulsa",        fellowship: "AA", system: "meeting-guide", area: "Tulsa OK",                     url: "https://aaneok.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-san-antonio",  fellowship: "AA", system: "meeting-guide", area: "San Antonio TX",              url: "https://aasanantonio.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-fort-worth",   fellowship: "AA", system: "meeting-guide", area: "Fort Worth TX",               url: "https://fortworthaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-little-rock",  fellowship: "AA", system: "meeting-guide", area: "Little Rock AR",              url: "https://arkansascentraloffice.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-charleston",   fellowship: "AA", system: "meeting-guide", area: "Charleston SC",               url: "https://tcio.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-columbia",     fellowship: "AA", system: "meeting-guide", area: "Columbia SC",                 url: "https://aacolumbia.org/wp-admin/admin-ajax.php?action=meetings" },
+  // Midwest
+  { id: "aa-columbus",     fellowship: "AA", system: "meeting-guide", area: "Columbus OH",                 url: "https://aacentralohio.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-cincinnati",   fellowship: "AA", system: "meeting-guide", area: "Cincinnati OH",               url: "https://aacincinnati.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-kansascity",   fellowship: "AA", system: "meeting-guide", area: "Kansas City MO",              url: "https://kc-aa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-indianapolis", fellowship: "AA", system: "meeting-guide", area: "Indianapolis IN",             url: "https://indyaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-madison",      fellowship: "AA", system: "meeting-guide", area: "Madison WI",                   url: "https://aamadisonwi.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-omaha",        fellowship: "AA", system: "meeting-guide", area: "Omaha NE",                     url: "https://www.omahaaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-desmoines",    fellowship: "AA", system: "meeting-guide", area: "Des Moines IA",               url: "https://aadesmoines.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-toledo",       fellowship: "AA", system: "meeting-guide", area: "Toledo OH",                    url: "https://toledoaa.com/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-akron",        fellowship: "AA", system: "meeting-guide", area: "Akron OH",                     url: "https://akronaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-fortwayne",    fellowship: "AA", system: "meeting-guide", area: "Fort Wayne IN",               url: "https://www.aafortwayne.org/wp-admin/admin-ajax.php?action=meetings" },
+  // West / Mountain / Pacific
+  { id: "aa-lasvegas",     fellowship: "AA", system: "meeting-guide", area: "Las Vegas NV",                url: "https://www.lvcentraloffice.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-tucson",       fellowship: "AA", system: "meeting-guide", area: "Tucson AZ",                    url: "https://aatucson.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-spokane",      fellowship: "AA", system: "meeting-guide", area: "Spokane WA",                   url: "https://aaspokane.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-reno",         fellowship: "AA", system: "meeting-guide", area: "Reno NV",                      url: "https://nnig.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-saltlakecity", fellowship: "AA", system: "meeting-guide", area: "Salt Lake City UT",           url: "https://www.saltlakeaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-albuquerque",  fellowship: "AA", system: "meeting-guide", area: "Albuquerque NM",              url: "https://www.albuquerqueaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-anchorage",    fellowship: "AA", system: "meeting-guide", area: "Anchorage AK",                url: "https://anchorageaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-honolulu",     fellowship: "AA", system: "meeting-guide", area: "Honolulu HI",                 url: "https://www.oahuaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-coloradosprings", fellowship: "AA", system: "meeting-guide", area: "Colorado Springs CO",      url: "https://www.coloradospringsaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-boise",        fellowship: "AA", system: "meeting-guide", area: "Boise ID",                    url: "https://idahoarea18aa.org/wp-admin/admin-ajax.php?action=meetings" },
+
   // ---- Other fellowships — many are on BMLT (add their root servers from awesome-bmlt)
   // or publish Meeting Guide feeds. Add per-fellowship national sources here. ----
   // CMA — Crystal Meth Anonymous. Regional TSML feeds (verified: returned meeting JSON).

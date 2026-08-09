@@ -6,8 +6,7 @@ export const metadata: Metadata = {
   description: "Where Fellow's meeting data comes from, how we handle privacy and anonymity, and how to report a correction.",
 };
 
-// TODO: replace with your real contact address (or a GitHub issues link).
-const CONTACT = "mailto:hello@example.com";
+const CONTACT = "mailto:Iamfoundoftenlost@gmail.com";
 
 const GROUP_ORDER = ["Alcohol & drugs", "Food & eating", "Sex & relationships", "Money & work", "Emotional & behavioral", "Family & friends"];
 

@@ -24,6 +24,33 @@ function to12(t: string) {
   return { hh: `${h}:${String(m).padStart(2, "0")}`, ap };
 }
 
+// ---- Add-to-calendar (weekly recurring Google Calendar event) ----
+const BYDAY = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+const pad2 = (n: number) => String(n).padStart(2, "0");
+function nextOccurrence(day: number, hh: number, mm: number) {
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hh, mm, 0, 0);
+  let diff = (day - d.getDay() + 7) % 7;
+  if (diff === 0 && d.getTime() < now.getTime()) diff = 7;
+  d.setDate(d.getDate() + diff);
+  return d;
+}
+const fmtCal = (d: Date) => `${d.getFullYear()}${pad2(d.getMonth() + 1)}${pad2(d.getDate())}T${pad2(d.getHours())}${pad2(d.getMinutes())}00`;
+function calendarUrl(m: any) {
+  const [hh, mm] = String(m.time).split(":").map(Number);
+  const start = nextOccurrence(m.day, hh || 0, mm || 0);
+  let end: Date;
+  if (m.end && /^\d{1,2}:\d{2}/.test(m.end)) {
+    const [eh, em] = String(m.end).split(":").map(Number);
+    end = new Date(start); end.setHours(eh, em, 0, 0);
+    if (end <= start) end.setDate(end.getDate() + 1);
+  } else { end = new Date(start.getTime() + 60 * 60000); }
+  const loc = m.online ? "Online meeting" : [m.place, m.address].filter(Boolean).join(", ");
+  const details = [m.notes, "Recurring weekly · shared via Fellow"].filter(Boolean).join("\n\n");
+  const p = new URLSearchParams({ action: "TEMPLATE", text: m.name || "Meeting", dates: `${fmtCal(start)}/${fmtCal(end)}`, location: loc, details });
+  return `https://calendar.google.com/calendar/render?${p.toString()}&recur=${encodeURIComponent("RRULE:FREQ=WEEKLY;BYDAY=" + BYDAY[m.day])}`;
+}
+
 function haversineMi(aLat: number, aLng: number, bLat: number, bLng: number) {
   const R = 3958.8, r = (d: number) => (d * Math.PI) / 180;
   const dLat = r(bLat - aLat), dLng = r(bLng - aLng);
@@ -361,6 +388,7 @@ function MeetingSheet({ m, onClose }: { m: any; onClose: () => void }) {
   const t = to12(m.time);
   const { refine } = useSearchBox();
   const panelRef = useRef<HTMLDivElement>(null);
+  const [copied, setCopied] = useState(false);
   // A11y: move focus into the dialog on open and close it with Escape.
   useEffect(() => {
     panelRef.current?.focus();
@@ -368,6 +396,21 @@ function MeetingSheet({ m, onClose }: { m: any; onClose: () => void }) {
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
+
+  async function share() {
+    const when = `${DAYS[m.day]} ${t.hh} ${t.ap}`;
+    const loc = m.online ? "Online meeting" : [m.place, m.address].filter(Boolean).join(", ");
+    const url = typeof window !== "undefined" ? window.location.origin : "";
+    const text = `${m.name} — ${when}\n${loc}${m.online ? "" : "\n" + mapsAddr}\n\nvia Fellow ${url}`.trim();
+    try {
+      if (typeof navigator !== "undefined" && (navigator as any).share) {
+        await (navigator as any).share({ title: m.name, text });
+      } else if (typeof navigator !== "undefined" && navigator.clipboard) {
+        await navigator.clipboard.writeText(text);
+        setCopied(true); setTimeout(() => setCopied(false), 1800);
+      }
+    } catch { /* user cancelled share — ignore */ }
+  }
   const transit = m.transit_json ? JSON.parse(m.transit_json) : [];
   const parking = m.parking_json ? JSON.parse(m.parking_json) : [];
   const mapsAddr = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((m.place ? m.place + ", " : "") + m.address)}`;
@@ -376,8 +419,17 @@ function MeetingSheet({ m, onClose }: { m: any; onClose: () => void }) {
     <div role="dialog" aria-modal aria-label={m.name} className="sheet-overlay"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="sheet-panel" ref={panelRef} tabIndex={-1} style={{ ["--fc" as any]: fellowshipColor(m.fellowship), outline: "none" }}>
+        <div className="sheet-top">
+          <button className="share-btn" onClick={share} aria-label={`Share ${m.name}`}>
+            <Icon name="share" size={18} /> {copied ? "Copied!" : "Share"}
+          </button>
+        </div>
         <h2>{m.name}</h2>
-        <div><span className="when"><Icon name="calmonth" size={16} /> {DAYS[m.day]}, {t.hh} {t.ap}</span></div>
+        <div>
+          <a className="when" href={calendarUrl(m)} target="_blank" rel="noopener" aria-label={`Add ${m.name} to your calendar`}>
+            <Icon name="calmonth" size={16} /> {DAYS[m.day]}, {t.hh} {t.ap} <Icon name="add" size={15} />
+          </a>
+        </div>
         <div className="sheet-addr">
           {m.online ? "Online meeting" : <>{m.place ? m.place + " · " : ""}<a href={mapsAddr} target="_blank" rel="noopener">{m.address}</a></>}
         </div>
