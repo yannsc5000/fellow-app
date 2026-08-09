@@ -59,6 +59,20 @@ body{background:
 .chip.fchip .cdot{width:10px;height:10px;border-radius:50%;background:var(--fc,#999);display:inline-block}
 .chip.fchip[aria-pressed="true"]{background:var(--fc);border-color:var(--fc);color:#fff}
 .chip.fchip[aria-pressed="true"] .cdot{background:rgba(255,255,255,.92)}
+/* "Starts soon" quick filter */
+.chip-soon{color:#065f46}
+.chip-soon .livedot{width:9px;height:9px;border-radius:50%;background:#059669;box-shadow:0 0 0 0 rgba(5,150,105,.5);animation:pulse 1.8s ease-out infinite}
+.chip-soon[aria-pressed="true"]{background:#047857;border-color:#047857;color:#fff}
+.chip-soon[aria-pressed="true"] .livedot{background:#fff;animation:none}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(5,150,105,.5)}70%{box-shadow:0 0 0 7px rgba(5,150,105,0)}100%{box-shadow:0 0 0 0 rgba(5,150,105,0)}}
+@media (prefers-reduced-motion: reduce){.chip-soon .livedot{animation:none}}
+/* "Now / in Nm" pill on cards */
+.soon{background:var(--surface-2);color:#065f46;font-weight:800;font-size:12px;padding:3px 9px;border-radius:999px;border:1px solid #a7f3d0}
+.soon-now{background:#047857;color:#fff;border-color:transparent}
+@media (prefers-color-scheme: dark){
+  .chip-soon{color:#6ee7b7}
+  .soon{color:#6ee7b7;border-color:#065f46}
+}
 
 /* Results head + location */
 .results-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;flex-wrap:wrap}
@@ -148,6 +162,8 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .park-item .chev{margin-left:auto;color:var(--ink-soft)}
 .sheet-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
 .sheet-actions .btn{flex:1 1 132px;white-space:nowrap;padding:0 14px;gap:6px}
+.report-link{display:inline-flex;align-items:center;gap:6px;margin-top:14px;color:var(--ink-soft);font-size:14px;font-weight:650;text-decoration:none}
+.report-link:hover{color:var(--fc,var(--brand-ink));text-decoration:underline;text-underline-offset:3px}
 
 /* detail "see all sessions" links */
 .detail-links{display:flex;flex-wrap:wrap;gap:8px 18px;margin:12px 0 2px}

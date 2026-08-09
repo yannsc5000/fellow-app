@@ -26,6 +26,8 @@ const schema = {
     { name: "types", type: "string[]", facet: true },
     { name: "day", type: "int32", facet: true },
     { name: "time", type: "string", sort: true },
+    { name: "minutes", type: "int32", optional: true, sort: true },
+
     { name: "online", type: "bool", facet: true },
     { name: "place", type: "string", optional: true },
     { name: "address", type: "string" },
@@ -51,10 +53,15 @@ async function waitForHealth(tries = 30) {
 await waitForHealth();
 
 const meetings = JSON.parse(await readFile(new URL("../public/data/meetings.json", import.meta.url)));
+const toMinutes = (t) => {
+  const [h, m] = String(t || "").split(":").map(Number);
+  return Number.isFinite(h) && Number.isFinite(m) ? h * 60 + m : undefined;
+};
 const docs = meetings.map((m) => {
   const { transit, parking, lat, lng, ...rest } = m;
   return {
     ...rest, lat, lng,
+    minutes: toMinutes(m.time),
     fellowship_name: fellowshipName(m.fellowship),
     fellowship_terms: fellowshipTerms(m.fellowship),
     _geoloc: lat != null && lng != null ? [lat, lng] : undefined,

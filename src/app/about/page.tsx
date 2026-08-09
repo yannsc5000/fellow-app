@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { FELLOWSHIPS } from "@/lib/fellowships";
+import { CONTACT_EMAIL } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: "About & sources — Fellow",
   description: "Where Fellow's meeting data comes from, how we handle privacy and anonymity, and how to report a correction.",
 };
 
-const CONTACT = "mailto:Iamfoundoftenlost@gmail.com";
+const CONTACT = `mailto:${CONTACT_EMAIL}`;
 
 const GROUP_ORDER = ["Alcohol & drugs", "Food & eating", "Sex & relationships", "Money & work", "Emotional & behavioral", "Family & friends"];
 

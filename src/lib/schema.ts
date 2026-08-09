@@ -43,6 +43,8 @@ export const meetingsSchema = {
     { name: "types", type: "string[]", facet: true },
     { name: "day", type: "int32", facet: true },
     { name: "time", type: "string", sort: true },
+    { name: "minutes", type: "int32", optional: true, sort: true }, // minutes since midnight → "starts soon" range filter
+
     { name: "online", type: "bool", facet: true },
     { name: "place", type: "string", optional: true },
     { name: "address", type: "string" },

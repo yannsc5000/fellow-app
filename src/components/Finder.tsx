@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import { searchClient } from "@/lib/typesense";
 import { COLLECTION } from "@/lib/schema";
 import { fellowshipName, fellowshipColor } from "@/lib/fellowships";
+import { CONTACT_EMAIL } from "@/lib/config";
 import { Icon } from "./Icon";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { DetailMap } from "./DetailMap";
@@ -177,6 +178,18 @@ function railItem(m: any) {
   } catch { return null; }
 }
 
+// "Now" / "in Nm" label if this meeting is today and starts within [-20, +90] min.
+function soonLabel(m: any): string | null {
+  if (m == null || m.day == null || !m.time) return null;
+  const now = new Date();
+  if (m.day !== now.getDay()) return null;
+  const [h, mm] = String(m.time).split(":").map(Number);
+  if (!Number.isFinite(h) || !Number.isFinite(mm)) return null;
+  const diff = (h * 60 + mm) - (now.getHours() * 60 + now.getMinutes());
+  if (diff > 90 || diff < -20) return null;
+  return diff <= 0 ? "Now" : `in ${diff}m`;
+}
+
 // distance from the user to a hit (miles), or null if we can't compute it
 function hitMiles(m: any, user: { lat: number; lng: number } | null) {
   if (!user || m.online) return null;
@@ -187,7 +200,7 @@ function hitMiles(m: any, user: { lat: number; lng: number } | null) {
   return haversineMi(user.lat, user.lng, lat, lng);
 }
 
-function Results({ onOpen, user, onClearLocation }: { onOpen: (m: any) => void; user: { lat: number; lng: number } | null; onClearLocation: () => void }) {
+function Results({ onOpen, user, onClearLocation, startsSoon }: { onOpen: (m: any) => void; user: { lat: number; lng: number } | null; onClearLocation: () => void; startsSoon: boolean }) {
   const { items } = useHits();
   const { status, error } = useInstantSearch();
   const busy = status === "loading" || status === "stalled";
@@ -205,9 +218,11 @@ function Results({ onOpen, user, onClearLocation }: { onOpen: (m: any) => void; 
   if (!items.length) {
     return (
       <div className="state">
-        <h2>No meetings match</h2>
-        <p>{user ? "No meetings found within about 50 miles yet. Try widening your search or view online meetings." : "Try removing a filter, widening your search, or switching to online meetings."}</p>
-        {user && <button className="btn btn-soft" onClick={onClearLocation}>Search everywhere</button>}
+        <h2>{startsSoon ? "Nothing starting right now" : "No meetings match"}</h2>
+        <p>{startsSoon
+          ? "No meetings start in the next 90 minutes here. Turn off “Starts soon” to see the full schedule, or check online meetings."
+          : user ? "No meetings found within about 50 miles yet. Try widening your search or view online meetings." : "Try removing a filter, widening your search, or switching to online meetings."}</p>
+        {user && !startsSoon && <button className="btn btn-soft" onClick={onClearLocation}>Search everywhere</button>}
       </div>
     );
   }
@@ -218,6 +233,7 @@ function Results({ onOpen, user, onClearLocation }: { onOpen: (m: any) => void; 
         const mi = hitMiles(m, user);
         const rail = railItem(m);
         const lineColor = rail ? (rail.colors?.[0] || lineColorsFromLabel(rail.t)[0] || "#9aa0a6") : null;
+        const soon = soonLabel(m);
         return (
           <li key={m.objectID} style={{ ["--fc" as any]: fellowshipColor(m.fellowship) }}>
             <button className="card" onClick={() => onOpen(m)}>
@@ -231,6 +247,7 @@ function Results({ onOpen, user, onClearLocation }: { onOpen: (m: any) => void; 
                 </span>
               </span>
               <span className="rt">
+                {soon && <span className={`soon${soon === "Now" ? " soon-now" : ""}`}>{soon}</span>}
                 {m.online
                   ? <><Icon name="video" size={15} /> Online</>
                   : rail
@@ -254,13 +271,20 @@ const TODAY = new Date().getDay(); // 0=Sun..6=Sat
 // in-person browsing; online meetings are location-agnostic, so when "Online" is
 // active we don't constrain by distance (the adapter also requires a radius whenever
 // aroundLatLng is set, so this is the one Configure that owns geo).
-function GeoConfigure({ place }: { place: Place }) {
+function GeoConfigure({ place, startsSoon }: { place: Place; startsSoon: boolean }) {
   const { items } = useRefinementList({ attribute: "online" });
   const onlineOnly = items.some((i) => i.value === "true" && i.isRefined);
   const geo = place && !onlineOnly
     ? { aroundLatLng: `${place.lat},${place.lng}`, aroundRadius: AREA_RADIUS_M }
     : {};
-  return <Configure hitsPerPage={100} {...geo} />;
+  // "Starts soon": today's meetings whose start time is within [-20, +90] minutes of now.
+  let numericFilters: string[] | undefined;
+  if (startsSoon) {
+    const now = new Date();
+    const nowMin = now.getHours() * 60 + now.getMinutes();
+    numericFilters = [`day=${now.getDay()}`, `minutes>=${Math.max(0, nowMin - 20)}`, `minutes<=${Math.min(1439, nowMin + 90)}`];
+  }
+  return <Configure hitsPerPage={100} {...geo} {...(numericFilters ? { numericFilters } : {})} />;
 }
 
 // The tappable location control: shows the current ZIP/area and lets people change it
@@ -316,6 +340,7 @@ export default function Finder() {
   const [place, setPlace] = useState<Place>(null);
   const [selected, setSelected] = useState<any>(null);
   const [located, setLocated] = useState(false); // already tried device location?
+  const [startsSoon, setStartsSoon] = useState(false);
 
   // Best-effort, keyless reverse geocode so the button can show the user's ZIP.
   async function labelFor(lat: number, lng: number): Promise<string> {
@@ -351,11 +376,14 @@ export default function Finder() {
 
   return (
     <InstantSearch searchClient={searchClient} indexName={COLLECTION} future={{ preserveSharedStateOnUnmount: true }}>
-      <GeoConfigure place={place} />
+      <GeoConfigure place={place} startsSoon={startsSoon} />
       <SearchBox onNearMe={nearMe} />
 
       <FellowshipChips />
       <div className="filter-row" role="group" aria-label="Day, type and format">
+        <button className="chip chip-soon" aria-pressed={startsSoon} onClick={() => setStartsSoon((v) => !v)}>
+          <span className="livedot" aria-hidden="true" /> Starts soon
+        </button>
         <DayChip day={TODAY} label="Today" />
         <DayChip day={(TODAY + 1) % 7} label="Tomorrow" />
         <Toggle attribute="types" value="Open" label="Open" />
@@ -372,7 +400,7 @@ export default function Finder() {
       </div>
 
       {view === "list" ? (
-        <Results onOpen={setSelected} user={user} onClearLocation={() => setPlace(null)} />
+        <Results onOpen={setSelected} user={user} onClearLocation={() => setPlace(null)} startsSoon={startsSoon} />
       ) : (
         <ErrorBoundary fallback={<div className="state"><h2>Map unavailable</h2><p>Switch back to List, or reload. (If this persists, the map key may be missing.)</p></div>}>
           <MapView onOpen={setSelected} />
@@ -414,6 +442,8 @@ function MeetingSheet({ m, onClose }: { m: any; onClose: () => void }) {
   const transit = m.transit_json ? JSON.parse(m.transit_json) : [];
   const parking = m.parking_json ? JSON.parse(m.parking_json) : [];
   const mapsAddr = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((m.place ? m.place + ", " : "") + m.address)}`;
+  const correctionBody = `Meeting: ${m.name}\nWhen: ${DAYS[m.day]} ${t.hh} ${t.ap}\n${m.online ? "Online meeting" : [m.place, m.address].filter(Boolean).join(", ")}\nFellowship: ${m.fellowship}\n\nWhat needs fixing?\n`;
+  const correctionHref = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Fellow correction: " + m.name)}&body=${encodeURIComponent(correctionBody)}`;
   const seeAll = (q: string) => { refine(q); onClose(); };
   return (
     <div role="dialog" aria-modal aria-label={m.name} className="sheet-overlay"
@@ -471,6 +501,9 @@ function MeetingSheet({ m, onClose }: { m: any; onClose: () => void }) {
             : <a className="btn btn-fc" href={mapsAddr} target="_blank" rel="noopener"><Icon name="route" size={18} /> Directions</a>}
           <button className="btn btn-soft" onClick={onClose}><Icon name="close" size={18} /> Close</button>
         </div>
+        <a className="report-link" href={correctionHref}>
+          <Icon name="signpost" size={15} /> Something look wrong? Suggest a correction
+        </a>
       </div>
     </div>
   );
