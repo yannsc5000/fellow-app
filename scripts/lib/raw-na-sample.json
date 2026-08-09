@@ -1,0 +1,5 @@
+[
+  {"meeting_name":"Just for Today","weekday_tzid":"2","start_time":"19:30:00","duration_time":"01:30:00","location_text":"Dupont Circle Club","location_street":"1623 Connecticut Ave NW","location_municipality":"Washington","location_province":"DC","latitude":"38.9118916","longitude":"-77.0443704","formats":"O,D,BEG","comments":"Beginner-friendly discussion."},
+  {"meeting_name":"Living Clean","weekday_tzid":"4","start_time":"20:00:00","duration_time":"01:00:00","location_text":"Shaw Community Center","location_street":"1701 7th St NW","location_municipality":"Washington","location_province":"DC","latitude":"38.9142","longitude":"-77.0217","formats":"O,ST,WC","comments":"Step working group."},
+  {"meeting_name":"Basic Text Study","weekday_tzid":"6","start_time":"18:00:00","duration_time":"01:00:00","location_text":"Anacostia Neighborhood Library","location_street":"1800 Good Hope Rd SE","location_municipality":"Washington","location_province":"DC","latitude":"38.8663","longitude":"-76.9812","formats":"C,BT","comments":"Closed Basic Text study."}
+]

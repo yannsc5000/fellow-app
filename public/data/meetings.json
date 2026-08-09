@@ -1,0 +1,1597 @@
+[
+  {
+    "id": 1,
+    "source": "meeting-guide",
+    "fellowship": "AA",
+    "name": "Grupo Virtual Washingtonianos",
+    "day": 0,
+    "time": "05:00",
+    "end": null,
+    "place": "Online",
+    "address": "Northwest Washington, Washington, DC, USA",
+    "online": true,
+    "lat": null,
+    "lng": null,
+    "types": [
+      "Closed",
+      "Meditation",
+      "Spanish"
+    ],
+    "notes": "Zoom meeting: Dial (301) 715-8592, access code 679260920#; passcode 1939. Vipassana meditation.",
+    "dist": null
+  },
+  {
+    "id": 2,
+    "source": "meeting-guide",
+    "fellowship": "AA",
+    "name": "Sunrise Sobriety",
+    "day": 0,
+    "time": "06:45",
+    "end": "07:45",
+    "place": "Bethesda Presbyterian Church - Del Ray Club",
+    "address": "7611 Clarendon Rd, Bethesda, MD 20814, USA",
+    "online": false,
+    "lat": 38.9867951,
+    "lng": -77.1003733,
+    "types": [
+      "Open"
+    ],
+    "notes": "The Promises. Education Building entrance behind church.",
+    "dist": 6.5,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Bethesda · Red",
+        "d": "0.4 mi to station",
+        "q": "Bethesda Metro Station",
+        "slat": 38.9842,
+        "slng": -77.0947
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 7611 Clarendon Rd, Bethesda, MD 20814, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 7611 Clarendon Rd, Bethesda, MD 20814, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 7611 Clarendon Rd, Bethesda, MD 20814, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 7611 Clarendon Rd, Bethesda, MD 20814, USA"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "source": "meeting-guide",
+    "fellowship": "AA",
+    "name": "24 de Octubre",
+    "day": 0,
+    "time": "08:00",
+    "end": "10:00",
+    "place": "1035 Lamont Street",
+    "address": "1035 Lamont St NW, Washington, DC 20010, USA",
+    "online": false,
+    "lat": 38.930931,
+    "lng": -77.027759,
+    "types": [
+      "Open",
+      "Speaker",
+      "Spanish"
+    ],
+    "notes": "Front door basement.",
+    "dist": 1.7,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Columbia Heights · Green/Yellow",
+        "d": "0.3 mi to station",
+        "q": "Columbia Heights Metro Station",
+        "slat": 38.9287,
+        "slng": -77.0325
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 1035 Lamont St NW, Washington, DC 20010, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 1035 Lamont St NW, Washington, DC 20010, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 1035 Lamont St NW, Washington, DC 20010, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 1035 Lamont St NW, Washington, DC 20010, USA"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "source": "meeting-guide",
+    "fellowship": "AA",
+    "name": "Sunday Morning Breakfast",
+    "day": 0,
+    "time": "08:00",
+    "end": null,
+    "place": "Takoma Park SDA Center",
+    "address": "6810 Eastern Ave NW, Washington, DC 20012, USA",
+    "online": false,
+    "lat": 38.9733633,
+    "lng": -77.0127735,
+    "types": [
+      "Open",
+      "Discussion"
+    ],
+    "notes": "Parking lot entrance on 2nd & Laurel Streets, NW. Meeting room adjoins parking lot.",
+    "dist": 4.8,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Takoma · Red",
+        "d": "0.3 mi to station",
+        "q": "Takoma Metro Station",
+        "slat": 38.9752,
+        "slng": -77.0177
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 6810 Eastern Ave NW, Washington, DC 20012, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 6810 Eastern Ave NW, Washington, DC 20012, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 6810 Eastern Ave NW, Washington, DC 20012, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 6810 Eastern Ave NW, Washington, DC 20012, USA"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "source": "meeting-guide",
+    "fellowship": "AA",
+    "name": "Attitude and Action",
+    "day": 0,
+    "time": "08:00",
+    "end": "09:00",
+    "place": "Westside Club",
+    "address": "1341 Wisconsin Ave NW, Washington, DC 20007, USA",
+    "online": false,
+    "lat": 38.9077599,
+    "lng": -77.0633859,
+    "types": [
+      "Discussion",
+      "Open"
+    ],
+    "notes": "Morgan Room.",
+    "dist": 1.4,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Foggy Bottom-GWU · Blue/Orange/Silver",
+        "d": "0.9 mi to station",
+        "q": "Foggy Bottom-GWU Metro Station",
+        "slat": 38.9008,
+        "slng": -77.05
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 1341 Wisconsin Ave NW, Washington, DC 20007, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 1341 Wisconsin Ave NW, Washington, DC 20007, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 1341 Wisconsin Ave NW, Washington, DC 20007, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 1341 Wisconsin Ave NW, Washington, DC 20007, USA"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "source": "meeting-guide",
+    "fellowship": "AA",
+    "name": "Spiritual Awakening",
+    "day": 0,
+    "time": "08:30",
+    "end": null,
+    "place": "Dupont Circle Club",
+    "address": "1623 Connecticut Ave NW, Washington, DC 20009, USA",
+    "online": false,
+    "lat": 38.9118916,
+    "lng": -77.0443704,
+    "types": [
+      "Birthday",
+      "Discussion",
+      "Open"
+    ],
+    "notes": "Door to the club is located to the left of the nail salon.",
+    "dist": 0.5,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Dupont Circle · Red",
+        "d": "0.2 mi to station",
+        "q": "Dupont Circle Metro Station",
+        "slat": 38.9096,
+        "slng": -77.0434
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 1623 Connecticut Ave NW, Washington, DC 20009, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 1623 Connecticut Ave NW, Washington, DC 20009, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 1623 Connecticut Ave NW, Washington, DC 20009, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 1623 Connecticut Ave NW, Washington, DC 20009, USA"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "source": "meeting-guide",
+    "fellowship": "AA",
+    "name": "Veteranos con Amor",
+    "day": 0,
+    "time": "10:00",
+    "end": "12:00",
+    "place": "Amor y Fe",
+    "address": "4027 13th St NW, Washington, DC 20011, USA",
+    "online": false,
+    "lat": 38.9406253,
+    "lng": -77.0293222,
+    "types": [
+      "Discussion",
+      "Open",
+      "Spanish"
+    ],
+    "notes": "Taylor entrance; in basement in the rear of building off the alley.",
+    "dist": 2.3,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Georgia Ave-Petworth · Green/Yellow",
+        "d": "0.4 mi to station",
+        "q": "Georgia Ave-Petworth Metro Station",
+        "slat": 38.9364,
+        "slng": -77.0243
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 4027 13th St NW, Washington, DC 20011, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 4027 13th St NW, Washington, DC 20011, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 4027 13th St NW, Washington, DC 20011, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 4027 13th St NW, Washington, DC 20011, USA"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "source": "meeting-guide",
+    "fellowship": "AA",
+    "name": "There Is a Solution",
+    "day": 0,
+    "time": "10:00",
+    "end": null,
+    "place": "Dupont Circle Club",
+    "address": "1623 Connecticut Ave NW, Washington, DC 20009, USA",
+    "online": false,
+    "lat": 38.9118916,
+    "lng": -77.0443704,
+    "types": [
+      "Open",
+      "Step Study",
+      "Transgender",
+      "Wheelchair"
+    ],
+    "notes": "Door to the club is located to the left of the nail salon.",
+    "dist": 0.5,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Dupont Circle · Red",
+        "d": "0.2 mi to station",
+        "q": "Dupont Circle Metro Station",
+        "slat": 38.9096,
+        "slng": -77.0434
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 1623 Connecticut Ave NW, Washington, DC 20009, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 1623 Connecticut Ave NW, Washington, DC 20009, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 1623 Connecticut Ave NW, Washington, DC 20009, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 1623 Connecticut Ave NW, Washington, DC 20009, USA"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "source": "meeting-guide",
+    "fellowship": "AA",
+    "name": "Fe Dos de Enero",
+    "day": 0,
+    "time": "10:00",
+    "end": null,
+    "place": "617 Rhode Island Ave, Unit C",
+    "address": "617 Rhode Island Ave NE, Washington, DC 20002, USA",
+    "online": false,
+    "lat": 38.9204708,
+    "lng": -76.9971934,
+    "types": [
+      "Open",
+      "Spanish",
+      "Speaker"
+    ],
+    "notes": "",
+    "dist": 2.3,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Rhode Island Ave · Red",
+        "d": "0.1 mi to station",
+        "q": "Rhode Island Ave Metro Station",
+        "slat": 38.921,
+        "slng": -76.9958
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 617 Rhode Island Ave NE, Washington, DC 20002, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 617 Rhode Island Ave NE, Washington, DC 20002, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 617 Rhode Island Ave NE, Washington, DC 20002, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 617 Rhode Island Ave NE, Washington, DC 20002, USA"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "source": "meeting-guide",
+    "fellowship": "Al-Anon",
+    "name": "Dupont Al-Anon",
+    "day": 1,
+    "time": "12:00",
+    "end": "13:00",
+    "place": "St. Thomas Parish",
+    "address": "1517 18th St NW, Washington, DC 20036, USA",
+    "online": false,
+    "lat": 38.911,
+    "lng": -77.0416,
+    "types": [
+      "Open"
+    ],
+    "notes": "For families & friends of alcoholics.",
+    "dist": 0.4,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Dupont Circle · Red",
+        "d": "0.1 mi to station",
+        "q": "Dupont Circle Metro Station",
+        "slat": 38.9096,
+        "slng": -77.0434
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 1517 18th St NW, Washington, DC 20036, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 1517 18th St NW, Washington, DC 20036, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 1517 18th St NW, Washington, DC 20036, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 1517 18th St NW, Washington, DC 20036, USA"
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "source": "meeting-guide",
+    "fellowship": "AA",
+    "name": "Capitol Hill Group",
+    "day": 1,
+    "time": "12:15",
+    "end": "13:15",
+    "place": "Lutheran Church of the Reformation",
+    "address": "212 East Capitol St NE, Washington, DC 20003, USA",
+    "online": false,
+    "lat": 38.8899,
+    "lng": -77.0028,
+    "types": [
+      "Open",
+      "Big Book",
+      "Wheelchair"
+    ],
+    "notes": "Lunchtime Big Book study in the fellowship hall.",
+    "dist": 2.2,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Capitol South · Blue/Orange/Silver",
+        "d": "0.3 mi to station",
+        "q": "Capitol South Metro Station",
+        "slat": 38.8857,
+        "slng": -77.0059
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 212 East Capitol St NE, Washington, DC 20003, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 212 East Capitol St NE, Washington, DC 20003, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 212 East Capitol St NE, Washington, DC 20003, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 212 East Capitol St NE, Washington, DC 20003, USA"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "source": "meeting-guide",
+    "fellowship": "OA",
+    "name": "Dupont Overeaters",
+    "day": 1,
+    "time": "18:00",
+    "end": "19:00",
+    "place": "Dupont Circle Club",
+    "address": "1623 Connecticut Ave NW, Washington, DC 20009, USA",
+    "online": false,
+    "lat": 38.9119,
+    "lng": -77.0444,
+    "types": [
+      "Open",
+      "Discussion"
+    ],
+    "notes": "Open discussion.",
+    "dist": 0.5,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Dupont Circle · Red",
+        "d": "0.2 mi to station",
+        "q": "Dupont Circle Metro Station",
+        "slat": 38.9096,
+        "slng": -77.0434
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 1623 Connecticut Ave NW, Washington, DC 20009, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 1623 Connecticut Ave NW, Washington, DC 20009, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 1623 Connecticut Ave NW, Washington, DC 20009, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 1623 Connecticut Ave NW, Washington, DC 20009, USA"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "source": "bmlt",
+    "fellowship": "NA",
+    "name": "Just for Today",
+    "day": 1,
+    "time": "19:30",
+    "end": null,
+    "place": "Dupont Circle Club",
+    "address": "1623 Connecticut Ave NW, Washington, DC",
+    "online": false,
+    "lat": 38.9118916,
+    "lng": -77.0443704,
+    "types": [
+      "Open",
+      "Discussion",
+      "Beginners"
+    ],
+    "notes": "Beginner-friendly discussion.",
+    "dist": 0.5,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Dupont Circle · Red",
+        "d": "0.2 mi to station",
+        "q": "Dupont Circle Metro Station",
+        "slat": 38.9096,
+        "slng": -77.0434
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 1623 Connecticut Ave NW, Washington, DC"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 1623 Connecticut Ave NW, Washington, DC"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 1623 Connecticut Ave NW, Washington, DC"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 1623 Connecticut Ave NW, Washington, DC"
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "source": "meeting-guide",
+    "fellowship": "AA",
+    "name": "Foggy Bottom Noon",
+    "day": 2,
+    "time": "12:00",
+    "end": "13:00",
+    "place": "St. Paul's Episcopal",
+    "address": "2430 K St NW, Washington, DC 20037, USA",
+    "online": false,
+    "lat": 38.9027,
+    "lng": -77.0527,
+    "types": [
+      "Open",
+      "Discussion"
+    ],
+    "notes": "Enter on 24th St side.",
+    "dist": 0.9,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Foggy Bottom-GWU · Blue/Orange/Silver",
+        "d": "0.2 mi to station",
+        "q": "Foggy Bottom-GWU Metro Station",
+        "slat": 38.9008,
+        "slng": -77.05
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 2430 K St NW, Washington, DC 20037, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 2430 K St NW, Washington, DC 20037, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 2430 K St NW, Washington, DC 20037, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 2430 K St NW, Washington, DC 20037, USA"
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "source": "meeting-guide",
+    "fellowship": "CoDA",
+    "name": "Codependents Recovery",
+    "day": 2,
+    "time": "18:30",
+    "end": "19:30",
+    "place": "Cleveland Park Library",
+    "address": "3310 Connecticut Ave NW, Washington, DC 20008, USA",
+    "online": false,
+    "lat": 38.9349,
+    "lng": -77.0578,
+    "types": [
+      "Open",
+      "Discussion"
+    ],
+    "notes": "",
+    "dist": 2.2,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Cleveland Park · Red",
+        "d": "0.0 mi to station",
+        "q": "Cleveland Park Metro Station",
+        "slat": 38.935,
+        "slng": -77.0578
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 3310 Connecticut Ave NW, Washington, DC 20008, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 3310 Connecticut Ave NW, Washington, DC 20008, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 3310 Connecticut Ave NW, Washington, DC 20008, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 3310 Connecticut Ave NW, Washington, DC 20008, USA"
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "source": "meeting-guide",
+    "fellowship": "CMA",
+    "name": "Crystal Clear",
+    "day": 2,
+    "time": "19:30",
+    "end": "20:45",
+    "place": "The DC Center",
+    "address": "2000 14th St NW, Washington, DC 20009, USA",
+    "online": false,
+    "lat": 38.9179,
+    "lng": -77.0319,
+    "types": [
+      "Open",
+      "Discussion"
+    ],
+    "notes": "Newcomers welcome.",
+    "dist": 0.8,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "U Street · Green/Yellow",
+        "d": "0.2 mi to station",
+        "q": "U Street Metro Station",
+        "slat": 38.9169,
+        "slng": -77.0281
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 2000 14th St NW, Washington, DC 20009, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 2000 14th St NW, Washington, DC 20009, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 2000 14th St NW, Washington, DC 20009, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 2000 14th St NW, Washington, DC 20009, USA"
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "source": "meeting-guide",
+    "fellowship": "AA",
+    "name": "Shaw Serenity",
+    "day": 3,
+    "time": "18:30",
+    "end": "19:30",
+    "place": "Shaw Community Center",
+    "address": "1701 7th St NW, Washington, DC 20001, USA",
+    "online": false,
+    "lat": 38.9142,
+    "lng": -77.0217,
+    "types": [
+      "Open",
+      "Step Study",
+      "Wheelchair"
+    ],
+    "notes": "Step study rotating through the Twelve Steps.",
+    "dist": 0.9,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Shaw-Howard U · Green/Yellow",
+        "d": "0.1 mi to station",
+        "q": "Shaw-Howard U Metro Station",
+        "slat": 38.9126,
+        "slng": -77.0221
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 1701 7th St NW, Washington, DC 20001, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 1701 7th St NW, Washington, DC 20001, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 1701 7th St NW, Washington, DC 20001, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 1701 7th St NW, Washington, DC 20001, USA"
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "source": "meeting-guide",
+    "fellowship": "GA",
+    "name": "Capitol Hill Gamblers",
+    "day": 3,
+    "time": "19:00",
+    "end": "20:00",
+    "place": "Lutheran Church of the Reformation",
+    "address": "212 East Capitol St NE, Washington, DC 20003, USA",
+    "online": false,
+    "lat": 38.8899,
+    "lng": -77.0028,
+    "types": [
+      "Open"
+    ],
+    "notes": "Closed meeting.",
+    "dist": 2.2,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Capitol South · Blue/Orange/Silver",
+        "d": "0.3 mi to station",
+        "q": "Capitol South Metro Station",
+        "slat": 38.8857,
+        "slng": -77.0059
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 212 East Capitol St NE, Washington, DC 20003, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 212 East Capitol St NE, Washington, DC 20003, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 212 East Capitol St NE, Washington, DC 20003, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 212 East Capitol St NE, Washington, DC 20003, USA"
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "source": "bmlt",
+    "fellowship": "NA",
+    "name": "Living Clean",
+    "day": 3,
+    "time": "20:00",
+    "end": null,
+    "place": "Shaw Community Center",
+    "address": "1701 7th St NW, Washington, DC",
+    "online": false,
+    "lat": 38.9142,
+    "lng": -77.0217,
+    "types": [
+      "Open",
+      "Step Study",
+      "Wheelchair"
+    ],
+    "notes": "Step working group.",
+    "dist": 0.9,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Shaw-Howard U · Green/Yellow",
+        "d": "0.1 mi to station",
+        "q": "Shaw-Howard U Metro Station",
+        "slat": 38.9126,
+        "slng": -77.0221
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 1701 7th St NW, Washington, DC"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 1701 7th St NW, Washington, DC"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 1701 7th St NW, Washington, DC"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 1701 7th St NW, Washington, DC"
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "source": "meeting-guide",
+    "fellowship": "SAA",
+    "name": "SAA Downtown",
+    "day": 3,
+    "time": "20:00",
+    "end": "21:00",
+    "place": "Westminster Presbyterian",
+    "address": "400 I St SW, Washington, DC 20024, USA",
+    "online": false,
+    "lat": 38.8776,
+    "lng": -77.0141,
+    "types": [
+      "Closed"
+    ],
+    "notes": "Closed.",
+    "dist": 2.4,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Waterfront · Green",
+        "d": "0.2 mi to station",
+        "q": "Waterfront Metro Station",
+        "slat": 38.8765,
+        "slng": -77.0173
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 400 I St SW, Washington, DC 20024, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 400 I St SW, Washington, DC 20024, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 400 I St SW, Washington, DC 20024, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 400 I St SW, Washington, DC 20024, USA"
+      }
+    ]
+  },
+  {
+    "id": 21,
+    "source": "meeting-guide",
+    "fellowship": "AA",
+    "name": "H Street Newcomers",
+    "day": 4,
+    "time": "18:00",
+    "end": "19:00",
+    "place": "Atlas Community Room",
+    "address": "1333 H St NE, Washington, DC 20002, USA",
+    "online": false,
+    "lat": 38.9001,
+    "lng": -76.9861,
+    "types": [
+      "Open",
+      "Beginners",
+      "Wheelchair"
+    ],
+    "notes": "A warm landing spot if it's your first meeting.",
+    "dist": 2.8,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "NoMa-Gallaudet · Red",
+        "d": "1.0 mi to station",
+        "q": "NoMa-Gallaudet Metro Station",
+        "slat": 38.9074,
+        "slng": -77.0031
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 1333 H St NE, Washington, DC 20002, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 1333 H St NE, Washington, DC 20002, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 1333 H St NE, Washington, DC 20002, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 1333 H St NE, Washington, DC 20002, USA"
+      }
+    ]
+  },
+  {
+    "id": 22,
+    "source": "meeting-guide",
+    "fellowship": "DA",
+    "name": "Debtors Anonymous DC",
+    "day": 4,
+    "time": "18:00",
+    "end": "19:00",
+    "place": "Friends Meeting of Washington",
+    "address": "2111 Florida Ave NW, Washington, DC 20008, USA",
+    "online": false,
+    "lat": 38.9142,
+    "lng": -77.0475,
+    "types": [
+      "Open"
+    ],
+    "notes": "",
+    "dist": 0.7,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Dupont Circle · Red",
+        "d": "0.4 mi to station",
+        "q": "Dupont Circle Metro Station",
+        "slat": 38.9096,
+        "slng": -77.0434
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 2111 Florida Ave NW, Washington, DC 20008, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 2111 Florida Ave NW, Washington, DC 20008, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 2111 Florida Ave NW, Washington, DC 20008, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 2111 Florida Ave NW, Washington, DC 20008, USA"
+      }
+    ]
+  },
+  {
+    "id": 23,
+    "source": "meeting-guide",
+    "fellowship": "SLAA",
+    "name": "Rooms of Renewal",
+    "day": 4,
+    "time": "19:00",
+    "end": "20:15",
+    "place": "Foundry United Methodist",
+    "address": "1500 16th St NW, Washington, DC 20036, USA",
+    "online": false,
+    "lat": 38.9106,
+    "lng": -77.0365,
+    "types": [
+      "Closed",
+      "Discussion"
+    ],
+    "notes": "Confidential, safe space.",
+    "dist": 0.2,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Dupont Circle · Red",
+        "d": "0.4 mi to station",
+        "q": "Dupont Circle Metro Station",
+        "slat": 38.9096,
+        "slng": -77.0434
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 1500 16th St NW, Washington, DC 20036, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 1500 16th St NW, Washington, DC 20036, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 1500 16th St NW, Washington, DC 20036, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 1500 16th St NW, Washington, DC 20036, USA"
+      }
+    ]
+  },
+  {
+    "id": 24,
+    "source": "meeting-guide",
+    "fellowship": "NicA",
+    "name": "Nicotine Anonymous",
+    "day": 5,
+    "time": "17:30",
+    "end": "18:30",
+    "place": "GW University Hospital",
+    "address": "900 23rd St NW, Washington, DC 20037, USA",
+    "online": false,
+    "lat": 38.901,
+    "lng": -77.0505,
+    "types": [
+      "Open"
+    ],
+    "notes": "",
+    "dist": 0.8,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Foggy Bottom-GWU · Blue/Orange/Silver",
+        "d": "0.0 mi to station",
+        "q": "Foggy Bottom-GWU Metro Station",
+        "slat": 38.9008,
+        "slng": -77.05
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 900 23rd St NW, Washington, DC 20037, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 900 23rd St NW, Washington, DC 20037, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 900 23rd St NW, Washington, DC 20037, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 900 23rd St NW, Washington, DC 20037, USA"
+      }
+    ]
+  },
+  {
+    "id": 25,
+    "source": "bmlt",
+    "fellowship": "NA",
+    "name": "Basic Text Study",
+    "day": 5,
+    "time": "18:00",
+    "end": null,
+    "place": "Anacostia Neighborhood Library",
+    "address": "1800 Good Hope Rd SE, Washington, DC",
+    "online": false,
+    "lat": 38.8663,
+    "lng": -76.9812,
+    "types": [
+      "Closed",
+      "Basic Text"
+    ],
+    "notes": "Closed Basic Text study.",
+    "dist": 4.1,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Anacostia · Green",
+        "d": "0.8 mi to station",
+        "q": "Anacostia Metro Station",
+        "slat": 38.8628,
+        "slng": -76.9955
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 1800 Good Hope Rd SE, Washington, DC"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 1800 Good Hope Rd SE, Washington, DC"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 1800 Good Hope Rd SE, Washington, DC"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 1800 Good Hope Rd SE, Washington, DC"
+      }
+    ]
+  },
+  {
+    "id": 26,
+    "source": "meeting-guide",
+    "fellowship": "AA",
+    "name": "Georgetown Candlelight",
+    "day": 5,
+    "time": "20:00",
+    "end": "21:00",
+    "place": "Grace Church Georgetown",
+    "address": "1041 Wisconsin Ave NW, Washington, DC 20007, USA",
+    "online": false,
+    "lat": 38.9045,
+    "lng": -77.0625,
+    "types": [
+      "Open",
+      "Meditation"
+    ],
+    "notes": "Quiet candlelight meeting to close the week.",
+    "dist": 1.4,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Foggy Bottom-GWU · Blue/Orange/Silver",
+        "d": "0.7 mi to station",
+        "q": "Foggy Bottom-GWU Metro Station",
+        "slat": 38.9008,
+        "slng": -77.05
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 1041 Wisconsin Ave NW, Washington, DC 20007, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 1041 Wisconsin Ave NW, Washington, DC 20007, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 1041 Wisconsin Ave NW, Washington, DC 20007, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 1041 Wisconsin Ave NW, Washington, DC 20007, USA"
+      }
+    ]
+  },
+  {
+    "id": 27,
+    "source": "meeting-guide",
+    "fellowship": "AA",
+    "name": "Old Town Alexandria Sobriety",
+    "day": 6,
+    "time": "09:00",
+    "end": "10:00",
+    "place": "Downtown Baptist Church",
+    "address": "212 S Washington St, Alexandria, VA 22314, USA",
+    "online": false,
+    "lat": 38.8048,
+    "lng": -77.043,
+    "types": [
+      "Open",
+      "Discussion",
+      "Wheelchair"
+    ],
+    "notes": "Saturday morning meeting in the fellowship hall.",
+    "dist": 7.1,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Braddock Road · Blue/Yellow",
+        "d": "0.9 mi to station",
+        "q": "Braddock Road Metro Station",
+        "slat": 38.814,
+        "slng": -77.0538
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 212 S Washington St, Alexandria, VA 22314, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 212 S Washington St, Alexandria, VA 22314, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 212 S Washington St, Alexandria, VA 22314, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 212 S Washington St, Alexandria, VA 22314, USA"
+      }
+    ]
+  },
+  {
+    "id": 28,
+    "source": "meeting-guide",
+    "fellowship": "MA",
+    "name": "Marijuana Anonymous",
+    "day": 6,
+    "time": "10:00",
+    "end": "11:00",
+    "place": "Takoma Park Community",
+    "address": "6930 Carroll Ave, Takoma Park, MD 20912, USA",
+    "online": false,
+    "lat": 38.9779,
+    "lng": -77.0075,
+    "types": [
+      "Open",
+      "Discussion"
+    ],
+    "notes": "",
+    "dist": 5.1,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Takoma · Red",
+        "d": "0.6 mi to station",
+        "q": "Takoma Metro Station",
+        "slat": 38.9752,
+        "slng": -77.0177
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 6930 Carroll Ave, Takoma Park, MD 20912, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 6930 Carroll Ave, Takoma Park, MD 20912, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 6930 Carroll Ave, Takoma Park, MD 20912, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 6930 Carroll Ave, Takoma Park, MD 20912, USA"
+      }
+    ]
+  },
+  {
+    "id": 29,
+    "source": "meeting-guide",
+    "fellowship": "AA",
+    "name": "Ballston Big Book",
+    "day": 6,
+    "time": "11:00",
+    "end": "12:00",
+    "place": "Cherrydale Baptist",
+    "address": "3910 Lorcom Ln, Arlington, VA 22207, USA",
+    "online": false,
+    "lat": 38.8975,
+    "lng": -77.1085,
+    "types": [
+      "Closed",
+      "Big Book"
+    ],
+    "notes": "Closed Big Book study.",
+    "dist": 3.9,
+    "transit": [
+      {
+        "k": "metro",
+        "t": "Clarendon · Orange/Silver",
+        "d": "1.0 mi to station",
+        "q": "Clarendon Metro Station",
+        "slat": 38.8867,
+        "slng": -77.0966
+      },
+      {
+        "k": "bus",
+        "t": "Bus stops nearby",
+        "d": "View routes & stops",
+        "q": "bus stop near 3910 Lorcom Ln, Arlington, VA 22207, USA"
+      },
+      {
+        "k": "bike",
+        "t": "Capital Bikeshare nearby",
+        "d": "Docks & e-bikes",
+        "q": "Capital Bikeshare near 3910 Lorcom Ln, Arlington, VA 22207, USA"
+      }
+    ],
+    "parking": [
+      {
+        "k": "garage",
+        "t": "Parking near here",
+        "d": "Garages & lots",
+        "q": "parking near 3910 Lorcom Ln, Arlington, VA 22207, USA"
+      },
+      {
+        "k": "street",
+        "t": "Street parking",
+        "d": "On-street nearby",
+        "q": "street parking near 3910 Lorcom Ln, Arlington, VA 22207, USA"
+      }
+    ]
+  }
+]

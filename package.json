@@ -1,0 +1,33 @@
+{
+  "name": "fellow-app",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typesense:up": "docker compose up -d typesense",
+    "typesense:down": "docker compose down",
+    "ingest": "node scripts/ingest.mjs",
+    "index": "node scripts/index.mjs",
+    "bootstrap": "npm run typesense:up && npm run ingest && npm run index",
+    "bootstrap:local": "npm run typesense:up && npm run ingest -- --local && npm run index"
+  },
+  "dependencies": {
+    "maplibre-gl": "^4.7.1",
+    "next": "^15.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-instantsearch": "^7.15.0",
+    "typesense": "^2.0.3",
+    "typesense-instantsearch-adapter": "^2.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "^5.7.0"
+  }
+}

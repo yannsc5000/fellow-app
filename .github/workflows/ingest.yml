@@ -1,0 +1,37 @@
+name: Ingest & index meetings
+
+# Keeps the Typesense index fresh. Runs twice daily + on demand.
+on:
+  schedule:
+    - cron: "0 8,20 * * *"   # 08:00 & 20:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    concurrency: { group: ingest, cancel-in-progress: true }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+
+      # Pull every source in the registry (national) → public/data/meetings.json
+      - name: Ingest live feeds
+        run: npm run ingest
+        env:
+          GEOCODE: "1"   # fill missing coordinates via the US Census geocoder
+
+      # Create/refresh the Typesense collection and import the documents
+      - name: Index into Typesense
+        run: npm run index
+        env:
+          TYPESENSE_HOST: ${{ secrets.TYPESENSE_HOST }}
+          TYPESENSE_PORT: ${{ secrets.TYPESENSE_PORT }}
+          TYPESENSE_PROTOCOL: ${{ secrets.TYPESENSE_PROTOCOL }}
+          TYPESENSE_ADMIN_API_KEY: ${{ secrets.TYPESENSE_ADMIN_API_KEY }}
+          NEXT_PUBLIC_TYPESENSE_COLLECTION: ${{ secrets.TYPESENSE_COLLECTION }}
+
+      # Optional: keep a copy of the raw dataset as a build artifact
+      - uses: actions/upload-artifact@v4
+        with: { name: meetings-json, path: public/data/meetings.json, retention-days: 7 }
