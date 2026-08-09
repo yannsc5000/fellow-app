@@ -1,9 +1,13 @@
 name: Ingest & index meetings
 
-# Keeps the Typesense index fresh. Runs twice daily + on demand.
+# Keeps the Typesense index fresh automatically. Runs once daily + on demand.
+# This job pulls the feeds it can reach from GitHub's servers (including the browser
+# pass for Cloudflare/JS-challenged feeds). A few feeds only respond to a residential
+# IP — refresh those periodically from your own machine. The indexer's shrink-guard
+# (INDEX_MIN_RATIO) prevents a partly-blocked run from wiping a much larger index.
 on:
   schedule:
-    - cron: "0 8,20 * * *"   # 08:00 & 20:00 UTC
+    - cron: "0 9 * * *"    # daily at 09:00 UTC
   workflow_dispatch: {}
 
 jobs:
@@ -16,13 +20,19 @@ jobs:
         with: { node-version: 20, cache: npm }
       - run: npm ci
 
-      # Pull every source in the registry (national) → public/data/meetings.json
+      # Headless browser so the scheduled run can also pull WAF/JS-challenged feeds.
+      - name: Set up headless browser
+        run: npm i playwright --no-save && npx playwright install --with-deps chromium
+
+      # Pull every source in the registry → public/data/meetings.json
       - name: Ingest live feeds
         run: npm run ingest
         env:
-          GEOCODE: "1"   # fill missing coordinates via the US Census geocoder
+          USE_BROWSER: "1"   # drive Chromium for Cloudflare/JS-challenged feeds
+          GEOCODE: "1"       # fill missing coordinates via the US Census geocoder
 
-      # Create/refresh the Typesense collection and import the documents
+      # Create/refresh the Typesense collection and import the documents.
+      # Aborts (exit 1) if this run is < 70% the size of the live index — see index.mjs.
       - name: Index into Typesense
         run: npm run index
         env:
@@ -31,7 +41,8 @@ jobs:
           TYPESENSE_PROTOCOL: ${{ secrets.TYPESENSE_PROTOCOL }}
           TYPESENSE_ADMIN_API_KEY: ${{ secrets.TYPESENSE_ADMIN_API_KEY }}
           NEXT_PUBLIC_TYPESENSE_COLLECTION: ${{ secrets.TYPESENSE_COLLECTION }}
+          # INDEX_MIN_RATIO: "0.7"   # (default) minimum size vs. live index before aborting
 
-      # Optional: keep a copy of the raw dataset as a build artifact
+      # Keep a copy of the raw dataset as a build artifact
       - uses: actions/upload-artifact@v4
         with: { name: meetings-json, path: public/data/meetings.json, retention-days: 7 }
