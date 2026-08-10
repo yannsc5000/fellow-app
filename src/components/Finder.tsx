@@ -142,12 +142,21 @@ function Toggle({ attribute, value, label }: { attribute: string; value: string;
   );
 }
 
-// Quick day filter (Today / Tomorrow). day is stored 0=Sun..6=Sat.
-function DayChip({ day, label }: { day: number; label: string }) {
+// Controlled day filter: reconciles the InstantSearch `day` refinement to exactly the set
+// of days chosen by "Starts soon" / "Today" / "Tomorrow" (and any natural-language day).
+// Because it uses the day facet (disjunctive), multiple days combine as OR — so selecting
+// Starts soon + Today + Tomorrow broadens rather than conflicts.
+function DaySync({ days }: { days: number[] }) {
   const { items, refine } = useRefinementList({ attribute: "day", limit: 20 });
-  const val = String(day);
-  const on = items.some((i) => i.value === val && i.isRefined);
-  return <button className="chip" aria-pressed={on} onClick={() => refine(val)}>{label}</button>;
+  const want = [...new Set(days)].map(String).sort().join(",");
+  useEffect(() => {
+    const wantSet = new Set(want ? want.split(",") : []);
+    const haveSet = new Set(items.filter((i) => i.isRefined).map((i) => i.value));
+    wantSet.forEach((v) => { if (!haveSet.has(v)) refine(v); });
+    haveSet.forEach((v) => { if (!wantSet.has(v)) refine(v); });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [want]);
+  return null;
 }
 
 // Data-driven fellowship chips: "All" + every fellowship present in the index,
@@ -305,21 +314,17 @@ async function zipToPlace(zip: string): Promise<Place> {
 // in-person browsing; online meetings are location-agnostic, so when "Online" is
 // active we don't constrain by distance (the adapter also requires a radius whenever
 // aroundLatLng is set, so this is the one Configure that owns geo).
-function GeoConfigure({ place, dayFilter, wide, searching }: { place: Place; dayFilter: number | null; wide: boolean; searching: boolean }) {
+function GeoConfigure({ place, wide, searching }: { place: Place; wide: boolean; searching: boolean }) {
   const { items } = useRefinementList({ attribute: "online" });
   const onlineOnly = items.some((i) => i.value === "true" && i.isRefined);
   // Only constrain to the "near me" radius while BROWSING. When the user is actively
   // searching free text (e.g. a city like "Boston"), drop the radius so the query finds
-  // matches anywhere. A pure day/time query (e.g. "sunday morning") keeps the radius.
+  // matches anywhere. Day filtering is handled by DaySync (facet, OR-combined); time-of-day
+  // is applied client-side (Results/inWindow). Widen the page when a time window is active.
   const geo = place && !onlineOnly && !searching
     ? { aroundLatLng: `${place.lat},${place.lng}`, aroundRadius: AREA_RADIUS_M }
     : {};
-  // Filter by DAY on the server (always indexed). Time-of-day is applied client-side (see
-  // Results/inWindow), so these features need no schema change and never error on an
-  // older index. Widen the page when a time window is active so the client filter has
-  // enough of the day's meetings to work with.
-  const numericFilters = dayFilter != null ? [`day=${dayFilter}`] : undefined;
-  return <Configure hitsPerPage={wide ? 250 : 100} {...geo} {...(numericFilters ? { numericFilters } : {})} />;
+  return <Configure hitsPerPage={wide ? 250 : 100} {...geo} />;
 }
 
 // The tappable location control: shows the current ZIP/area and lets people change it
@@ -383,7 +388,9 @@ export default function Finder() {
   const [place, setPlace] = useState<Place>(null);
   const [selected, setSelected] = useState<any>(null);
   const [located, setLocated] = useState(false); // already tried device location?
-  const [startsSoon, setStartsSoon] = useState(false);
+  const [soon, setSoon] = useState(false);                 // "Starts soon" toggle
+  const [dayToggles, setDayToggles] = useState<number[]>([]); // Today / Tomorrow toggles
+  const toggleDay = (d: number) => setDayToggles((cur) => (cur.includes(d) ? cur.filter((x) => x !== d) : [...cur, d]));
   const [raw, setRaw] = useState("");                       // exactly what the user typed
   const parsed = useMemo(() => parseQuery(raw), [raw]);     // → filters + residual text
   const nearMeRef = useRef(false);
@@ -436,13 +443,19 @@ export default function Finder() {
   const searching = !!parsed.text.trim();
   const nowD = new Date();
   const nowMin = nowD.getHours() * 60 + nowD.getMinutes();
-  const timeWindow = startsSoon ? { lo: nowMin - 20, hi: nowMin + 90 } : parsed.window;
-  const dayFilter = startsSoon ? nowD.getDay() : parsed.day;
+  // "When" is an OR of everything selected: Starts soon (→ today), Today, Tomorrow, and any
+  // day parsed from the query. The soon *time window* only applies when Starts soon is the
+  // ONLY thing chosen — otherwise the day chips broaden the results (union), not conflict.
+  const days = [...new Set([...dayToggles, ...(parsed.day != null ? [parsed.day] : []), ...(soon ? [TODAY] : [])])];
+  const soleSoon = soon && dayToggles.length === 0 && parsed.day == null;
+  const timeWindow = soleSoon ? { lo: nowMin - 20, hi: nowMin + 90 } : parsed.window;
+  const wide = !!timeWindow;
 
   return (
     <InstantSearch searchClient={searchClient} indexName={COLLECTION} future={{ preserveSharedStateOnUnmount: true }}>
-      <GeoConfigure place={place} dayFilter={dayFilter} wide={!!timeWindow} searching={searching} />
+      <GeoConfigure place={place} wide={wide} searching={searching} />
       <QueryDriver text={parsed.text} />
+      <DaySync days={days} />
       <SearchBox value={raw} onChange={setRaw} onClear={() => setRaw("")} onSubmit={() => { if (!raw.trim()) nearMe(); }} />
       {parsed.labels.length > 0 && (
         <div className="parse-hint">
@@ -452,17 +465,17 @@ export default function Finder() {
 
       <FellowshipChips />
       <div className="filter-row" role="group" aria-label="Day, type and format">
-        <button className="chip chip-soon" aria-pressed={startsSoon} onClick={() => setStartsSoon((v) => !v)}>
+        <button className="chip chip-soon" aria-pressed={soon} onClick={() => setSoon((v) => !v)}>
           <span className="livedot" aria-hidden="true" /> Starts soon
         </button>
-        <DayChip day={TODAY} label="Today" />
-        <DayChip day={(TODAY + 1) % 7} label="Tomorrow" />
+        <button className="chip" aria-pressed={dayToggles.includes(TODAY)} onClick={() => toggleDay(TODAY)}>Today</button>
+        <button className="chip" aria-pressed={dayToggles.includes((TODAY + 1) % 7)} onClick={() => toggleDay((TODAY + 1) % 7)}>Tomorrow</button>
         <Toggle attribute="types" value="Open" label="Open" />
         <Toggle attribute="types" value="Wheelchair" label="Accessible" />
         <Toggle attribute="online" value="true" label="Online" />
       </div>
 
-      <ResultsCount place={place} startsSoon={startsSoon} timeWindow={timeWindow} />
+      <ResultsCount place={place} startsSoon={soleSoon} timeWindow={timeWindow} />
       <div className="results-head">
         <LocationControl place={place} onZip={setPlace} onNearMe={nearMe} onClear={() => setPlace(null)} />
         <div className="seg" role="group" aria-label="View">
@@ -472,7 +485,7 @@ export default function Finder() {
       </div>
 
       {view === "list" ? (
-        <Results onOpen={setSelected} user={user} onClearLocation={() => setPlace(null)} startsSoon={startsSoon} timeWindow={timeWindow} />
+        <Results onOpen={setSelected} user={user} onClearLocation={() => setPlace(null)} startsSoon={soleSoon} timeWindow={timeWindow} />
       ) : (
         <ErrorBoundary fallback={<div className="state"><h2>Map unavailable</h2><p>Switch back to List, or reload. (If this persists, the map key may be missing.)</p></div>}>
           <MapView onOpen={setSelected} />
