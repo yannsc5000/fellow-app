@@ -5,6 +5,7 @@
 //         public/icon-192.png, public/icon-512.png, public/icon-maskable-512.png
 import { writeFile } from "node:fs/promises";
 import sharp from "sharp";
+import pngToIco from "png-to-ico";
 
 const TEAL_A = "#12a394", TEAL_B = "#0a655c", WHITE = "#ffffff", ACCENT = "#f4511e";
 
@@ -78,4 +79,11 @@ await writeFile(p("public/icon-maskable-512.png"), await png(maskable, 512));
 const apple = tileSVG({ size: 180, rounded: 0, ringScale: 0.56 });
 await writeFile(p("src/app/apple-icon.png"), await png(apple, 180));
 
-console.log("+ wrote src/app/icon.svg, src/app/apple-icon.png, public/icon-192.png, public/icon-512.png, public/icon-maskable-512.png");
+// Classic favicon.ico (16/32/48) — the fallback older browsers, feed readers and crawlers
+// request at /favicon.ico when they can't use the SVG icon. Multi-resolution so it stays
+// crisp from the tab strip to the bookmarks bar.
+const icoSVG = tileSVG({ size: 100, rounded: 22, ringScale: 0.6 });
+const icoPngs = await Promise.all([16, 32, 48].map((s) => png(icoSVG, s)));
+await writeFile(p("src/app/favicon.ico"), await pngToIco(icoPngs));
+
+console.log("+ wrote src/app/icon.svg, src/app/favicon.ico, src/app/apple-icon.png, public/icon-192.png, public/icon-512.png, public/icon-maskable-512.png");
