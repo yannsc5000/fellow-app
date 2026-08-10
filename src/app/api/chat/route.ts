@@ -17,7 +17,7 @@ const SYSTEM = `You are Fellow, a warm, concise assistant that helps people find
 HOW YOU WORK
 - Use the search_meetings tool to find meetings. You may ONLY tell the user about meetings the tool returns — never invent a meeting, time, address, or link. If the tool returns nothing, say so plainly and offer to widen the area, try another day/time, or show online meetings.
 - The app displays the returned meetings as cards below your message, so keep your text short: a friendly one or two sentences. Do NOT list every meeting's full details in text — just a brief intro like "Here are a few AA meetings tonight near you:".
-- If the user's location or which fellowship they need is unclear, ask ONE short clarifying question before searching. If a user location is provided in context, use it for near_lat/near_lng when they say "near me" or don't name a place.
+- If a location is provided in context, treat it as the user's area and use it — never ask "what area are you in?". Only ask about location when none is provided and the request needs one. You may still ask ONE short clarifying question if the fellowship is genuinely unclear.
 
 MAPPING WHAT PEOPLE DESCRIBE → FELLOWSHIP (pass the code as "fellowship")
 - Their own drinking → AA; their own drug use → NA; cocaine → CA; opioids/heroin → HA; marijuana → MA; meth → CMA.
@@ -66,8 +66,8 @@ export async function POST(req: Request) {
     content: String(m.content || "").slice(0, 2000),
   }));
   const loc = body?.location && typeof body.location.lat === "number"
-    ? `\n\nContext — user's approximate location: ${body.location.lat}, ${body.location.lng}. Use it for near_lat/near_lng when appropriate.`
-    : "";
+    ? `\n\nContext — the user's approximate location is already known${body.location.label ? ` (${body.location.label})` : ""}: ${body.location.lat}, ${body.location.lng}. ALWAYS pass it as near_lat/near_lng and do NOT ask the user what area they're in. If they name a different place, use that instead.`
+    : "\n\nContext — no location is available. If the request needs one, ask the user for a ZIP or city (once).";
 
   const anthropic = new Anthropic({ apiKey });
   const msgs: Anthropic.MessageParam[] = trimmed;

@@ -4,7 +4,7 @@ import { CONTACT_EMAIL } from "@/lib/config";
 
 export const metadata: Metadata = {
   title: "About & sources — Fellow",
-  description: "Where Fellow's meeting data comes from, how we handle privacy and anonymity, and how to report a correction.",
+  description: "How Fellow works, where its meeting data comes from, how it handles privacy and anonymity (including the Ask Fellow chat), and how to report a correction.",
 };
 
 const CONTACT = `mailto:${CONTACT_EMAIL}`;
@@ -23,6 +23,14 @@ export default function AboutPage() {
         recovery meetings quickly. It is not affiliated with, endorsed by, or a representative of
         Alcoholics Anonymous or any other fellowship or service body. There are no accounts, no
         ads, and nothing to sign up for.
+      </p>
+      <p>
+        There are two ways to find a meeting. <strong>Search</strong> lets you type a place, ZIP,
+        group, or a plain phrase like “Sunday morning AA near me,” and filter by day, time,
+        fellowship, and location — including a “Starts soon” view for meetings beginning shortly.
+        <strong> Ask Fellow</strong> is a chat assistant you can talk to in your own words (for
+        example, “my partner’s drinking is a problem — is there something for me?”). Either way, you
+        can open a meeting’s details to get directions, add it to your calendar, or share it.
       </p>
 
       <h2>Where the meeting data comes from</h2>
@@ -75,6 +83,15 @@ export default function AboutPage() {
         <li>
           <strong>No personal data.</strong> Fellow doesn’t collect names, contact details, or a
           record of which meetings you view.
+        </li>
+        <li>
+          <strong>Ask Fellow (the chat assistant).</strong> To answer you, the messages you type —
+          plus your approximate location, if you’ve shared it — are sent to our AI provider
+          (<a href="https://www.anthropic.com/" target="_blank" rel="noopener">Anthropic</a>) to
+          generate a reply and search for meetings. Fellow doesn’t store your conversations or link
+          them to you, and the assistant only shows real meetings from the index — it can’t invent
+          one. Please don’t include identifying details; messages are processed under Anthropic’s
+          own policies.
         </li>
         <li>
           <strong>Maps &amp; directions.</strong> Opening a map, Street View, or directions hands off

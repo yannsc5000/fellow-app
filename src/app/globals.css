@@ -199,6 +199,7 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 
 /* Chat (Ask Fellow) */
 .chat-wrap{display:flex;flex-direction:column;height:min(70vh,640px);border:2px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden;margin-top:8px;box-shadow:var(--shadow-sm)}
+.chat-loc{padding:10px 12px;border-bottom:1px solid var(--line)}
 .chat-thread{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px}
 .chat-intro{color:var(--ink-soft)}
 .chat-intro p{margin:0 0 10px}

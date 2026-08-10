@@ -14,6 +14,69 @@ function to12(t: string) {
 
 type Meeting = { id: string; name: string; fellowship: string; day: number; time: string; place: string; address: string; online: boolean; lat: number | null; lng: number | null };
 type Msg = { role: "user" | "assistant"; content: string; meetings?: Meeting[] };
+type Place = { lat: number; lng: number; label: string };
+
+// Keyless helpers (shared shape with the Search view).
+async function reverseLabel(lat: number, lng: number): Promise<string> {
+  try {
+    const r = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`);
+    const d = await r.json();
+    return d.postcode || d.city || d.locality || "your area";
+  } catch { return "your area"; }
+}
+async function zipToPlace(zip: string): Promise<Place | null> {
+  try {
+    const r = await fetch(`https://api.zippopotam.us/us/${zip}`);
+    if (!r.ok) return null;
+    const d = await r.json();
+    const pl = d.places[0];
+    return { lat: Number(pl.latitude), lng: Number(pl.longitude), label: zip };
+  } catch { return null; }
+}
+
+// Editable location bar: prepopulated from the device's best guess; tap to change.
+function LocationBar({ place, onSet }: { place: Place | null; onSet: (p: Place) => void }) {
+  const [editing, setEditing] = useState(false);
+  const [zip, setZip] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!/^\d{5}$/.test(zip)) { setErr("Enter a 5-digit ZIP"); return; }
+    setBusy(true); setErr("");
+    const p = await zipToPlace(zip);
+    if (p) { onSet(p); setEditing(false); setZip(""); } else setErr("ZIP not found");
+    setBusy(false);
+  }
+  function useMe() {
+    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(async (p) => {
+      const lat = p.coords.latitude, lng = p.coords.longitude;
+      onSet({ lat, lng, label: "your area" });
+      onSet({ lat, lng, label: await reverseLabel(lat, lng) });
+      setEditing(false);
+    });
+  }
+  if (editing) {
+    return (
+      <form className="loc-form" onSubmit={submit}>
+        <input inputMode="numeric" maxLength={5} autoFocus aria-label="ZIP code" placeholder="ZIP code"
+          value={zip} onChange={(e) => setZip(e.currentTarget.value.replace(/\D/g, ""))} />
+        <button className="btn btn-soft" type="submit" disabled={busy}>{busy ? "…" : "Go"}</button>
+        <button type="button" className="loc-link" onClick={useMe}><Icon name="nearme" size={14} /> Use my location</button>
+        <button type="button" className="loc-link" onClick={() => { setEditing(false); setErr(""); }}>Cancel</button>
+        {err && <span className="loc-err" role="alert">{err}</span>}
+      </form>
+    );
+  }
+  return (
+    <button className="loc-btn" onClick={() => setEditing(true)} aria-label={place ? `Location: ${place.label}. Tap to change.` : "Set your location"}>
+      <Icon name="pin" size={16} />
+      {place ? <span>Near <b>{place.label}</b></span> : <span>Set your location</span>}
+      <span className="loc-change">Change</span>
+    </button>
+  );
+}
 
 const SUGGESTIONS = [
   "AA meeting tonight near me",
@@ -42,16 +105,20 @@ export default function Chat() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [selected, setSelected] = useState<Meeting | null>(null);
-  const loc = useRef<{ lat: number; lng: number } | null>(null);
+  const [place, setPlace] = useState<Place | null>(null);
   const threadRef = useRef<HTMLDivElement>(null);
 
+  // Best-guess location on load; the user can change it in the LocationBar.
   useEffect(() => {
-    if (typeof navigator !== "undefined" && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (p) => { loc.current = { lat: p.coords.latitude, lng: p.coords.longitude }; },
-        () => {}, { timeout: 8000, maximumAge: 600000 },
-      );
-    }
+    if (typeof navigator === "undefined" || !navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      async (p) => {
+        const lat = p.coords.latitude, lng = p.coords.longitude;
+        setPlace({ lat, lng, label: "your area" });
+        setPlace({ lat, lng, label: await reverseLabel(lat, lng) });
+      },
+      () => {}, { timeout: 8000, maximumAge: 600000 },
+    );
   }, []);
   useEffect(() => { threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight, behavior: "smooth" }); }, [msgs, busy]);
 
@@ -67,7 +134,7 @@ export default function Chat() {
       const r = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: next.map((m) => ({ role: m.role, content: m.content })), location: loc.current }),
+        body: JSON.stringify({ messages: next.map((m) => ({ role: m.role, content: m.content })), location: place }),
       });
       const d = await r.json();
       if (!r.ok) { setErr(d?.error || "Something went wrong."); setBusy(false); return; }
@@ -81,6 +148,7 @@ export default function Chat() {
 
   return (
     <div className="chat-wrap">
+      <div className="chat-loc"><LocationBar place={place} onSet={setPlace} /></div>
       <div className="chat-thread" ref={threadRef} role="log" aria-live="polite" aria-label="Conversation">
         {msgs.length === 0 && (
           <div className="chat-intro">
