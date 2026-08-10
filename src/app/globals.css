@@ -258,9 +258,23 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .notes-block{background:var(--surface-2);border:1px solid var(--line);padding:16px;border-radius:14px}
 
 /* Search / Ask-Fellow mode tabs */
-.mode-tabs{display:inline-flex;gap:4px;background:var(--surface-2);border:1px solid var(--line);border-radius:16px;padding:5px;margin:0 0 6px}
-.mode-tab{display:inline-flex;align-items:center;gap:8px;border:0;background:transparent;color:var(--ink-soft);font-family:inherit;font-weight:750;font-size:16px;padding:10px 18px;border-radius:12px;cursor:pointer;min-height:48px}
-.mode-tab[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
+/* Tabbed experience — chunky, left-aligned browser tabs sitting on one surface. The active
+   tab shares the panel's background and overlaps its top border (margin-bottom:-1), so it
+   reads as a real tab folder: pick Ask Fellow or Search and the whole panel below IS that
+   experience. Inactive tabs sit recessed (darker + nudged down). */
+.experience{margin:4px 0 2px}
+.exp-tabs{display:flex;gap:6px;padding-left:2px}
+.exp-tab{cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:9px;
+  font-weight:800;font-size:16px;min-height:52px;padding:13px 24px;color:var(--ink-soft);
+  background:var(--surface-2);border:1px solid var(--line);border-bottom:0;
+  border-radius:16px 16px 0 0;margin-bottom:-1px;transition:background .15s,color .15s}
+.exp-tab:hover{color:var(--ink)}
+.exp-tab[aria-selected="false"]{margin-top:5px;min-height:47px}
+.exp-tab[aria-selected="true"]{background:var(--surface);color:var(--ink);position:relative;z-index:2}
+.exp-body{position:relative;background:var(--surface);border:1px solid var(--line);
+  border-radius:0 var(--radius) var(--radius) var(--radius);box-shadow:var(--shadow-sm);overflow:hidden}
+.exp-body.is-search{padding:16px 16px 20px}
+.exp-body.is-chat .chat-wrap{border:0;border-radius:0;background:transparent;box-shadow:none;margin:0}
 
 /* Chat (Ask Fellow) */
 .chat-wrap{display:flex;flex-direction:column;height:min(70vh,640px);border:2px solid var(--line);border-radius:var(--radius);background:var(--surface);overflow:hidden;margin-top:8px;box-shadow:var(--shadow-sm)}

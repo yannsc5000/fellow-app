@@ -49,16 +49,19 @@ export default function Page() {
         </a>
       </header>
 
-      <div className="mode-tabs" role="tablist" aria-label="Find meetings by">
-        <button role="tab" aria-selected={mode === "chat"} className="mode-tab" onClick={() => setMode("chat")}>
-          <Icon name="chat" size={18} /> Ask Fellow
-        </button>
-        <button role="tab" aria-selected={mode === "search"} className="mode-tab" onClick={() => setMode("search")}>
-          <Icon name="search" size={18} /> Search
-        </button>
+      <div className="experience">
+        <div className="exp-tabs" role="tablist" aria-label="Find meetings by">
+          <button role="tab" aria-selected={mode === "chat"} className="exp-tab" onClick={() => setMode("chat")}>
+            <Icon name="chat" size={18} /> Ask Fellow
+          </button>
+          <button role="tab" aria-selected={mode === "search"} className="exp-tab" onClick={() => setMode("search")}>
+            <Icon name="search" size={18} /> Search
+          </button>
+        </div>
+        <div className={`exp-body ${mode === "search" ? "is-search" : "is-chat"}`}>
+          {mode === "search" ? <Finder key={resetKey} /> : <Chat key={resetKey} onSwitchToSearch={() => setMode("search")} />}
+        </div>
       </div>
-
-      {mode === "search" ? <Finder key={resetKey} /> : <Chat key={resetKey} onSwitchToSearch={() => setMode("search")} />}
 
       <section className="city-browse" aria-labelledby="city-browse-h">
         <h2 id="city-browse-h">Browse meetings by city</h2>
