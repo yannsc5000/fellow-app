@@ -186,6 +186,46 @@ export const SOURCES = [
   { id: "aa-tyler",         fellowship: "AA", system: "meeting-guide", area: "Tyler / East Texas TX",            url: "https://www.tyler-aa.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "aa-brazos-valley", fellowship: "AA", system: "meeting-guide", area: "College Station / Bryan TX",       url: "https://bvig.org/wp-admin/admin-ajax.php?action=meetings" },
 
+  // ---- Metro-coverage expansion (2026-08-10): gap metros + two previously-uncovered states.
+  // VERIFIED = confirmed TSML; CANDIDATE (state feeds + a few) = 12_step_meeting_list meta tag /
+  // tsml-* patterns confirmed but endpoint bot-blocked from research — USE_BROWSER=1 pulls them. ----
+  // South / Gulf
+  { id: "aa-baton-rouge",   fellowship: "AA", system: "meeting-guide", area: "Baton Rouge LA",                    url: "https://aabatonrouge.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-huntsville",    fellowship: "AA", system: "meeting-guide", area: "Huntsville AL",                     url: "https://aahuntsvilleal.com/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-mobile",        fellowship: "AA", system: "meeting-guide", area: "Mobile AL (SW Alabama)",            url: "https://mobileaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-mississippi",   fellowship: "AA", system: "meeting-guide", area: "Mississippi (statewide, covers Jackson)", url: "https://aa-mississippi.org/wp-admin/admin-ajax.php?action=meetings" }, // CANDIDATE — Jackson intergroup is PDF-only; statewide TSML instead
+  // Midwest
+  { id: "aa-grand-rapids",  fellowship: "AA", system: "meeting-guide", area: "Grand Rapids MI (Kent County)",     url: "https://www.grandrapidsaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-dayton",        fellowship: "AA", system: "meeting-guide", area: "Dayton OH",                         url: "https://aadaytononline.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-lexington",     fellowship: "AA", system: "meeting-guide", area: "Lexington KY (Bluegrass)",          url: "https://www.bluegrassintergroup.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-kansas",        fellowship: "AA", system: "meeting-guide", area: "Kansas Area 25 (statewide, covers Wichita)", url: "https://ks-aa.org/wp-admin/admin-ajax.php?action=meetings" }, // CANDIDATE — Wichita central office is legacy static; statewide TSML instead
+  // Southeast
+  { id: "aa-knoxville",     fellowship: "AA", system: "meeting-guide", area: "Knoxville TN (East Tennessee)",     url: "https://www.etiaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-chattanooga",   fellowship: "AA", system: "meeting-guide", area: "Chattanooga TN",                    url: "https://chattanooga-aa.com/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-greensboro",    fellowship: "AA", system: "meeting-guide", area: "Greensboro NC (District 23)",       url: "https://nc23.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-winston-salem", fellowship: "AA", system: "meeting-guide", area: "Winston-Salem NC (NW Piedmont)",    url: "https://nwpi.net/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-asheville",     fellowship: "AA", system: "meeting-guide", area: "Asheville NC (District 70)",        url: "https://ashevilleaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-greenville-sc", fellowship: "AA", system: "meeting-guide", area: "Greenville SC (Upstate)",           url: "https://www.upstateintergroup.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-savannah",      fellowship: "AA", system: "meeting-guide", area: "Savannah GA",                       url: "https://savannahaa.com/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-fort-myers",    fellowship: "AA", system: "meeting-guide", area: "Fort Myers FL (Lee County)",        url: "https://leecountyaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  // Northeast
+  { id: "aa-syracuse",      fellowship: "AA", system: "meeting-guide", area: "Syracuse NY (Central New York)",    url: "https://www.aasyracuse.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-western-mass",  fellowship: "AA", system: "meeting-guide", area: "Western Massachusetts (Springfield)", url: "https://westernmassaa.net/wp-admin/admin-ajax.php?action=meetings" }, // feed lives on .net, not the .org front site
+  { id: "aa-lehigh-valley", fellowship: "AA", system: "meeting-guide", area: "Lehigh Valley PA (Allentown / ABE)", url: "https://www.aalv.org/wp-admin/admin-ajax.php?action=meetings" },
+
+  // ---- Metro expansion round 2 (2026-08-10): new states VT/ND/SD + more metros, all TSML
+  // VERIFIED via 12_step_meeting_list meta tag. Statewide "Area" feeds used where no metro
+  // intergroup runs TSML; dedupe() removes overlap with existing metro feeds. ----
+  { id: "aa-vermont",       fellowship: "AA", system: "meeting-guide", area: "Vermont (Area 70, statewide, covers Burlington)",      url: "https://aavt.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-north-dakota",  fellowship: "AA", system: "meeting-guide", area: "North Dakota (Area 78, statewide, covers Fargo)",       url: "https://aanorthdakota.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-south-dakota",  fellowship: "AA", system: "meeting-guide", area: "South Dakota (Area 63, statewide, covers Sioux Falls)", url: "https://area63aa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-green-bay",     fellowship: "AA", system: "meeting-guide", area: "Green Bay / Appleton WI (Fox Valley)",                  url: "https://www.greenbayaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-minnesota",     fellowship: "AA", system: "meeting-guide", area: "Minnesota (Area 35, statewide, covers Duluth + outstate)", url: "https://aaminnesota.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-lincoln",       fellowship: "AA", system: "meeting-guide", area: "Lincoln NE",                                            url: "https://lincaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-roanoke",       fellowship: "AA", system: "meeting-guide", area: "Roanoke VA (Roanoke Valley)",                           url: "https://aaroanoke.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-tallahassee",   fellowship: "AA", system: "meeting-guide", area: "Tallahassee FL (Big Bend, Intergroup 5)",              url: "https://intergroup5.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-montgomery",    fellowship: "AA", system: "meeting-guide", area: "Montgomery AL (Central Alabama)",                       url: "https://centralalaa.org/wp-admin/admin-ajax.php?action=meetings" },
+
   // ---- Other fellowships — many are on BMLT (add their root servers from awesome-bmlt)
   // or publish Meeting Guide feeds. Add per-fellowship national sources here. ----
   // CMA — Crystal Meth Anonymous. Regional TSML feeds (verified: returned meeting JSON).

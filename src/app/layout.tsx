@@ -79,10 +79,16 @@ const JSONLD = {
   ],
 };
 
+// Warm up the connection to the Typesense search host during idle page load so the first
+// Search query doesn't pay the DNS + TLS handshake. React 19 hoists these <link>s to <head>.
+const TS_HOST = process.env.NEXT_PUBLIC_TYPESENSE_HOST;
+const TS_ORIGIN = TS_HOST && TS_HOST !== "localhost" ? `https://${TS_HOST}` : null;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
+        {TS_ORIGIN && <link rel="preconnect" href={TS_ORIGIN} crossOrigin="anonymous" />}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSONLD) }} />
         <a href="#main-content" className="skip-link">Skip to content</a>
         {children}

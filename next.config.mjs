@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  poweredByHeader: false, // drop the X-Powered-By response header (tiny, tidy)
   experimental: {
     // Static generation of the ~2,900 city/fellowship pages spawns one worker per CPU,
     // and EACH worker parses the full meetings dataset — several copies at once OOM the
