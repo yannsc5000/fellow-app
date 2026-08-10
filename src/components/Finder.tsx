@@ -411,7 +411,8 @@ export default function Finder() {
   }
   function nearMe() {
     if (typeof navigator === "undefined" || !navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition((p) => useCoords(p.coords.latitude, p.coords.longitude, true));
+    // Stay in the current view (don't force Map) — just center results on the user.
+    navigator.geolocation.getCurrentPosition((p) => useCoords(p.coords.latitude, p.coords.longitude, false));
   }
   // On first load, default results to the user's area (if they allow location).
   useEffect(() => {
@@ -440,7 +441,9 @@ export default function Finder() {
   }, [parsed.zip]);
 
   const user = place ? { lat: place.lat, lng: place.lng } : null;
-  const searching = !!parsed.text.trim();
+  // Drop the "near me" radius only when searching a DIFFERENT place. If the user explicitly
+  // said "near me", keep the radius even if there's residual text (e.g. "aa … near me").
+  const searching = !!parsed.text.trim() && !parsed.nearMe;
   const nowD = new Date();
   const nowMin = nowD.getHours() * 60 + nowD.getMinutes();
   // "When" is an OR of everything selected: Starts soon (→ today), Today, Tomorrow, and any
