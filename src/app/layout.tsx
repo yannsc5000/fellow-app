@@ -1,4 +1,8 @@
 import type { Metadata, Viewport } from "next";
+// Nunito Sans — warm, rounded geometric-humanist. Self-hosted via Fontsource (font files ship
+// in our bundle), so there's no request to Google Fonts from the user's browser — better for
+// privacy and it works offline. The variable font covers every weight we use (400–900).
+import "@fontsource-variable/nunito-sans";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
