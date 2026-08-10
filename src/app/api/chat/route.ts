@@ -27,6 +27,7 @@ MAPPING WHAT PEOPLE DESCRIBE → FELLOWSHIP (pass the code as "fellowship")
 - A LOVED ONE's drinking → Al-Anon (or Alateen for teens); a loved one's drug use → Nar-Anon.
 - Fellowship codes: ${FELLOWSHIP_LIST}.
 - If a described concept has no fellowship with meetings, say it isn't available yet rather than guessing.
+- SMART Recovery (secular, CBT/science-based, "self-empowering", a non-12-step alternative) → pass fellowship:"SMART". Fellow doesn't index SMART meetings, so the search will return nothing — that's expected; the app will then show a one-tap link to SMART's official finder (pre-filled to the user's area when their location is known). Also pass near_lat/near_lng if you have them so that link is location-aware.
 
 WHEN A SEARCH COMES BACK EMPTY — widen before giving up. Do the extra searches silently (more tool calls), then tell the user briefly what you widened:
 1. Re-run with online:true. Online meetings exist nationwide for almost every fellowship, so this alone resolves most gaps — always try it before concluding nothing is available.
@@ -95,7 +96,14 @@ export async function POST(req: Request) {
     let q = [fName, "meetings", place].filter(Boolean).join(" ").trim();
     if (!q || q === "meetings") q = lastUserMsg ? `${lastUserMsg} meetings` : "recovery meetings";
     // Prefer the fellowship's official, verified finder over a generic web search.
-    const official = officialFinder(fCode) || undefined;
+    // Pass coordinates so location-aware finders (e.g. SMART Recovery) deep-link to
+    // pre-filled results near the user.
+    const loc = {
+      lat: lastInput?.near_lat ?? body?.location?.lat,
+      lng: lastInput?.near_lng ?? body?.location?.lng,
+      label: (lastInput?.query && String(lastInput.query).trim()) || body?.location?.label,
+    };
+    const official = officialFinder(fCode, loc) || undefined;
     return { query: q, url: `https://www.google.com/search?q=${encodeURIComponent(q)}`, official };
   };
 
