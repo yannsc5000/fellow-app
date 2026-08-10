@@ -59,7 +59,6 @@ export const SOURCES = [
   { id: "aa-wyoming",     fellowship: "AA", system: "meeting-guide", area: "Wyoming (Area 76)",       url: "https://wyomingaa.org/wp-admin/admin-ajax.php?action=meetings" }, // verify: custom install, confirm from CI
   // DC METRO double-down: WAIA (aa-dc, above) already covers DC + MD suburbs + close-in VA;
   // add outer Northern Virginia (Fairfax/NoVA) for full metro coverage.
-  { id: "aa-nova",        fellowship: "AA", system: "meeting-guide", area: "Northern Virginia (NoVA Intergroup)", url: "https://nvintergroup.org/wp-admin/admin-ajax.php?action=meetings" },
   // TODO: LA uses a non-TSML format (returns HTML) — needs its own adapter.
   // Grow toward the full ~400 intergroups (see NATIONAL-ROLLOUT.md discovery approach).
 
@@ -80,7 +79,7 @@ export const SOURCES = [
   { id: "aa-portland-me",  fellowship: "AA", system: "meeting-guide", area: "Portland ME",                  url: "https://csoaamaine.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "aa-nh",           fellowship: "AA", system: "meeting-guide", area: "New Hampshire",                url: "https://nhaa.net/wp-admin/admin-ajax.php?action=meetings" },
   // South / Southeast / Texas
-  { id: "aa-nashville",    fellowship: "AA", system: "meeting-guide", area: "Nashville TN",                 url: "https://aanashville.org/wp/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-nashville",    fellowship: "AA", system: "meeting-guide", area: "Nashville TN",                 url: "https://aanashville.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "aa-memphis",      fellowship: "AA", system: "meeting-guide", area: "Memphis TN",                   url: "https://www.memphis-aa.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "aa-charlotte",    fellowship: "AA", system: "meeting-guide", area: "Charlotte NC",                 url: "https://charlotteaa.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "aa-raleigh",      fellowship: "AA", system: "meeting-guide", area: "Raleigh/Durham NC",           url: "https://raleighaa.com/wp-admin/admin-ajax.php?action=meetings" },
@@ -89,7 +88,7 @@ export const SOURCES = [
   { id: "aa-jacksonville", fellowship: "AA", system: "meeting-guide", area: "Jacksonville FL",             url: "https://neflaa.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "aa-south-palm-beach", fellowship: "AA", system: "meeting-guide", area: "South Palm Beach County FL (Delray/Boca)", url: "https://www.aainpalmbeach.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "aa-palm-beach",   fellowship: "AA", system: "meeting-guide", area: "Palm Beach County FL",         url: "https://aa-palmbeachcounty.org/wp-admin/admin-ajax.php?action=meetings" },
-  { id: "aa-birmingham",   fellowship: "AA", system: "meeting-guide", area: "Birmingham AL",               url: "https://birminghamaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-birmingham",   fellowship: "AA", system: "meeting-guide", area: "Birmingham AL",               url: "https://birminghamaa.org/wp/wp-admin/admin-ajax.php?action=meetings" },
   { id: "aa-louisville",   fellowship: "AA", system: "meeting-guide", area: "Louisville KY",               url: "https://loukyaa.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "aa-okc",          fellowship: "AA", system: "meeting-guide", area: "Oklahoma City OK",            url: "https://okcintergroup.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "aa-tulsa",        fellowship: "AA", system: "meeting-guide", area: "Tulsa OK",                     url: "https://aaneok.org/wp-admin/admin-ajax.php?action=meetings" },
@@ -129,7 +128,6 @@ export const SOURCES = [
   { id: "aa-la-southbay",   fellowship: "AA", system: "meeting-guide", area: "South Bay LA / Torrance CA",       url: "https://asbco.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "aa-longbeach",     fellowship: "AA", system: "meeting-guide", area: "Long Beach / Harbor Area CA",       url: "https://hacoaa.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "aa-oc",            fellowship: "AA", system: "meeting-guide", area: "Orange County CA",                  url: "https://www.oc-aa.org/wp-admin/admin-ajax.php?action=meetings" },
-  { id: "aa-noc",           fellowship: "AA", system: "meeting-guide", area: "North Orange County CA",            url: "https://www.aanoc.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "aa-inland-empire", fellowship: "AA", system: "meeting-guide", area: "Inland Empire CA",                  url: "https://aainlandempire.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "aa-ventura",       fellowship: "AA", system: "meeting-guide", area: "Ventura County CA",                 url: "https://aaventuracounty.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "aa-santa-barbara", fellowship: "AA", system: "meeting-guide", area: "Santa Barbara CA",                  url: "https://santabarbaraaa.com/wp-admin/admin-ajax.php?action=meetings" },

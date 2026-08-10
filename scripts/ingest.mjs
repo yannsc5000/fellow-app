@@ -22,7 +22,12 @@ const HEADERS = {
   "Accept-Language": "en-US,en;q=0.9",
 };
 async function getJSON(url) {
-  const r = await fetch(url, { headers: HEADERS, redirect: "follow" });
+  // Some WAFs wave through a request that looks like the site's own in-page AJAX call:
+  // a same-site Referer + the XHR header. Cheap to add and recovers feeds without a browser.
+  let referer;
+  try { referer = new URL(url).origin + "/"; } catch {}
+  const h = { ...HEADERS, "X-Requested-With": "XMLHttpRequest", ...(referer ? { Referer: referer } : {}) };
+  const r = await fetch(url, { headers: h, redirect: "follow" });
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.json();
 }
@@ -47,11 +52,36 @@ async function getBrowser() {
 async function getJSONviaBrowser(url) {
   const b = await getBrowser();
   if (!b) return null;
-  const ctx = await b.newContext({ userAgent: HEADERS["User-Agent"] });
+  const ctx = await b.newContext({ userAgent: HEADERS["User-Agent"], locale: "en-US" });
   const pg = await ctx.newPage();
   try {
+    // Establish a real session FIRST. A direct hit to admin-ajax.php looks like a bot to
+    // most WAFs (→ 401/403) even from a browser. Loading a normal page on the same origin
+    // clears any Cloudflare challenge and sets session cookies; an in-page, same-origin
+    // fetch afterwards carries the cookies + referer the WAF expects — exactly how the
+    // TSML plugin itself loads its data. This recovers far more feeds than a direct hit.
+    const origin = new URL(url).origin;
+    let landed = false;
+    for (const path of ["/meetings/", "/meeting-search/", "/"]) {
+      try {
+        const resp = await pg.goto(origin + path, { waitUntil: "domcontentloaded", timeout: 60000 });
+        if (resp && resp.ok()) { landed = true; break; }
+      } catch {}
+    }
+    if (landed) {
+      await pg.waitForTimeout(3500); // let any JS challenge finish
+      const data = await pg.evaluate(async (u) => {
+        try {
+          const r = await fetch(u, { headers: { Accept: "application/json, text/plain, */*" }, credentials: "include" });
+          if (!r.ok) return null;
+          return await r.json();
+        } catch { return null; }
+      }, url);
+      if (Array.isArray(data) && data.length) return data;
+    }
+    // Last resort: navigate straight to the endpoint (works when it renders JSON as a page).
     await pg.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
-    await pg.waitForTimeout(6000); // let a JS challenge resolve, then read the JSON body
+    await pg.waitForTimeout(4000);
     const txt = await pg.evaluate(() => (document.body ? document.body.innerText : ""));
     return JSON.parse(txt);
   } catch {
