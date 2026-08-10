@@ -196,6 +196,9 @@ export const SOURCES = [
   // MA — Marijuana Anonymous. National site confirmed running TSML (12_step_meeting_list
   // plugin); WAF blocks the sandbox fetcher but it serves JSON from CI / a real server.
   { id: "ma-national", fellowship: "MA", system: "meeting-guide", area: "Marijuana Anonymous (national)", url: "https://marijuana-anonymous.org/wp-admin/admin-ajax.php?action=meetings" },
+  // RD — Recovery Dharma (Buddhist-inspired). National site runs TSML (12_step_meeting_list
+  // 3.19.16); endpoint verified returning meeting JSON with lat/lng + Zoom links.
+  { id: "rd-national", fellowship: "RD", system: "meeting-guide", area: "Recovery Dharma (national)", url: "https://recoverydharma.org/wp-admin/admin-ajax.php?action=meetings" },
   // CANDIDATES — endpoint responded behind a WAF/JS challenge from the sandbox (403 /
   // JS redirect), consistent with a TSML site. ingest() skips any that don't return a
   // usable JSON array, so these are safe to include; verify counts from the CI run.

@@ -9,6 +9,7 @@ export const FELLOWSHIPS = [
   ["CMA","Crystal Meth Anonymous",["crystal meth","methamphetamine","meth","tina"]],
   ["NicA","Nicotine Anonymous",["nicotine","smoking","smoke","vaping","vape","cigarettes","tobacco"]],
   ["PA","Pills Anonymous",["pills","prescription","benzos","painkillers","xanax"]],
+  ["RD","Recovery Dharma",["dharma","buddhist","buddhism","meditation","mindfulness","recovery dharma"]],
   ["OA","Overeaters Anonymous",["overeating","overeater","food","compulsive eating","binge eating","binge","sugar"]],
   ["EDA","Eating Disorders Anonymous",["eating disorder","anorexia","bulimia","disordered eating","purging"]],
   ["FAIR","Food Addicts in Recovery Anonymous",["food addiction","food addict","food","sugar"]],

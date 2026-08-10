@@ -19,9 +19,10 @@ export default function AboutPage() {
       <h1>About Fellow</h1>
 
       <p>
-        Fellow is a free, independent, non-commercial project that helps people find 12-step
-        recovery meetings quickly. It is not affiliated with, endorsed by, or a representative of
-        Alcoholics Anonymous or any other fellowship or service body. There are no accounts, no
+        Fellow is a free, independent, non-commercial project that helps people find
+        recovery meetings quickly — 12-step fellowships and related peer-support programs alike.
+        It is not affiliated with, endorsed by, or a representative of
+        Alcoholics Anonymous or any other fellowship, program, or service body. There are no accounts, no
         ads, and nothing to sign up for.
       </p>
       <p>
@@ -56,20 +57,22 @@ export default function AboutPage() {
         like its feed added, corrected, or removed, please <a href={CONTACT}>get in touch</a>.
       </p>
 
-      <h3>Fellowships included</h3>
-      <p>Fellow aims to cover all 12-step fellowships that publish open meeting data, including:</p>
+      <h3>Programs &amp; fellowships included</h3>
+      <p>Fellow aims to cover 12-step fellowships and related peer-recovery programs that publish open meeting data, including:</p>
       {byGroup.map(({ g, list }) => (
         <p key={g} style={{ margin: "6px 0" }}>
           <strong>{g}:</strong> {list.map((f) => f.name).join(", ")}.
         </p>
       ))}
       <p style={{ color: "var(--ink-soft)", fontSize: 15 }}>
-        Coverage varies by area and grows over time — not every fellowship publishes open data everywhere.
+        A few of these — such as Recovery Dharma, a mindfulness-based path — are not 12-step programs;
+        they’re included because they serve the same need and publish open meeting data. Coverage varies
+        by area and grows over time — not every program publishes open data everywhere.
       </p>
 
       <h2 id="privacy">Privacy &amp; anonymity</h2>
       <p>
-        Anonymity is a foundation of 12-step recovery, and Fellow is built to respect it. We don’t
+        Anonymity and privacy are foundations of recovery, and Fellow is built to respect them. We don’t
         ask who you are, we don’t create accounts, and we don’t track you across the web or run
         advertising.
       </p>

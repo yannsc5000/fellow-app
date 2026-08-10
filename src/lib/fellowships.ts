@@ -11,6 +11,7 @@ export const FELLOWSHIPS: Fellowship[] = [
   { code: "CMA", name: "Crystal Meth Anonymous", group: "Alcohol & drugs", kw: ["crystal meth", "methamphetamine", "meth", "tina"] },
   { code: "NicA", name: "Nicotine Anonymous", group: "Alcohol & drugs", kw: ["nicotine", "smoking", "smoke", "vaping", "vape", "cigarettes", "tobacco"] },
   { code: "PA", name: "Pills Anonymous", group: "Alcohol & drugs", kw: ["pills", "prescription", "benzos", "painkillers", "xanax"] },
+  { code: "RD", name: "Recovery Dharma", group: "Alcohol & drugs", kw: ["dharma", "buddhist", "buddhism", "meditation", "mindfulness", "recovery dharma"] },
   { code: "OA", name: "Overeaters Anonymous", group: "Food & eating", kw: ["overeating", "overeater", "food", "compulsive eating", "binge eating", "binge", "sugar"] },
   { code: "EDA", name: "Eating Disorders Anonymous", group: "Food & eating", kw: ["eating disorder", "anorexia", "bulimia", "disordered eating", "purging"] },
   { code: "FAIR", name: "Food Addicts in Recovery Anonymous", group: "Food & eating", kw: ["food addiction", "food addict", "food", "sugar"] },
@@ -46,6 +47,7 @@ export const fellowshipName = (code: string) => BY_CODE[code]?.name || code;
 export const FELLOWSHIP_COLORS: Record<string, string> = {
   AA: "#4F46E5",
   NA: "#0D7D71", CA: "#0369A1", CMA: "#7C3AED", MA: "#15803D", HA: "#BE123C", NicA: "#0E7490", PA: "#4338CA",
+  RD: "#A16207",
   OA: "#C2410C", EDA: "#B45309", FAIR: "#92400E", FAA: "#78350F",
   SLAA: "#E11D48", SAA: "#DB2777", SA: "#BE185D", SCA: "#C026D3", SRA: "#9333EA", SIA: "#7E22CE", COSLAA: "#A21CAF",
   DA: "#0F766E", UA: "#047857", WA: "#0B6E8C", CLA: "#6D28D9",
