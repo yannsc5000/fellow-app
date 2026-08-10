@@ -41,7 +41,7 @@ export default function Page() {
     <main className="app" id="main-content" tabIndex={-1}>
       <header className="brand">
         <a href="/" className="brand-link" onClick={goHome} aria-label="Fellow — back to home">
-          <div className="mark" aria-hidden><Mark size={30} /></div>
+          <div className="mark" aria-hidden><Mark size={50} /></div>
           <div>
             <h1>Fellow</h1>
             <div className="tagline">Find your people</div>
