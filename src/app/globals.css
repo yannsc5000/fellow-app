@@ -228,6 +228,11 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .cc-meta{display:block;color:var(--ink-soft);font-size:13.5px}
 .cc-link{flex:0 0 auto;display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:var(--surface-2);color:var(--brand-ink);text-decoration:none}
 .cc-link.cc-online{width:auto;padding:0 10px;font-size:12px;font-weight:800}
+.web-fallbacks{display:flex;flex-direction:column;gap:8px;width:100%;max-width:540px;margin-top:8px}
+.web-fallback{display:flex;align-items:center;gap:10px;width:100%;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:12px 14px;font:inherit;font-weight:800;font-size:15px;color:var(--brand-ink);text-decoration:none}
+.web-fallback:hover{border-color:var(--brand)}
+.web-fallback .wf-ext{margin-left:auto;color:var(--ink-soft)}
+.wf-official{border-color:color-mix(in srgb, var(--brand) 40%, var(--line));background:color-mix(in srgb, var(--brand) 6%, var(--surface))}
 .chat-err{color:var(--accent);font-size:14px;font-weight:700}
 .chat-input{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--surface)}
 .chat-input input{flex:1;border:2px solid var(--line);border-radius:14px;padding:12px 14px;font:inherit;font-size:16px;background:var(--surface);color:var(--ink)}

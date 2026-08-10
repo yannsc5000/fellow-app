@@ -3,7 +3,8 @@
 // the tool returns; it never invents them. Returns { reply, meetings }.
 import Anthropic from "@anthropic-ai/sdk";
 import { searchMeetings, type MeetingResult } from "@/lib/serverSearch";
-import { FELLOWSHIPS } from "@/lib/fellowships";
+import { FELLOWSHIPS, fellowshipName } from "@/lib/fellowships";
+import { officialFinder } from "@/lib/finders";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -26,6 +27,14 @@ MAPPING WHAT PEOPLE DESCRIBE → FELLOWSHIP (pass the code as "fellowship")
 - A LOVED ONE's drinking → Al-Anon (or Alateen for teens); a loved one's drug use → Nar-Anon.
 - Fellowship codes: ${FELLOWSHIP_LIST}.
 - If a described concept has no fellowship with meetings, say it isn't available yet rather than guessing.
+
+WHEN A SEARCH COMES BACK EMPTY — widen before giving up. Do the extra searches silently (more tool calls), then tell the user briefly what you widened:
+1. Re-run with online:true. Online meetings exist nationwide for almost every fellowship, so this alone resolves most gaps — always try it before concluding nothing is available.
+2. If a day or time_of_day was set, drop it and offer meetings across the week.
+3. If a location was set, increase radius_miles (e.g. 40 → 100) to catch nearby towns.
+4. If truly nothing turns up in-person, lead with the online meetings you found.
+Example: "There are no in-person ACA meetings in DC tonight, but here are 3 online ACA meetings happening today, plus some in-person options nearby tomorrow."
+- ONLY after these widenings still yield nothing, say plainly you couldn't find any in Fellow's directory and let the user know they can tap the buttons below your message (an official directory link and a web search) to look further. Do NOT output any URLs or invent web results yourself — the app adds the buttons.
 
 SCOPE & CARE
 - You help find meetings. You are NOT a therapist and do not give medical, clinical, or legal advice.
@@ -73,9 +82,25 @@ export async function POST(req: Request) {
   const anthropic = new Anthropic({ apiKey });
   const msgs: Anthropic.MessageParam[] = trimmed;
   const collected: MeetingResult[] = [];
+  let lastInput: any = null; // remember the last search's inputs to build a web-search fallback
+
+  // When Fellow's index has nothing, offer a Google search the user can open in a new tab.
+  // Built from what they were actually looking for (fellowship + place), never personal data.
+  const lastUserMsg = [...trimmed].reverse().find((m) => m.role === "user")?.content || "";
+  const buildWebSearch = () => {
+    const fCode = lastInput?.fellowship ? String(lastInput.fellowship) : "";
+    const fName = fCode ? fellowshipName(fCode) : "";
+    const place = (lastInput?.query && String(lastInput.query).trim())
+      || (body?.location?.label && body.location.label !== "your area" ? String(body.location.label) : "");
+    let q = [fName, "meetings", place].filter(Boolean).join(" ").trim();
+    if (!q || q === "meetings") q = lastUserMsg ? `${lastUserMsg} meetings` : "recovery meetings";
+    // Prefer the fellowship's official, verified finder over a generic web search.
+    const official = officialFinder(fCode) || undefined;
+    return { query: q, url: `https://www.google.com/search?q=${encodeURIComponent(q)}`, official };
+  };
 
   try {
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 5; i++) { // room for the "widen before giving up" retry ladder
       const resp = await anthropic.messages.create({
         model: MODEL,
         max_tokens: 700,
@@ -88,6 +113,7 @@ export async function POST(req: Request) {
         const toolResults: Anthropic.ToolResultBlockParam[] = [];
         for (const block of resp.content) {
           if (block.type !== "tool_use") continue;
+          lastInput = block.input || lastInput;
           const found = await searchMeetings((block.input || {}) as any);
           collected.push(...found);
           toolResults.push({
@@ -103,9 +129,9 @@ export async function POST(req: Request) {
       // De-dupe collected meetings by id, keep first ~12.
       const seen = new Set<string>();
       const meetings = collected.filter((m) => (m.id && !seen.has(m.id) ? (seen.add(m.id), true) : false)).slice(0, 12);
-      return Response.json({ reply, meetings });
+      return Response.json(meetings.length ? { reply, meetings } : { reply, meetings, webSearch: buildWebSearch() });
     }
-    return Response.json({ reply: "Sorry — I had trouble pulling that together. Try rephrasing?", meetings: [] });
+    return Response.json({ reply: "Sorry — I had trouble pulling that together. Try rephrasing?", meetings: [], webSearch: buildWebSearch() });
   } catch (e: any) {
     const status = e?.status === 429 ? 429 : 500;
     const msg = status === 429 ? "We've hit today's chat limit — the regular search still works." : "Something went wrong. Please try again.";

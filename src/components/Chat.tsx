@@ -13,7 +13,8 @@ function to12(t: string) {
 }
 
 type Meeting = { id: string; name: string; fellowship: string; day: number; time: string; place: string; address: string; online: boolean; lat: number | null; lng: number | null };
-type Msg = { role: "user" | "assistant"; content: string; meetings?: Meeting[] };
+type WebSearch = { query: string; url: string; official?: { label: string; url: string } };
+type Msg = { role: "user" | "assistant"; content: string; meetings?: Meeting[]; webSearch?: WebSearch };
 type Place = { lat: number; lng: number; label: string };
 
 // Keyless helpers (shared shape with the Search view).
@@ -138,7 +139,7 @@ export default function Chat() {
       });
       const d = await r.json();
       if (!r.ok) { setErr(d?.error || "Something went wrong."); setBusy(false); return; }
-      setMsgs((cur) => [...cur, { role: "assistant", content: d.reply || "", meetings: d.meetings || [] }]);
+      setMsgs((cur) => [...cur, { role: "assistant", content: d.reply || "", meetings: d.meetings || [], webSearch: d.webSearch }]);
     } catch {
       setErr("Couldn’t reach the assistant. Check your connection.");
     } finally {
@@ -166,6 +167,22 @@ export default function Chat() {
             {m.content && <div className="bubble">{m.content}</div>}
             {m.meetings && m.meetings.length > 0 && (
               <div className="chat-cards">{m.meetings.map((mt) => <ChatCard key={mt.id} m={mt} onOpen={setSelected} />)}</div>
+            )}
+            {m.webSearch && (!m.meetings || m.meetings.length === 0) && (
+              <div className="web-fallbacks">
+                {m.webSearch.official && (
+                  <a className="web-fallback wf-official" href={m.webSearch.official.url} target="_blank" rel="noopener noreferrer">
+                    <Icon name="list" size={18} />
+                    <span>{m.webSearch.official.label}</span>
+                    <Icon name="external" size={15} className="wf-ext" />
+                  </a>
+                )}
+                <a className="web-fallback" href={m.webSearch.url} target="_blank" rel="noopener noreferrer">
+                  <Icon name="search" size={18} />
+                  <span>Search the web for “{m.webSearch.query}”</span>
+                  <Icon name="external" size={15} className="wf-ext" />
+                </a>
+              </div>
             )}
           </div>
         ))}
