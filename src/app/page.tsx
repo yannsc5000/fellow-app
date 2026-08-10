@@ -78,7 +78,7 @@ export default function Page() {
           Fellow is an independent, non-commercial project — not affiliated with any 12-step
           fellowship. Meeting data comes from public intergroup feeds.
         </p>
-        <p><a href="/meetings">Meetings by city</a> · <a href="/about">About &amp; sources</a> · <a href="/about#privacy">Privacy &amp; anonymity</a></p>
+        <p><a href="/meetings">Meetings by city</a> · <a href="/coverage">Coverage map</a> · <a href="/about">About &amp; sources</a> · <a href="/about#privacy">Privacy &amp; anonymity</a></p>
       </footer>
     </main>
   );
