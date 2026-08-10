@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { Icon } from "./Icon";
 
 // Location map with a Map / Street View toggle. Shared by the detail sheet and the
 // search-results map popup. Street View + Google map use a (free) Google Maps Embed
@@ -46,8 +47,12 @@ export function DetailMap({
   return (
     <div>
       <div className="map-toggle" role="group" aria-label="Location view">
-        <button aria-pressed={mode === "map"} onClick={() => setMode("map")}>Map</button>
-        <button aria-pressed={mode === "street"} onClick={() => setMode("street")}>Street View</button>
+        <button aria-pressed={mode === "map"} onClick={() => setMode("map")}>
+          <Icon name="map" size={18} /> Map
+        </button>
+        <button aria-pressed={mode === "street"} onClick={() => setMode("street")}>
+          <Icon name="person" size={18} /> Street View
+        </button>
       </div>
       <div className="detail-map" style={{ height }}>{content}</div>
     </div>
