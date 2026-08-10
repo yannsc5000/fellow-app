@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   applicationName: "Fellow",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Fellow" },
   alternates: { canonical: "/" },
+  verification: { google: "AZ7CKel0W969wLS0rlYvlEpXarmSczeJYWTcUmUPJ7Y" },
   openGraph: {
     title: "Fellow — find a meeting, find your people",
     description: "Find AA, NA, and other recovery meetings near you — 12-step and related peer-support programs, all in one place.",
