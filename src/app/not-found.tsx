@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
 import { Mark } from "@/components/Mark";
+import { SiteFooter } from "@/components/SiteFooter";
 
 export const metadata = { title: "Page not found — Fellow" };
 
@@ -30,6 +31,7 @@ export default function NotFound() {
           </Link>
         </div>
       </section>
+      <SiteFooter />
     </main>
   );
 }

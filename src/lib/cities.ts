@@ -160,5 +160,23 @@ export function cityFellowshipLinks(c: City): { code: string; fslug: string }[] 
     .map((code) => ({ code, fslug: fellowshipSlug(code) }));
 }
 
+// For the /fellowships hub: every fellowship that has ≥1 city page, mapped to its qualifying
+// cities (fellowship meets FC_MIN in a city that itself meets CITY_MIN), sorted by count desc.
+export async function getFellowshipHub(): Promise<Record<string, { slug: string; city: string; state: string; count: number }[]>> {
+  const map = await build();
+  const out: Record<string, { slug: string; city: string; state: string; count: number }[]> = {};
+  for (const c of map.values()) {
+    if (c.count < CITY_MIN_MEETINGS) continue;
+    const counts: Record<string, number> = {};
+    for (const m of c.meetings) counts[m.fellowship] = (counts[m.fellowship] || 0) + 1;
+    for (const [code, n] of Object.entries(counts)) {
+      if (n < FC_MIN_MEETINGS) continue;
+      (out[code] ||= []).push({ slug: c.slug, city: c.city, state: c.state, count: n });
+    }
+  }
+  for (const code of Object.keys(out)) out[code].sort((a, b) => b.count - a.count);
+  return out;
+}
+
 export const fellowshipLabel = (code: string) => fellowshipName(code);
 export { STATE_NAMES };

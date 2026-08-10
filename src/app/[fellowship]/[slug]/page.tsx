@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getFellowshipCityParams, getFellowshipCity, CITY_MAX_PER_DAY } from "@/lib/cities";
 import { Icon } from "@/components/Icon";
+import { SiteFooter } from "@/components/SiteFooter";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 function to12(t: string) {
@@ -119,6 +120,7 @@ export default async function FellowshipCityPage({ params }: { params: Promise<{
         Listings come from public intergroup feeds. <Link href="/about">About &amp; sources</Link>
       </p>
       <p style={{ margin: "20px 0" }}><Link href={`/meetings/${fc.citySlug}`} className="back">← All meetings in {fc.city}</Link></p>
+      <SiteFooter />
     </main>
   );
 }

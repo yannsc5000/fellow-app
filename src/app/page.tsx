@@ -3,6 +3,7 @@ import { useState } from "react";
 import dynamic from "next/dynamic";
 import { Icon } from "@/components/Icon";
 import { Mark } from "@/components/Mark";
+import { SiteFooter } from "@/components/SiteFooter";
 
 // Finder pulls in InstantSearch + MapLibre; Chat calls the /api/chat route — client-only.
 const Finder = dynamic(() => import("@/components/Finder"), { ssr: false });
@@ -73,13 +74,7 @@ export default function Page() {
         </div>
       </section>
 
-      <footer className="site-footer">
-        <p>
-          Fellow is an independent, non-commercial project — not affiliated with any 12-step
-          fellowship. Meeting data comes from public intergroup feeds.
-        </p>
-        <p><a href="/meetings">Meetings by city</a> · <a href="/coverage">Coverage map</a> · <a href="/about">About &amp; sources</a> · <a href="/about#privacy">Privacy &amp; anonymity</a></p>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }

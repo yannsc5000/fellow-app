@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getCities } from "@/lib/cities";
+import { SiteFooter } from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "Recovery Meetings by City — Browse AA, NA & more | Fellow",
@@ -42,6 +43,7 @@ export default async function MeetingsIndex() {
       ))}
 
       <p style={{ margin: "28px 0" }}><Link href="/" className="back">← Back to Fellow</Link></p>
+      <SiteFooter />
     </main>
   );
 }

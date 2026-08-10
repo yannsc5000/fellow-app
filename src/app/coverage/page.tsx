@@ -4,6 +4,7 @@ import { getCoverage } from "@/lib/coverage";
 import { fellowshipName } from "@/lib/fellowships";
 import { Mark } from "@/components/Mark";
 import CoverageMap from "@/components/CoverageMap";
+import { SiteFooter } from "@/components/SiteFooter";
 
 const fmt = (n: number) => n.toLocaleString("en-US");
 
@@ -79,10 +80,8 @@ export default async function CoveragePage() {
           busiest state, so smaller fellowships still read clearly. Online meetings are available nationwide and aren&apos;t
           placed on the map. Counts come from the latest ingest and can shift run to run as feeds update.
         </p>
-        <p className="cov-links">
-          <Link href="/">← Find a meeting</Link> · <Link href="/meetings">Browse by city</Link> · <Link href="/about">About &amp; sources</Link>
-        </p>
       </section>
+      <SiteFooter />
     </main>
   );
 }

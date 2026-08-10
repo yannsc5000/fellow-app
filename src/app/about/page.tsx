@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { FELLOWSHIPS } from "@/lib/fellowships";
 import { CONTACT_EMAIL } from "@/lib/config";
+import { SiteFooter } from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "About & sources — Fellow",
@@ -118,6 +119,7 @@ export default function AboutPage() {
       </p>
 
       <p style={{ margin: "28px 0" }}><a href="/" className="back">← Back to meetings</a></p>
+      <SiteFooter />
     </main>
   );
 }

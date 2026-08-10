@@ -442,3 +442,23 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
   .cov-cell[data-lvl="6"]{background:#93f0e2;color:#08201c}
   .cov-ramp{background:linear-gradient(90deg,#133f39,#0f8b7c,#59d8c6,#93f0e2)}
 }
+
+/* ── /fellowships — fellowship hub ──────────────────────────────────────────── */
+.fh-list{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:18px 0 8px}
+@media(max-width:680px){.fh-list{grid-template-columns:1fr}}
+.fh-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:16px 18px;box-shadow:var(--shadow-sm)}
+.fh-top{display:flex;align-items:center;gap:10px}
+.fh-dot{width:12px;height:12px;border-radius:50%;flex:0 0 auto}
+.fh-name{font-size:18px;font-weight:850;margin:0;letter-spacing:-.01em;flex:1;min-width:0}
+.fh-code{font-weight:800;font-size:12px;color:var(--ink-soft);background:var(--surface-2);border:1px solid var(--line);
+  border-radius:6px;padding:1px 6px;margin-left:4px;vertical-align:middle}
+.fh-count{font-weight:850;font-size:16px;font-variant-numeric:tabular-nums;flex:0 0 auto}
+.fh-count-l{font-weight:600;font-size:12.5px;color:var(--ink-soft)}
+.fh-group{margin:4px 0 10px;font-size:13px;color:var(--ink-soft)}
+.fh-cities{margin:0 0 10px;font-size:14px;line-height:1.6}
+.fh-cities-l{font-weight:800;color:var(--ink)}
+.fh-cities a{color:var(--brand-ink);text-decoration:none;font-weight:600}
+.fh-cities a:hover{text-decoration:underline;text-underline-offset:2px}
+.fh-actions{margin:0}
+.fh-search{color:var(--brand-ink);font-weight:800;text-decoration:none;font-size:14px}
+.fh-search:hover{text-decoration:underline;text-underline-offset:3px}
