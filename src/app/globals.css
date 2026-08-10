@@ -168,12 +168,29 @@ body{background:
 .share-btn{display:inline-flex;align-items:center;gap:7px;border:2px solid var(--line);background:var(--surface);
   color:var(--ink);font-family:inherit;font-weight:750;font-size:15px;border-radius:999px;padding:8px 16px;min-height:44px;cursor:pointer}
 .share-btn:hover{border-color:var(--fc,var(--brand));color:var(--fc,var(--brand-ink))}
-.when{display:inline-flex;align-items:center;gap:8px;background:var(--fc,var(--brand));color:#fff;font-weight:800;font-size:15px;
-  padding:10px 14px;border-radius:12px;margin:2px 0 8px;text-decoration:none;cursor:pointer;min-height:44px}
-.when:hover{filter:brightness(.94)}
-.when .icon-add{opacity:.9;margin-left:2px}
-.sheet-addr{color:var(--ink-soft);font-size:16px}
-.sheet-addr a{color:var(--fc,var(--brand-ink));text-decoration:none;font-weight:700}
+/* Clean structured "when / where" block. Fellowship color is used only as a small badge
+   in the tags row — not painted across the time chip / address — so the header reads calm
+   and consistent with the rest of the sheet. */
+.sheet-facts{display:flex;flex-direction:column;margin:12px 0 0;border-bottom:1px solid var(--line)}
+.fact{display:flex;align-items:center;gap:12px;padding:11px 2px;text-decoration:none;color:inherit}
+.fact + .fact{border-top:1px solid var(--line)}
+.fact-ico{flex:0 0 auto;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
+  background:var(--surface-2);color:var(--brand-ink)}
+.fact-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.fact-main{font-size:16.5px;font-weight:800;color:var(--ink)}
+.fact-sub{font-size:14px;color:var(--ink-soft)}
+.fact-link{color:var(--brand-ink);font-weight:600;text-decoration:none}
+.fact-link:hover{text-decoration:underline;text-underline-offset:2px}
+.fact-when{cursor:pointer}
+.fact-when .fact-add{flex:0 0 auto;color:var(--ink-soft);transition:color .12s ease}
+.fact-when:hover .fact-ico{background:color-mix(in srgb, var(--brand) 16%, var(--surface-2))}
+.fact-when:hover .fact-add{color:var(--brand-ink)}
+.sheet-tags .tag-fellow{background:var(--fc,var(--brand));color:#fff;border:0;font-weight:850}
+/* Section dividers + meeting description in the detail sheet */
+.sheet-divider{border:0;border-top:1px solid var(--line);margin:14px 0}
+.sheet-notes{margin:2px 0}
+.notes-label{font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 5px}
+.notes-text{margin:0;color:var(--ink);font-size:15.5px;line-height:1.55;white-space:pre-line}
 
 /* detail access (transit + parking) */
 .access-grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:24px}
@@ -255,14 +272,15 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .web-fallback:hover{border-color:var(--brand)}
 .web-fallback .wf-ext{margin-left:auto;color:var(--ink-soft)}
 .wf-official{border-color:color-mix(in srgb, var(--brand) 40%, var(--line));background:color-mix(in srgb, var(--brand) 6%, var(--surface))}
-.sheet-tags{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0 2px}
+.sheet-tags{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:12px 0 2px}
 .sheet-tags .tag{background:var(--surface-2);color:var(--ink-soft);border-radius:8px;padding:3px 9px;font-size:12.5px;font-weight:700}
 .sheet-tags .freshness{color:var(--ink-soft);font-size:12.5px;font-weight:600;font-style:italic}
 .detail-contact-row{display:flex;flex-wrap:wrap;gap:8px 16px;margin:10px 0 2px}
-.detail-contact{display:inline-flex;align-items:center;gap:6px;color:var(--brand-ink);font-weight:800;font-size:14.5px;text-decoration:none}
+.detail-contact-row{gap:8px 18px}
+.detail-contact{display:inline-flex;align-items:center;gap:6px;color:var(--brand-ink);font-weight:600;font-size:14.5px;text-decoration:none}
 .detail-contact:hover{text-decoration:underline}
 .expect{margin:12px 0;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
-.expect summary{cursor:pointer;padding:11px 14px;font-weight:800;font-size:15px;color:var(--brand-ink);list-style:none}
+.expect summary{cursor:pointer;padding:11px 14px;font-weight:600;font-size:15px;color:var(--brand-ink);list-style:none}
 .expect summary::-webkit-details-marker{display:none}
 .expect summary::after{content:"＋";float:right;color:var(--ink-soft);font-weight:700}
 .expect[open] summary::after{content:"－"}

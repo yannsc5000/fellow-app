@@ -21,6 +21,7 @@ const MapView = dynamic(() => import("./MapView"), {
 });
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const FULL_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 function to12(t: string) {
   let [h, m] = t.split(":").map(Number);
   const ap = h < 12 ? "AM" : "PM"; h = h % 12 || 12;
@@ -600,52 +601,82 @@ export function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => 
           <button className="close-x" aria-label="Close" onClick={onClose}><Icon name="close" size={20} /></button>
         </div>
         <h2>{m.name}</h2>
-        <div>
-          <a className="when" href={calendarUrl(m)} target="_blank" rel="noopener" aria-label={`Add ${m.name} to your calendar`}>
-            <Icon name="calmonth" size={16} /> {DAYS[m.day]}, {t.hh} {t.ap} <Icon name="add" size={15} />
+
+        <div className="sheet-facts">
+          <a className="fact fact-when" href={calendarUrl(m)} target="_blank" rel="noopener" aria-label={`Add ${m.name} to your calendar`}>
+            <span className="fact-ico"><Icon name="calmonth" size={18} /></span>
+            <span className="fact-body">
+              <span className="fact-main">{FULL_DAYS[m.day]}, {t.hh} {t.ap}</span>
+              <span className="fact-sub">Add to calendar</span>
+            </span>
+            <Icon name="add" size={16} className="fact-add" />
           </a>
+          <div className="fact">
+            <span className="fact-ico"><Icon name={m.online ? "video" : "pin"} size={18} /></span>
+            <span className="fact-body">
+              {m.online
+                ? <span className="fact-main">Online meeting</span>
+                : m.place
+                  ? <>
+                      <span className="fact-main">{m.place}</span>
+                      <a className="fact-sub fact-link" href={mapsAddr} target="_blank" rel="noopener">{m.address}</a>
+                    </>
+                  : <a className="fact-main fact-link" href={mapsAddr} target="_blank" rel="noopener">{m.address}</a>}
+            </span>
+          </div>
         </div>
-        <div className="sheet-addr">
-          {m.online ? "Online meeting" : <>{m.place ? m.place + " · " : ""}<a href={mapsAddr} target="_blank" rel="noopener">{m.address}</a></>}
+
+        <div className="sheet-tags">
+          <span className="tag tag-fellow" title={fellowshipName(m.fellowship)}>{m.fellowship}</span>
+          {(m.types || []).map((x: string) => <span key={x} className="tag">{x}</span>)}
+          {fmtUpdated(m.updated) && <span className="freshness" title="When the source last updated this listing">Updated {fmtUpdated(m.updated)}</span>}
         </div>
-        {((m.types && m.types.length) || fmtUpdated(m.updated)) && (
-          <div className="sheet-tags">
-            {(m.types || []).map((x: string) => <span key={x} className="tag">{x}</span>)}
-            {fmtUpdated(m.updated) && <span className="freshness" title="When the source last updated this listing">Updated {fmtUpdated(m.updated)}</span>}
-          </div>
+        {m.notes && (
+          <>
+            <hr className="sheet-divider" />
+            <div className="sheet-notes">
+              <p className="notes-label">Meeting notes</p>
+              <p className="notes-text">{m.notes}</p>
+            </div>
+          </>
         )}
-        {(m.conference_phone || m.website || finder) && (
-          <div className="detail-contact-row">
-            {m.conference_phone && (
-              <a className="detail-contact" href={`tel:${String(m.conference_phone).replace(/[^+\d,;]/g, "")}`}>
-                Call in: {m.conference_phone}
-              </a>
+
+        {(m.conference_phone || m.website || finder || onSeeAll) && (
+          <>
+            <hr className="sheet-divider" />
+            {(m.conference_phone || m.website || finder) && (
+              <div className="detail-contact-row">
+                {m.conference_phone && (
+                  <a className="detail-contact" href={`tel:${String(m.conference_phone).replace(/[^+\d,;]/g, "")}`}>
+                    Call in: {m.conference_phone}
+                  </a>
+                )}
+                {m.website && (
+                  <a className="detail-contact" href={m.website} target="_blank" rel="noopener">
+                    <Icon name="external" size={15} /> Group website
+                  </a>
+                )}
+                {finder && (
+                  <a className="detail-contact" href={finder.url} target="_blank" rel="noopener">
+                    <Icon name="external" size={15} /> {finder.label}
+                  </a>
+                )}
+              </div>
             )}
-            {m.website && (
-              <a className="detail-contact" href={m.website} target="_blank" rel="noopener">
-                <Icon name="external" size={15} /> Group website
-              </a>
+            {onSeeAll && (
+              <div className="detail-links">
+                <button className="tlink" onClick={() => seeAll(m.name)}>
+                  <Icon name="calmonth" size={16} /> All sessions of this group
+                </button>
+                {!m.online && m.place && (
+                  <button className="tlink" onClick={() => seeAll(m.place)}>
+                    <Icon name="pin" size={16} /> All sessions at this location
+                  </button>
+                )}
+              </div>
             )}
-            {finder && (
-              <a className="detail-contact" href={finder.url} target="_blank" rel="noopener">
-                <Icon name="external" size={15} /> {finder.label}
-              </a>
-            )}
-          </div>
+          </>
         )}
-        {onSeeAll && (
-          <div className="detail-links">
-            <button className="tlink" onClick={() => seeAll(m.name)}>
-              <Icon name="calmonth" size={16} /> All sessions of this group
-            </button>
-            {!m.online && m.place && (
-              <button className="tlink" onClick={() => seeAll(m.place)}>
-                <Icon name="pin" size={16} /> All sessions at this location
-              </button>
-            )}
-          </div>
-        )}
-        {m.notes && <p className="notes-block">{m.notes}</p>}
         <details className="expect">
           <summary>New here? What to expect</summary>
           <p>
