@@ -121,6 +121,73 @@ export const SOURCES = [
   { id: "aa-coloradosprings", fellowship: "AA", system: "meeting-guide", area: "Colorado Springs CO",      url: "https://www.coloradospringsaa.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "aa-boise",        fellowship: "AA", system: "meeting-guide", area: "Boise ID",                    url: "https://idahoarea18aa.org/wp-admin/admin-ajax.php?action=meetings" },
 
+  // ---- State deep-coverage pass (CA, OR, WA, CO, AZ, TX). Mostly TSML intergroup/
+  // central-office feeds; several are CANDIDATE (confirmed TSML via meta tag but WAF-blocked
+  // to a plain fetch — USE_BROWSER=1 pulls them). Some are regional/statewide and overlap
+  // city feeds; dedupe() removes exact duplicates. ----
+  // California
+  { id: "aa-la-southbay",   fellowship: "AA", system: "meeting-guide", area: "South Bay LA / Torrance CA",       url: "https://asbco.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-longbeach",     fellowship: "AA", system: "meeting-guide", area: "Long Beach / Harbor Area CA",       url: "https://hacoaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-oc",            fellowship: "AA", system: "meeting-guide", area: "Orange County CA",                  url: "https://www.oc-aa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-noc",           fellowship: "AA", system: "meeting-guide", area: "North Orange County CA",            url: "https://www.aanoc.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-inland-empire", fellowship: "AA", system: "meeting-guide", area: "Inland Empire CA",                  url: "https://aainlandempire.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-ventura",       fellowship: "AA", system: "meeting-guide", area: "Ventura County CA",                 url: "https://aaventuracounty.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-santa-barbara", fellowship: "AA", system: "meeting-guide", area: "Santa Barbara CA",                  url: "https://santabarbaraaa.com/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-santa-maria",   fellowship: "AA", system: "meeting-guide", area: "Santa Maria CA",                    url: "https://aa52centraloffice.org/wp/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-slo",           fellowship: "AA", system: "meeting-guide", area: "San Luis Obispo CA",               url: "https://sloaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-eastbay",       fellowship: "AA", system: "meeting-guide", area: "East Bay / Oakland CA",            url: "https://eastbayaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-sanjose",       fellowship: "AA", system: "meeting-guide", area: "San Jose / Santa Clara CA",        url: "https://aasanjose.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-sanmateo",      fellowship: "AA", system: "meeting-guide", area: "San Mateo / Peninsula CA",         url: "https://aa-san-mateo.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-sonoma",        fellowship: "AA", system: "meeting-guide", area: "Sonoma County CA",                 url: "https://sonomacountyaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-solano-north",  fellowship: "AA", system: "meeting-guide", area: "North Solano County CA",           url: "https://aasolanonorth.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-fresno",        fellowship: "AA", system: "meeting-guide", area: "Fresno CA",                        url: "https://www.fresnoaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-tulare",        fellowship: "AA", system: "meeting-guide", area: "Tulare County CA",                 url: "https://aa-tulareco.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-bakersfield",   fellowship: "AA", system: "meeting-guide", area: "Bakersfield / Kern County CA",     url: "https://kerncountyaa.com/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-central-valley",fellowship: "AA", system: "meeting-guide", area: "Modesto / Central Valley CA",      url: "https://cviaa.org/aa/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-desert",        fellowship: "AA", system: "meeting-guide", area: "Palm Springs / Desert CA",         url: "https://aainthedesert.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-humboldt",      fellowship: "AA", system: "meeting-guide", area: "Humboldt / North Coast CA",        url: "https://aahumboldtdelnorte.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-monterey",      fellowship: "AA", system: "meeting-guide", area: "Monterey Bay CA",                  url: "https://www.aamonterey.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-salinas",       fellowship: "AA", system: "meeting-guide", area: "Salinas Valley CA",               url: "https://aasalinas.org/wp-admin/admin-ajax.php?action=meetings" },
+  // Oregon
+  { id: "aa-oregon",        fellowship: "AA", system: "meeting-guide", area: "Oregon (Area 58, statewide)",      url: "https://aa-oregon.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-eugene",        fellowship: "AA", system: "meeting-guide", area: "Eugene OR",                        url: "https://eviaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-salem",         fellowship: "AA", system: "meeting-guide", area: "Salem OR",                         url: "https://aasalem.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-bend",          fellowship: "AA", system: "meeting-guide", area: "Bend / Central Oregon",            url: "https://coigaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-medford",       fellowship: "AA", system: "meeting-guide", area: "Medford / Jackson County OR",      url: "https://jccoaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-corvallis",     fellowship: "AA", system: "meeting-guide", area: "Corvallis / Mid-Willamette OR",    url: "https://aaoregon-district21.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-oregon-coast",  fellowship: "AA", system: "meeting-guide", area: "Oregon Coast (District 8)",        url: "https://aaoregondistrict8.com/wp-admin/admin-ajax.php?action=meetings" },
+  // Washington
+  { id: "aa-wa-area72",     fellowship: "AA", system: "meeting-guide", area: "Western WA (Area 72: Tacoma/Everett/Snohomish)", url: "https://area72aa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-olympia",       fellowship: "AA", system: "meeting-guide", area: "Olympia / South Sound WA",         url: "https://aadistrict8.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-grays-harbor",  fellowship: "AA", system: "meeting-guide", area: "Grays Harbor WA",                  url: "https://aa21.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-nc-wa",         fellowship: "AA", system: "meeting-guide", area: "North Central WA (Wenatchee, Area 92)", url: "https://area92aa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-vancouver-wa",  fellowship: "AA", system: "meeting-guide", area: "Vancouver WA",                     url: "https://vancouveraa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-sw-wa-coast",   fellowship: "AA", system: "meeting-guide", area: "SW WA Coast (District 27)",        url: "https://district27area72aa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-tri-cities",    fellowship: "AA", system: "meeting-guide", area: "Tri-Cities WA",                    url: "https://3citiesaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  // Colorado
+  { id: "aa-boulder",       fellowship: "AA", system: "meeting-guide", area: "Boulder County CO",                url: "https://bouldercountyaa.com/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-noco",          fellowship: "AA", system: "meeting-guide", area: "Fort Collins / Northern CO",       url: "https://nocoaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-pueblo",        fellowship: "AA", system: "meeting-guide", area: "Pueblo / Southern CO",             url: "https://www.puebloaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-western-co",    fellowship: "AA", system: "meeting-guide", area: "Grand Junction / Western Slope CO", url: "https://aa-westerncolorado.com/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-summit-co",     fellowship: "AA", system: "meeting-guide", area: "Summit County CO (District 17)",   url: "https://district17coloradoaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-eagle-vail",    fellowship: "AA", system: "meeting-guide", area: "Eagle / Vail CO (District 14)",    url: "https://coaadistrict14.org/wp-admin/admin-ajax.php?action=meetings" },
+  // Arizona
+  { id: "aa-az-area03",     fellowship: "AA", system: "meeting-guide", area: "Arizona (Area 03, statewide)",     url: "https://area03.com/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-east-valley",   fellowship: "AA", system: "meeting-guide", area: "East Valley / Mesa AZ",            url: "https://aamesaaz.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-flagstaff",     fellowship: "AA", system: "meeting-guide", area: "Flagstaff / Northern AZ",          url: "https://flagstaffaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-prescott",      fellowship: "AA", system: "meeting-guide", area: "Prescott AZ",                      url: "https://prescottaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-verde-valley",  fellowship: "AA", system: "meeting-guide", area: "Verde Valley AZ (Sedona/Cottonwood)", url: "https://centralmountain.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-yuma",          fellowship: "AA", system: "meeting-guide", area: "Yuma AZ",                          url: "https://aayuma.com/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-pinal",         fellowship: "AA", system: "meeting-guide", area: "Casa Grande / Pinal County AZ",    url: "https://aapinalcounty.org/wp-admin/admin-ajax.php?action=meetings" },
+  // Texas
+  { id: "aa-nw-texas",      fellowship: "AA", system: "meeting-guide", area: "NW Texas Area 66 (El Paso/Lubbock/Amarillo/Midland)", url: "https://nwta66.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-corpus",        fellowship: "AA", system: "meeting-guide", area: "Corpus Christi TX",                url: "https://www.cbiaa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-rgv",           fellowship: "AA", system: "meeting-guide", area: "Rio Grande Valley TX (McAllen)",   url: "https://aargvdist10.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-abilene",       fellowship: "AA", system: "meeting-guide", area: "Abilene TX (District 71)",         url: "https://district71.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-centex",        fellowship: "AA", system: "meeting-guide", area: "Waco / Killeen TX",                url: "https://centexintergroup.com/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-tyler",         fellowship: "AA", system: "meeting-guide", area: "Tyler / East Texas TX",            url: "https://www.tyler-aa.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "aa-brazos-valley", fellowship: "AA", system: "meeting-guide", area: "College Station / Bryan TX",       url: "https://bvig.org/wp-admin/admin-ajax.php?action=meetings" },
+
   // ---- Other fellowships — many are on BMLT (add their root servers from awesome-bmlt)
   // or publish Meeting Guide feeds. Add per-fellowship national sources here. ----
   // CMA — Crystal Meth Anonymous. Regional TSML feeds (verified: returned meeting JSON).

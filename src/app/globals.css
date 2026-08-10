@@ -21,6 +21,7 @@ body{background:
 
 /* Header */
 .brand{display:flex;align-items:center;gap:14px;padding:22px 0 22px}
+.brand-link{display:inline-flex;align-items:center;gap:14px;text-decoration:none;color:inherit;cursor:pointer}
 .brand .mark{width:52px;height:52px;border-radius:16px;background:linear-gradient(145deg,#12a394,var(--brand-ink));
   display:grid;place-items:center;color:#fff;font-weight:800;font-size:26px;box-shadow:0 5px 14px rgba(14,140,128,.30)}
 .brand h1{font-size:28px;margin:0;font-weight:850;letter-spacing:-.02em}

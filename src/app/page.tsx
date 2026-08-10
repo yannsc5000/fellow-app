@@ -9,14 +9,24 @@ const Chat = dynamic(() => import("@/components/Chat"), { ssr: false });
 
 export default function Page() {
   const [mode, setMode] = useState<"search" | "chat">("chat");
+  const [resetKey, setResetKey] = useState(0);
+  // Clicking the logo resets to the default home screen (default tab + fresh state).
+  const goHome = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setMode("chat");
+    setResetKey((k) => k + 1);
+    if (typeof window !== "undefined") window.scrollTo({ top: 0 });
+  };
   return (
     <main className="app">
       <header className="brand">
-        <div className="mark" aria-hidden>F</div>
-        <div>
-          <h1>Fellow</h1>
-          <div className="tagline">Find your people</div>
-        </div>
+        <a href="/" className="brand-link" onClick={goHome} aria-label="Fellow — back to home">
+          <div className="mark" aria-hidden>F</div>
+          <div>
+            <h1>Fellow</h1>
+            <div className="tagline">Find your people</div>
+          </div>
+        </a>
       </header>
 
       <div className="mode-tabs" role="tablist" aria-label="Find meetings by">
@@ -28,7 +38,7 @@ export default function Page() {
         </button>
       </div>
 
-      {mode === "search" ? <Finder /> : <Chat />}
+      {mode === "search" ? <Finder key={resetKey} /> : <Chat key={resetKey} />}
 
       <footer className="site-footer">
         <p>

@@ -43,6 +43,9 @@ export async function searchMeetings(p: SearchParams): Promise<MeetingResult[]> 
     filter_by: filters.join(" && "),
     sort_by: geo ? `_geoloc(${p.near_lat}, ${p.near_lng}):asc` : "day:asc,time:asc",
     per_page: Math.min(Math.max(p.limit ?? 10, 1), 30),
+    // Require all query tokens to match — never drop a token. Otherwise "San Francisco"
+    // with thin SF coverage would drop "Francisco" and return "San Antonio"/"San Diego".
+    drop_tokens_threshold: 0,
   };
   let hits: any[];
   try {

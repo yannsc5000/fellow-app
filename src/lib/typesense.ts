@@ -20,6 +20,9 @@ export const typesenseAdapter = new TypesenseInstantSearchAdapter({
     // include fellowship name + synonyms so "overeaters" finds OA, etc.
     query_by: "name,place,address,notes,fellowship,fellowship_name,fellowship_terms,types",
     sort_by: "day:asc,time:asc",   // flat chronological weekly order
+    // Require all query tokens to match — never drop a token. Prevents "San Francisco" from
+    // falling back to "San" and returning San Antonio/San Diego when SF coverage is thin.
+    drop_tokens_threshold: 0,
   },
   geoLocationField: "_geoloc",
 });
