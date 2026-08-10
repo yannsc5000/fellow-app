@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import { searchClient } from "@/lib/typesense";
 import { COLLECTION } from "@/lib/schema";
 import { fellowshipName, fellowshipColor } from "@/lib/fellowships";
+import { officialFinder } from "@/lib/finders";
 import { CONTACT_EMAIL } from "@/lib/config";
 import { parseQuery, type Parsed } from "@/lib/parseQuery";
 import { Icon } from "./Icon";
@@ -583,6 +584,11 @@ export function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => 
   const correctionBody = `Meeting: ${m.name}\nWhen: ${DAYS[m.day]} ${t.hh} ${t.ap}\n${m.online ? "Online meeting" : [m.place, m.address].filter(Boolean).join(", ")}\nFellowship: ${m.fellowship}\n\nWhat needs fixing?\n`;
   const correctionHref = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Fellow correction: " + m.name)}&body=${encodeURIComponent(correctionBody)}`;
   const seeAll = (q: string) => { onSeeAll?.(q); onClose(); };
+  // A guaranteed "learn more" target so the sheet is never a dead end: the group's own
+  // page if we have it, else the fellowship's official directory, else a web search.
+  const finder = officialFinder(m.fellowship);
+  const webSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(`${m.name} ${fellowshipName(m.fellowship)} meeting`)}`;
+  const learnMoreUrl = m.website || finder?.url || webSearchUrl;
   return (
     <div role="dialog" aria-modal aria-label={m.name} className="sheet-overlay"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
@@ -608,7 +614,7 @@ export function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => 
             {fmtUpdated(m.updated) && <span className="freshness" title="When the source last updated this listing">Updated {fmtUpdated(m.updated)}</span>}
           </div>
         )}
-        {(m.conference_phone || m.website) && (
+        {(m.conference_phone || m.website || finder) && (
           <div className="detail-contact-row">
             {m.conference_phone && (
               <a className="detail-contact" href={`tel:${String(m.conference_phone).replace(/[^+\d,;]/g, "")}`}>
@@ -618,6 +624,11 @@ export function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => 
             {m.website && (
               <a className="detail-contact" href={m.website} target="_blank" rel="noopener">
                 <Icon name="external" size={15} /> Group website
+              </a>
+            )}
+            {finder && (
+              <a className="detail-contact" href={finder.url} target="_blank" rel="noopener">
+                <Icon name="external" size={15} /> {finder.label}
               </a>
             )}
           </div>
@@ -669,9 +680,7 @@ export function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => 
           {m.online
             ? (m.conference_url
                 ? <a className="btn btn-fc" href={m.conference_url} target="_blank" rel="noopener"><Icon name="video" size={18} /> Join online</a>
-                : m.website
-                  ? <a className="btn btn-fc" href={m.website} target="_blank" rel="noopener"><Icon name="video" size={18} /> Meeting details</a>
-                  : <span className="btn btn-fc btn-disabled" aria-disabled="true"><Icon name="video" size={18} /> No link listed</span>)
+                : <a className="btn btn-fc" href={learnMoreUrl} target="_blank" rel="noopener"><Icon name="search" size={18} /> Find this meeting online</a>)
             : <a className="btn btn-fc" href={mapsAddr} target="_blank" rel="noopener"><Icon name="route" size={18} /> Directions</a>}
           <button className="btn btn-soft" onClick={onClose}><Icon name="close" size={18} /> Close</button>
         </div>
