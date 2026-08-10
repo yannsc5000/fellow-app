@@ -86,6 +86,9 @@ const SUGGESTIONS = [
   "Online NA meeting this morning",
 ];
 
+// Contextual one-tap refinements shown under the latest results.
+const REFINE = ["Only online", "Tomorrow instead", "Wider area", "In the morning"];
+
 function ChatCard({ m, onOpen }: { m: Meeting; onOpen: (m: Meeting) => void }) {
   return (
     <button className="chat-card" style={{ ["--fc" as any]: fellowshipColor(m.fellowship) }}
@@ -100,14 +103,35 @@ function ChatCard({ m, onOpen }: { m: Meeting; onOpen: (m: Meeting) => void }) {
   );
 }
 
-export default function Chat() {
+export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => void }) {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [selected, setSelected] = useState<Meeting | null>(null);
   const [place, setPlace] = useState<Place | null>(null);
+  const [listening, setListening] = useState(false);
   const threadRef = useRef<HTMLDivElement>(null);
+  const recogRef = useRef<any>(null);
+
+  // Voice input via the Web Speech API — supported in Chrome/Safari; the mic button
+  // is hidden where it isn't. Fills the input so the user can review before sending.
+  const speechSupported = typeof window !== "undefined" &&
+    ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
+  function toggleVoice() {
+    if (!speechSupported) return;
+    if (listening) { recogRef.current?.stop(); return; }
+    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const r = new SR();
+    r.lang = "en-US"; r.interimResults = true; r.continuous = false; r.maxAlternatives = 1;
+    r.onresult = (e: any) => setInput(Array.from(e.results).map((x: any) => x[0].transcript).join(""));
+    r.onend = () => setListening(false);
+    r.onerror = () => setListening(false);
+    recogRef.current = r;
+    setListening(true);
+    try { r.start(); } catch { setListening(false); }
+  }
+  useEffect(() => () => { try { recogRef.current?.stop(); } catch {} }, []);
 
   // Best-guess location on load; the user can change it in the LocationBar.
   useEffect(() => {
@@ -147,6 +171,8 @@ export default function Chat() {
     }
   }
 
+  const lastAssistantIdx = msgs.reduce((acc, m, i) => (m.role === "assistant" ? i : acc), -1);
+
   return (
     <div className="chat-wrap">
       <div className="chat-loc"><LocationBar place={place} onSet={setPlace} /></div>
@@ -184,15 +210,35 @@ export default function Chat() {
                 </a>
               </div>
             )}
+            {i === lastAssistantIdx && m.meetings && m.meetings.length > 0 && !busy && (
+              <div className="chat-followups" aria-label="Refine these results">
+                {REFINE.map((s) => <button key={s} className="chip" onClick={() => send(s)}>{s}</button>)}
+              </div>
+            )}
           </div>
         ))}
         {busy && <div className="msg assistant"><div className="bubble typing"><span></span><span></span><span></span></div></div>}
-        {err && <div className="chat-err" role="alert">{err}</div>}
+        {err && (
+          <div className="chat-err" role="alert">
+            {err}
+            {onSwitchToSearch && (
+              <button className="btn btn-soft chat-err-switch" onClick={onSwitchToSearch}>
+                <Icon name="search" size={16} /> Use classic Search
+              </button>
+            )}
+          </div>
+        )}
       </div>
       <form className="chat-input" onSubmit={(e) => { e.preventDefault(); send(input); }}>
         <label htmlFor="chatq" style={{ position: "absolute", left: -9999 }}>Message</label>
         <input id="chatq" value={input} onChange={(e) => setInput(e.currentTarget.value)}
-          placeholder="Ask for a meeting…" autoComplete="off" />
+          placeholder={listening ? "Listening…" : "Ask for a meeting…"} autoComplete="off" />
+        {speechSupported && (
+          <button type="button" className={`btn btn-soft chat-mic${listening ? " mic-on" : ""}`}
+            onClick={toggleVoice} aria-pressed={listening} aria-label={listening ? "Stop voice input" : "Speak your request"}>
+            <Icon name="mic" size={18} />
+          </button>
+        )}
         <button className="btn btn-fc" type="submit" disabled={busy || !input.trim()} style={{ ["--fc" as any]: "var(--brand)" }} aria-label="Send">
           <Icon name="nearme" size={18} />
         </button>

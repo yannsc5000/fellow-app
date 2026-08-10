@@ -246,7 +246,13 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .expect[open] summary::after{content:"－"}
 .expect p{margin:0;padding:0 14px 13px;color:var(--ink-soft);font-size:14.5px;line-height:1.5}
 .btn-disabled{opacity:.55;cursor:default;pointer-events:none}
-.chat-err{color:var(--accent);font-size:14px;font-weight:700}
+.chat-followups{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;max-width:540px}
+.chat-followups .chip{font-size:14px}
+.chat-mic{min-height:0;height:48px;width:48px;padding:0;border-radius:14px;flex:0 0 auto}
+.chat-mic.mic-on{background:var(--brand);color:#fff;border-color:var(--brand);animation:micpulse 1.3s ease-in-out infinite}
+@keyframes micpulse{0%,100%{box-shadow:0 0 0 0 color-mix(in srgb, var(--brand) 45%, transparent)}50%{box-shadow:0 0 0 6px color-mix(in srgb, var(--brand) 0%, transparent)}}
+.chat-err{color:var(--accent);font-size:14px;font-weight:700;display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.chat-err-switch{min-height:0;height:auto;padding:8px 12px;font-size:14px}
 .chat-input{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--surface)}
 .chat-input input{flex:1;border:2px solid var(--line);border-radius:14px;padding:12px 14px;font:inherit;font-size:16px;background:var(--surface);color:var(--ink)}
 .chat-input input:focus{outline:none;border-color:var(--brand)}

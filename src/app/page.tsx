@@ -38,7 +38,7 @@ export default function Page() {
         </button>
       </div>
 
-      {mode === "search" ? <Finder key={resetKey} /> : <Chat key={resetKey} />}
+      {mode === "search" ? <Finder key={resetKey} /> : <Chat key={resetKey} onSwitchToSearch={() => setMode("search")} />}
 
       <footer className="site-footer">
         <p>
