@@ -25,6 +25,8 @@ export type SearchParams = {
 export type MeetingResult = {
   id: string; name: string; fellowship: string; day: number; time: string;
   place: string; address: string; online: boolean; lat: number | null; lng: number | null;
+  conference_url?: string; conference_phone?: string; website?: string; updated?: string; end?: string;
+  types?: string[]; notes?: string; transit_json?: string; parking_json?: string;
 };
 
 export async function searchMeetings(p: SearchParams): Promise<MeetingResult[]> {
@@ -67,5 +69,9 @@ export async function searchMeetings(p: SearchParams): Promise<MeetingResult[]> 
     id: String(m.id ?? m.objectID ?? ""), name: m.name, fellowship: m.fellowship,
     day: m.day, time: m.time, place: m.place || "", address: m.address || "",
     online: !!m.online, lat: m.lat ?? null, lng: m.lng ?? null,
+    conference_url: m.conference_url || "", conference_phone: m.conference_phone || "",
+    website: m.website || "", updated: m.updated || "", end: m.end || "",
+    types: m.types || [], notes: m.notes || "",
+    transit_json: m.transit_json || "", parking_json: m.parking_json || "",
   }));
 }

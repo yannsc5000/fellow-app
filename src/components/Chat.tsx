@@ -12,7 +12,7 @@ function to12(t: string) {
   return `${hh}:${String(m || 0).padStart(2, "0")} ${ap}`;
 }
 
-type Meeting = { id: string; name: string; fellowship: string; day: number; time: string; place: string; address: string; online: boolean; lat: number | null; lng: number | null };
+type Meeting = { id: string; name: string; fellowship: string; day: number; time: string; place: string; address: string; online: boolean; lat: number | null; lng: number | null; conference_url?: string; conference_phone?: string; website?: string; updated?: string; end?: string; types?: string[]; notes?: string; transit_json?: string; parking_json?: string };
 type WebSearch = { query: string; url: string; official?: { label: string; url: string } };
 type Msg = { role: "user" | "assistant"; content: string; meetings?: Meeting[]; webSearch?: WebSearch };
 type Place = { lat: number; lng: number; label: string };

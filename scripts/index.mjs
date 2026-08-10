@@ -32,6 +32,12 @@ const schema = {
     { name: "place", type: "string", optional: true },
     { name: "address", type: "string" },
     { name: "notes", type: "string", optional: true },
+    // Display-only enrichment (stored + returned, not searched/faceted).
+    { name: "end", type: "string", optional: true, index: false },
+    { name: "conference_url", type: "string", optional: true, index: false },
+    { name: "conference_phone", type: "string", optional: true, index: false },
+    { name: "website", type: "string", optional: true, index: false },
+    { name: "updated", type: "string", optional: true, index: false },
     { name: "_geoloc", type: "geopoint", optional: true },
     { name: "dist", type: "float", optional: true, sort: true },
     { name: "transit_json", type: "string", optional: true, index: false },

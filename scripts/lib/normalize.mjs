@@ -100,6 +100,12 @@ export function fromMeetingGuide(rec, i, fellowship = 'AA') {
     lng: online ? null : num(rec.longitude),
     types: labelTypes(rec.types, AA_TYPES),
     notes: rec.notes || '',
+    // Enrichment so users don't have to browse elsewhere: the online join link, a
+    // dial-in number, the group's website, and when the source last updated it.
+    conference_url: rec.conference_url || '',
+    conference_phone: rec.conference_phone || '',
+    website: rec.website || rec.url || '',
+    updated: rec.updated || '',
   };
   m.dist = (m.lat != null) ? +haversineMi(DC_CENTER.lat, DC_CENTER.lng, m.lat, m.lng).toFixed(1) : null;
   return enrich(m);
@@ -127,6 +133,10 @@ export function fromBMLT(rec, i, fellowship = 'NA') {
     lng: online ? null : num(rec.longitude),
     types: labelTypes(codes, NA_FORMATS),
     notes: rec.comments || '',
+    conference_url: rec.virtual_meeting_link || '',
+    conference_phone: rec.phone_meeting_number || '',
+    website: rec.url || '',
+    updated: '',
   };
   m.dist = (m.lat != null) ? +haversineMi(DC_CENTER.lat, DC_CENTER.lng, m.lat, m.lng).toFixed(1) : null;
   return enrich(m);

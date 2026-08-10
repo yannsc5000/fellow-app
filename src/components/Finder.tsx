@@ -47,10 +47,18 @@ function calendarUrl(m: any) {
     end = new Date(start); end.setHours(eh, em, 0, 0);
     if (end <= start) end.setDate(end.getDate() + 1);
   } else { end = new Date(start.getTime() + 60 * 60000); }
-  const loc = m.online ? "Online meeting" : [m.place, m.address].filter(Boolean).join(", ");
+  const loc = m.online ? (m.conference_url || "Online meeting") : [m.place, m.address].filter(Boolean).join(", ");
   const details = [m.notes, "Recurring weekly · shared via Fellow"].filter(Boolean).join("\n\n");
   const p = new URLSearchParams({ action: "TEMPLATE", text: m.name || "Meeting", dates: `${fmtCal(start)}/${fmtCal(end)}`, location: loc, details });
   return `https://calendar.google.com/calendar/render?${p.toString()}&recur=${encodeURIComponent("RRULE:FREQ=WEEKLY;BYDAY=" + BYDAY[m.day])}`;
+}
+
+// Freshness stamp from the source's "updated" string → "Mar 2024", or null if unparseable.
+function fmtUpdated(s?: string): string | null {
+  if (!s) return null;
+  const d = new Date(String(s).replace(" ", "T"));
+  if (isNaN(d.getTime())) return null;
+  return d.toLocaleDateString(undefined, { month: "short", year: "numeric" });
 }
 
 function haversineMi(aLat: number, aLng: number, bLat: number, bLng: number) {
@@ -514,7 +522,7 @@ export function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => 
 
   async function share() {
     const when = `${DAYS[m.day]} ${t.hh} ${t.ap}`;
-    const loc = m.online ? "Online meeting" : [m.place, m.address].filter(Boolean).join(", ");
+    const loc = m.online ? (m.conference_url || "Online meeting") : [m.place, m.address].filter(Boolean).join(", ");
     const url = typeof window !== "undefined" ? window.location.origin : "";
     const text = `${m.name} — ${when}\n${loc}${m.online ? "" : "\n" + mapsAddr}\n\nvia Fellow ${url}`.trim();
     try {
@@ -551,6 +559,26 @@ export function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => 
         <div className="sheet-addr">
           {m.online ? "Online meeting" : <>{m.place ? m.place + " · " : ""}<a href={mapsAddr} target="_blank" rel="noopener">{m.address}</a></>}
         </div>
+        {((m.types && m.types.length) || fmtUpdated(m.updated)) && (
+          <div className="sheet-tags">
+            {(m.types || []).map((x: string) => <span key={x} className="tag">{x}</span>)}
+            {fmtUpdated(m.updated) && <span className="freshness" title="When the source last updated this listing">Updated {fmtUpdated(m.updated)}</span>}
+          </div>
+        )}
+        {(m.conference_phone || m.website) && (
+          <div className="detail-contact-row">
+            {m.conference_phone && (
+              <a className="detail-contact" href={`tel:${String(m.conference_phone).replace(/[^+\d,;]/g, "")}`}>
+                Call in: {m.conference_phone}
+              </a>
+            )}
+            {m.website && (
+              <a className="detail-contact" href={m.website} target="_blank" rel="noopener">
+                <Icon name="external" size={15} /> Group website
+              </a>
+            )}
+          </div>
+        )}
         {onSeeAll && (
           <div className="detail-links">
             <button className="tlink" onClick={() => seeAll(m.name)}>
@@ -564,7 +592,16 @@ export function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => 
           </div>
         )}
         {m.notes && <p className="notes-block">{m.notes}</p>}
-        <DetailMap m={m} defaultMode="map" />
+        <details className="expect">
+          <summary>New here? What to expect</summary>
+          <p>
+            Most meetings are free and anonymous — first names only. You can simply listen;
+            you’re never required to speak or share. “Open” meetings welcome anyone (including
+            visitors and family), while “Closed” meetings are for people who identify with the
+            fellowship. Arriving a few minutes early is a nice way to be welcomed.
+          </p>
+        </details>
+        {!m.online && <DetailMap m={m} defaultMode="map" />}
         {!m.online && (transit.length > 0 || parking.length > 0) && (
           <div className="access-grid">
             {transit.length > 0 && (
@@ -587,7 +624,11 @@ export function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => 
         )}
         <div className="sheet-actions">
           {m.online
-            ? <button className="btn btn-fc" onClick={onClose}><Icon name="video" size={18} /> Join online</button>
+            ? (m.conference_url
+                ? <a className="btn btn-fc" href={m.conference_url} target="_blank" rel="noopener"><Icon name="video" size={18} /> Join online</a>
+                : m.website
+                  ? <a className="btn btn-fc" href={m.website} target="_blank" rel="noopener"><Icon name="video" size={18} /> Meeting details</a>
+                  : <span className="btn btn-fc btn-disabled" aria-disabled="true"><Icon name="video" size={18} /> No link listed</span>)
             : <a className="btn btn-fc" href={mapsAddr} target="_blank" rel="noopener"><Icon name="route" size={18} /> Directions</a>}
           <button className="btn btn-soft" onClick={onClose}><Icon name="close" size={18} /> Close</button>
         </div>

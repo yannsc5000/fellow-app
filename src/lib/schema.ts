@@ -16,6 +16,10 @@ export interface Meeting {
   lng: number | null;
   types: string[];        // human labels: Open, Closed, Wheelchair, ...
   notes: string;
+  conference_url?: string;   // online join link (Zoom, etc.)
+  conference_phone?: string; // dial-in number for phone/hybrid meetings
+  website?: string;          // group or meeting website
+  updated?: string;          // when the source feed last updated this record
   dist?: number | null;
   transit?: Array<{ k: string; t: string; d: string; q: string; slat?: number; slng?: number }>;
   parking?: Array<{ k: string; t: string; d: string; q: string }>;
@@ -49,6 +53,12 @@ export const meetingsSchema = {
     { name: "place", type: "string", optional: true },
     { name: "address", type: "string" },
     { name: "notes", type: "string", optional: true },
+    // Display-only enrichment (stored + returned, not searched/faceted).
+    { name: "end", type: "string", optional: true, index: false },
+    { name: "conference_url", type: "string", optional: true, index: false },
+    { name: "conference_phone", type: "string", optional: true, index: false },
+    { name: "website", type: "string", optional: true, index: false },
+    { name: "updated", type: "string", optional: true, index: false },
     { name: "_geoloc", type: "geopoint", optional: true },
     { name: "dist", type: "float", optional: true, sort: true },
     { name: "transit_json", type: "string", optional: true, index: false },

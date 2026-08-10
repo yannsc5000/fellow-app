@@ -233,6 +233,19 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .web-fallback:hover{border-color:var(--brand)}
 .web-fallback .wf-ext{margin-left:auto;color:var(--ink-soft)}
 .wf-official{border-color:color-mix(in srgb, var(--brand) 40%, var(--line));background:color-mix(in srgb, var(--brand) 6%, var(--surface))}
+.sheet-tags{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0 2px}
+.sheet-tags .tag{background:var(--surface-2);color:var(--ink-soft);border-radius:8px;padding:3px 9px;font-size:12.5px;font-weight:700}
+.sheet-tags .freshness{color:var(--ink-soft);font-size:12.5px;font-weight:600;font-style:italic}
+.detail-contact-row{display:flex;flex-wrap:wrap;gap:8px 16px;margin:10px 0 2px}
+.detail-contact{display:inline-flex;align-items:center;gap:6px;color:var(--brand-ink);font-weight:800;font-size:14.5px;text-decoration:none}
+.detail-contact:hover{text-decoration:underline}
+.expect{margin:12px 0;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.expect summary{cursor:pointer;padding:11px 14px;font-weight:800;font-size:15px;color:var(--brand-ink);list-style:none}
+.expect summary::-webkit-details-marker{display:none}
+.expect summary::after{content:"＋";float:right;color:var(--ink-soft);font-weight:700}
+.expect[open] summary::after{content:"－"}
+.expect p{margin:0;padding:0 14px 13px;color:var(--ink-soft);font-size:14.5px;line-height:1.5}
+.btn-disabled{opacity:.55;cursor:default;pointer-events:none}
 .chat-err{color:var(--accent);font-size:14px;font-weight:700}
 .chat-input{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--surface)}
 .chat-input input{flex:1;border:2px solid var(--line);border-radius:14px;padding:12px 14px;font:inherit;font-size:16px;background:var(--surface);color:var(--ink)}
