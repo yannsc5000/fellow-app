@@ -137,6 +137,10 @@ body{background:
   color:var(--ink-soft);font-size:14px;font-weight:650}
 .rt .line{width:12px;height:12px;border-radius:4px;flex:0 0 auto}
 .dist{margin-left:auto;color:var(--ink);font-weight:800;font-size:15px;white-space:nowrap}
+/* Chevron affordance on the search card footer — .dist's margin-left:auto already pushes
+   this group to the right edge; the chevron just trails it (matches the row/chat chevrons). */
+.rt-chev{flex:0 0 auto;color:var(--ink-soft);transition:transform .12s ease,color .12s ease}
+.card:hover .rt-chev{color:var(--brand-ink);transform:translateX(2px)}
 
 .map-wrap{height:64vh;min-height:400px;border-radius:var(--radius);overflow:hidden;border:2px solid var(--line);margin:14px 0}
 
@@ -294,6 +298,16 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .prose .back{display:inline-block;font-weight:750;text-decoration:none;color:var(--brand-ink)}
 .prose .back:hover{text-decoration:underline}
 /* Footer */
+/* Clickable meeting rows on the city / fellowship landing pages → live Fellow search.
+   Chevron affordance matches the chat cards + search results (consistent "tap me" rule). */
+.mtg-row{display:flex;align-items:center;gap:10px;padding:10px 12px;margin:0 -12px;border-radius:10px;
+  color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line)}
+.mtg-row:hover{background:var(--surface-2)}
+.mtg-body{flex:1;min-width:0}
+.mtg-row .mtg-meta{color:var(--ink-soft)}
+.mtg-chev{flex:0 0 auto;color:var(--ink-soft);transition:transform .12s ease,color .12s ease}
+.mtg-row:hover .mtg-chev{color:var(--brand-ink);transform:translateX(2px)}
+
 /* 404 / not-found */
 .nf{text-align:center;max-width:560px;margin:0 auto;padding:24px 8px 72px}
 .nf-code{font-size:104px;font-weight:900;line-height:1;letter-spacing:-5px;

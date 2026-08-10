@@ -294,6 +294,7 @@ function Results({ onOpen, user, onClearLocation, startsSoon, timeWindow }: { on
                     ? <><span className="line" style={{ background: lineColor as string }} /> {rail.t}</>
                     : <><Icon name="subway" size={15} /> Transit nearby</>}
                 <span className="dist">{m.online ? "" : mi != null ? `${mi.toFixed(1)} mi` : ""}</span>
+                <Icon name="chevron" size={18} className="rt-chev" />
               </span>
             </button>
           </li>

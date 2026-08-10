@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getFellowshipCityParams, getFellowshipCity, CITY_MAX_PER_DAY } from "@/lib/cities";
+import { Icon } from "@/components/Icon";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 function to12(t: string) {
@@ -86,9 +87,14 @@ export default async function FellowshipCityPage({ params }: { params: Promise<{
             <h2 style={{ fontSize: 20 }}>{dayName} — {all.length} meeting{all.length === 1 ? "" : "s"}</h2>
             <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
               {rows.map((m) => (
-                <li key={m.id} style={{ padding: "8px 0", borderBottom: "1px solid var(--line)" }}>
-                  <strong>{to12(m.time)}</strong> — {m.name}
-                  {m.place || m.address ? <span style={{ color: "var(--ink-soft)" }}> · {m.place || m.address}</span> : null}
+                <li key={m.id}>
+                  <a className="mtg-row" href={`/?q=${encodeURIComponent(`${m.name} in ${fc.city}`)}`}>
+                    <span className="mtg-body">
+                      <strong>{to12(m.time)}</strong> — {m.name}
+                      {m.place || m.address ? <span className="mtg-meta"> · {m.place || m.address}</span> : null}
+                    </span>
+                    <Icon name="chevron" size={20} className="mtg-chev" />
+                  </a>
                 </li>
               ))}
             </ul>

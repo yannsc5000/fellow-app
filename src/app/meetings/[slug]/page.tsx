@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getCities, getCity, fellowshipLabel, cityFellowshipLinks, CITY_MAX_PER_DAY } from "@/lib/cities";
+import { Icon } from "@/components/Icon";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 function to12(t: string) {
@@ -104,11 +105,16 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
             <h2 style={{ fontSize: 20 }}>{dayName} — {all.length} meeting{all.length === 1 ? "" : "s"}</h2>
             <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
               {rows.map((m) => (
-                <li key={m.id} style={{ padding: "8px 0", borderBottom: "1px solid var(--line)" }}>
-                  <strong>{to12(m.time)}</strong> — {m.name}{" "}
-                  <span style={{ color: "var(--ink-soft)" }}>
-                    · {fellowshipLabel(m.fellowship)}{m.place || m.address ? ` · ${m.place || m.address}` : ""}
-                  </span>
+                <li key={m.id}>
+                  <a className="mtg-row" href={`/?q=${encodeURIComponent(`${m.name} in ${c.city}`)}`}>
+                    <span className="mtg-body">
+                      <strong>{to12(m.time)}</strong> — {m.name}
+                      <span className="mtg-meta">
+                        {" "}· {fellowshipLabel(m.fellowship)}{m.place || m.address ? ` · ${m.place || m.address}` : ""}
+                      </span>
+                    </span>
+                    <Icon name="chevron" size={20} className="mtg-chev" />
+                  </a>
                 </li>
               ))}
             </ul>
