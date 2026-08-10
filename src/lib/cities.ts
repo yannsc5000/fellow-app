@@ -3,6 +3,7 @@
 // file the indexer uses), parses "City, ST" out of each address, and groups. Memoized.
 import "server-only";
 import { readFile } from "node:fs/promises";
+import { gunzipSync } from "node:zlib";
 import path from "node:path";
 import { fellowshipName } from "./fellowships";
 
@@ -59,11 +60,16 @@ let _cache: Map<string, City> | null = null;
 
 async function build(): Promise<Map<string, City>> {
   if (_cache) return _cache;
+  // Prefer the compact raw file (present locally after ingest); on Vercel the raw is
+  // gitignored so fall back to the committed gzip.
   let raw: any[] = [];
+  const dir = path.join(process.cwd(), "public", "data");
   try {
-    const file = path.join(process.cwd(), "public", "data", "meetings.json");
-    raw = JSON.parse(await readFile(file, "utf8"));
-  } catch { raw = []; }
+    raw = JSON.parse(await readFile(path.join(dir, "meetings.json"), "utf8"));
+  } catch {
+    try { raw = JSON.parse(gunzipSync(await readFile(path.join(dir, "meetings.json.gz"))).toString("utf8")); }
+    catch { raw = []; }
+  }
 
   const map = new Map<string, City>();
   for (const m of raw) {
@@ -104,6 +110,54 @@ export async function getCity(slug: string): Promise<City | null> {
   const map = await build();
   const c = map.get(slug);
   return c && c.count >= CITY_MIN_MEETINGS ? c : null;
+}
+
+// ---- fellowship × city pages (e.g. /aa/phoenix-az) ----
+export const FC_MIN_MEETINGS = 8; // min meetings of a fellowship in a city to warrant a page
+export const fellowshipSlug = (code: string) => code.toLowerCase();
+
+export type FellowshipCity = {
+  code: string; name: string; fslug: string;
+  citySlug: string; city: string; state: string; stateName: string;
+  count: number; meetings: CityMeeting[];
+};
+
+// Every (fellowship, city) combo with enough meetings — drives generateStaticParams.
+export async function getFellowshipCityParams(): Promise<{ fellowship: string; slug: string }[]> {
+  const map = await build();
+  const out: { fellowship: string; slug: string }[] = [];
+  for (const c of map.values()) {
+    if (c.count < CITY_MIN_MEETINGS) continue;
+    const counts: Record<string, number> = {};
+    for (const m of c.meetings) counts[m.fellowship] = (counts[m.fellowship] || 0) + 1;
+    for (const [code, n] of Object.entries(counts)) {
+      if (n >= FC_MIN_MEETINGS) out.push({ fellowship: fellowshipSlug(code), slug: c.slug });
+    }
+  }
+  return out;
+}
+
+export async function getFellowshipCity(fslug: string, citySlug: string): Promise<FellowshipCity | null> {
+  const map = await build();
+  const c = map.get(citySlug);
+  if (!c) return null;
+  const meetings = c.meetings.filter((m) => fellowshipSlug(m.fellowship) === fslug);
+  if (meetings.length < FC_MIN_MEETINGS) return null;
+  const code = meetings[0].fellowship;
+  return {
+    code, name: fellowshipName(code), fslug,
+    citySlug: c.slug, city: c.city, state: c.state, stateName: c.stateName,
+    count: meetings.length, meetings,
+  };
+}
+
+// Which fellowships in a city have their own page (≥ FC_MIN) — used to cross-link.
+export function cityFellowshipLinks(c: City): { code: string; fslug: string }[] {
+  const counts: Record<string, number> = {};
+  for (const m of c.meetings) counts[m.fellowship] = (counts[m.fellowship] || 0) + 1;
+  return c.fellowships
+    .filter((code) => (counts[code] || 0) >= FC_MIN_MEETINGS)
+    .map((code) => ({ code, fslug: fellowshipSlug(code) }));
 }
 
 export const fellowshipLabel = (code: string) => fellowshipName(code);

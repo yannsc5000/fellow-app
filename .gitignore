@@ -5,3 +5,6 @@ node_modules/
 .env
 next-env.d.ts
 *.log
+
+# The full meetings dataset: keep the raw JSON local only (big); commit the gzip instead.
+public/data/meetings.json

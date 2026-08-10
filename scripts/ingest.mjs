@@ -4,6 +4,7 @@
 //   node scripts/ingest.mjs          # live fetch every source
 //   node scripts/ingest.mjs --local  # use bundled snapshots (skips live-only sources)
 import { readFile, writeFile } from "node:fs/promises";
+import { gzipSync } from "node:zlib";
 import { SOURCES } from "./lib/registry.mjs";
 import { normalizeSource, dedupe } from "./lib/normalize.mjs";
 import { loadGTFS, enrichMetro } from "./lib/gtfs.mjs";
@@ -176,7 +177,12 @@ const meetings = usable
   .sort((a, b) => (a.day - b.day) || String(a.time).localeCompare(String(b.time)))
   .map((m, i) => ({ ...m, id: String(i + 1) }));
 
-await writeFile(new URL("../public/data/meetings.json", import.meta.url), JSON.stringify(meetings, null, 2));
+// Write a compact raw file (for local use — gitignored) plus a gzipped copy that IS
+// committed and read by the Vercel build. Gzip keeps the repo small (~9% of raw) and well
+// under GitHub's 100 MB single-file limit.
+const json = JSON.stringify(meetings);
+await writeFile(new URL("../public/data/meetings.json", import.meta.url), json);
+await writeFile(new URL("../public/data/meetings.json.gz", import.meta.url), gzipSync(json, { level: 9 }));
 const byFel = meetings.reduce((o, m) => ((o[m.fellowship] = (o[m.fellowship] || 0) + 1), o), {});
-console.log(`\nWrote ${meetings.length} meetings:`, byFel);
+console.log(`\nWrote ${meetings.length} meetings (${(json.length / 1048576).toFixed(1)}MB raw → meetings.json.gz committed):`, byFel);
 if (_browser) { try { await _browser.close(); } catch {} }

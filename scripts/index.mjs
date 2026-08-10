@@ -1,6 +1,7 @@
 // Create (or recreate) the Typesense collection and import meetings.json.
 //   TYPESENSE_ADMIN_API_KEY=... node scripts/index.mjs
 import { readFile } from "node:fs/promises";
+import { gunzipSync } from "node:zlib";
 import Typesense from "typesense";
 import { fellowshipName, fellowshipTerms } from "./lib/fellowships.mjs";
 
@@ -58,7 +59,12 @@ async function waitForHealth(tries = 30) {
 }
 await waitForHealth();
 
-const meetings = JSON.parse(await readFile(new URL("../public/data/meetings.json", import.meta.url)));
+// Read the compact raw file if present (local, after ingest), else the committed gzip.
+async function readMeetings() {
+  try { return JSON.parse(await readFile(new URL("../public/data/meetings.json", import.meta.url), "utf8")); }
+  catch { return JSON.parse(gunzipSync(await readFile(new URL("../public/data/meetings.json.gz", import.meta.url)))); }
+}
+const meetings = await readMeetings();
 const toMinutes = (t) => {
   const [h, m] = String(t || "").split(":").map(Number);
   return Number.isFinite(h) && Number.isFinite(m) ? h * 60 + m : undefined;

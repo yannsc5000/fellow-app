@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getCities, getCity, fellowshipLabel, CITY_MAX_PER_DAY } from "@/lib/cities";
+import { getCities, getCity, fellowshipLabel, cityFellowshipLinks, CITY_MAX_PER_DAY } from "@/lib/cities";
 
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 function to12(t: string) {
@@ -45,6 +45,7 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
   let shown = 0;
   for (let d = 0; d < 7; d++) if (byDay[d]) shown += Math.min(byDay[d].length, CITY_MAX_PER_DAY);
   const fellNames = c.fellowships.map(fellowshipLabel);
+  const fellowshipLinks = cityFellowshipLinks(c);
   const liveSearch = `/?q=${encodeURIComponent(c.city)}`;
 
   const jsonld = {
@@ -69,6 +70,18 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
         For online meetings, live day/time filters, maps and directions,{" "}
         <Link href={liveSearch}>search {c.city} on Fellow →</Link>
       </p>
+
+      {fellowshipLinks.length > 1 && (
+        <p style={{ margin: "4px 0 8px" }}>
+          <strong>By fellowship:</strong>{" "}
+          {fellowshipLinks.map((f, i) => (
+            <span key={f.fslug}>
+              {i > 0 ? " · " : ""}
+              <Link href={`/${f.fslug}/${c.slug}`}>{f.code} in {c.city}</Link>
+            </span>
+          ))}
+        </p>
+      )}
 
       {DAYS.map((dayName, d) => {
         const all = byDay[d];
