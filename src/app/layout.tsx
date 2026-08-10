@@ -10,7 +10,10 @@ export const metadata: Metadata = {
   applicationName: "Fellow",
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Fellow" },
   alternates: { canonical: "/" },
-  verification: { google: "AZ7CKel0W969wLS0rlYvlEpXarmSczeJYWTcUmUPJ7Y" },
+  verification: {
+    google: "AZ7CKel0W969wLS0rlYvlEpXarmSczeJYWTcUmUPJ7Y",
+    other: { "msvalidate.01": "7E6561D41455669D0245550B6A8F5444" }, // Bing
+  },
   // Let search engines show large image previews and full-length snippets for richer results.
   robots: {
     index: true,

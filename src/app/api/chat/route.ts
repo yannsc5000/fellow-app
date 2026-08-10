@@ -62,9 +62,38 @@ const TOOLS: Anthropic.Tool[] = [{
   },
 }];
 
+// Per-IP rate limiting to protect the (paid) chat endpoint from floods/bots. In-memory
+// per warm instance — combined with the Anthropic monthly spend cap, this bounds abuse
+// with zero external infrastructure. Tune via env if needed.
+const RL_MAX = Number(process.env.CHAT_RL_MAX || 15);                 // max requests
+const RL_WINDOW_MS = Number(process.env.CHAT_RL_WINDOW_MS || 60_000); // per this window
+const _hits = new Map<string, number[]>();
+function clientIp(req: Request): string {
+  const xff = req.headers.get("x-forwarded-for") || "";
+  return xff.split(",")[0].trim() || req.headers.get("x-real-ip") || "";
+}
+function rateLimited(ip: string): boolean {
+  if (!ip) return false; // unknown IP → fail open so real users are never blocked
+  const now = Date.now();
+  const arr = (_hits.get(ip) || []).filter((t) => now - t < RL_WINDOW_MS);
+  arr.push(now);
+  _hits.set(ip, arr);
+  if (_hits.size > 5000) {
+    for (const [k, v] of _hits) if (!v.length || now - v[v.length - 1] > RL_WINDOW_MS) _hits.delete(k);
+  }
+  return arr.length > RL_MAX;
+}
+
 export async function POST(req: Request) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return Response.json({ error: "Chat isn't configured yet." }, { status: 503 });
+
+  if (rateLimited(clientIp(req))) {
+    return Response.json(
+      { error: "You're sending messages very quickly — please wait a few seconds and try again." },
+      { status: 429, headers: { "Retry-After": "30" } },
+    );
+  }
 
   let body: any;
   try { body = await req.json(); } catch { return Response.json({ error: "Bad request." }, { status: 400 }); }
