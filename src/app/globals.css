@@ -246,6 +246,12 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .expect[open] summary::after{content:"－"}
 .expect p{margin:0;padding:0 14px 13px;color:var(--ink-soft);font-size:14.5px;line-height:1.5}
 .btn-disabled{opacity:.55;cursor:default;pointer-events:none}
+.city-browse{margin:28px 0 8px;padding-top:20px;border-top:1px solid var(--line)}
+.city-browse h2{font-size:17px;font-weight:850;margin:0 0 12px}
+.city-chips{display:flex;flex-wrap:wrap;gap:8px}
+.city-chip{display:inline-flex;align-items:center;background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:8px 14px;font-size:14.5px;font-weight:700;color:var(--ink);text-decoration:none}
+.city-chip:hover{border-color:var(--brand);color:var(--brand-ink)}
+.city-chip-all{background:color-mix(in srgb, var(--brand) 10%, var(--surface));border-color:color-mix(in srgb, var(--brand) 40%, var(--line));color:var(--brand-ink)}
 .chat-followups{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;max-width:540px}
 .chat-followups .chip{font-size:14px}
 .chat-mic{min-height:0;height:48px;width:48px;padding:0;border-radius:14px;flex:0 0 auto}
