@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { fellowshipColor } from "@/lib/fellowships";
 import { Icon } from "./Icon";
+import { Loader } from "./Loader";
 import { MeetingSheet } from "./Finder";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -63,7 +64,7 @@ function LocationBar({ place, onSet }: { place: Place | null; onSet: (p: Place) 
       <form className="loc-form" onSubmit={submit}>
         <input inputMode="numeric" maxLength={5} autoFocus aria-label="ZIP code" placeholder="ZIP code"
           value={zip} onChange={(e) => setZip(e.currentTarget.value.replace(/\D/g, ""))} />
-        <button className="btn btn-soft" type="submit" disabled={busy}>{busy ? "…" : "Go"}</button>
+        <button className="btn btn-soft" type="submit" disabled={busy}>{busy ? <Loader size={18} label="Looking up ZIP" /> : "Go"}</button>
         <button type="button" className="loc-link" onClick={useMe}><Icon name="nearme" size={14} /> Use my location</button>
         <button type="button" className="loc-link" onClick={() => { setEditing(false); setErr(""); }}>Cancel</button>
         {err && <span className="loc-err" role="alert">{err}</span>}
@@ -221,7 +222,7 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
             )}
           </div>
         ))}
-        {busy && <div className="msg assistant"><div className="bubble typing"><span></span><span></span><span></span></div></div>}
+        {busy && <div className="msg assistant"><div className="bubble bubble-thinking"><Loader size={30} label="Fellow is searching" /></div></div>}
         {err && (
           <div className="chat-err" role="alert">
             {err}

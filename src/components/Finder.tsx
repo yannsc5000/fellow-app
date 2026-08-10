@@ -11,13 +11,18 @@ import { officialFinder } from "@/lib/finders";
 import { CONTACT_EMAIL } from "@/lib/config";
 import { parseQuery, type Parsed } from "@/lib/parseQuery";
 import { Icon } from "./Icon";
+import { Loader } from "./Loader";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { DetailMap } from "./DetailMap";
 
 // MapLibre is heavy — only load its chunk when the map view is opened.
 const MapView = dynamic(() => import("./MapView"), {
   ssr: false,
-  loading: () => <div className="map-wrap" aria-busy="true" aria-label="Loading map…" />,
+  loading: () => (
+    <div className="map-wrap map-wrap--loading" aria-busy="true" aria-label="Loading map…">
+      <Loader size={44} label="Loading map" />
+    </div>
+  ),
 });
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -382,7 +387,7 @@ function LocationControl({ place, onZip, onNearMe, onClear }:
       <form className="loc-form" onSubmit={submit}>
         <input inputMode="numeric" maxLength={5} autoFocus aria-label="ZIP code" placeholder="ZIP code"
           value={zip} onChange={(e) => setZip(e.currentTarget.value.replace(/\D/g, ""))} />
-        <button className="btn btn-soft" type="submit" disabled={busy}>{busy ? "…" : "Go"}</button>
+        <button className="btn btn-soft" type="submit" disabled={busy}>{busy ? <Loader size={18} label="Looking up ZIP" /> : "Go"}</button>
         <button type="button" className="loc-link" onClick={() => { onNearMe(); setEditing(false); }}>
           <Icon name="nearme" size={14} /> Use my location
         </button>

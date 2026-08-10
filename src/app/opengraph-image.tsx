@@ -24,18 +24,29 @@ export default function OpengraphImage() {
         <div style={{ display: "flex", alignItems: "center", gap: "28px", marginBottom: "44px" }}>
           <div
             style={{
+              position: "relative",
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
               width: "116px",
               height: "116px",
               borderRadius: "30px",
               background: "rgba(255,255,255,0.16)",
-              fontSize: "72px",
-              fontWeight: 800,
             }}
           >
-            F
+            {[
+              { x: 50, y: 20 }, { x: 71, y: 29 }, { x: 80, y: 50 }, { x: 71, y: 71 },
+              { x: 29, y: 71 }, { x: 20, y: 50 }, { x: 29, y: 29 },
+            ].map((d, i) => (
+              <div key={i} style={{
+                position: "absolute", left: `${d.x}%`, top: `${d.y}%`,
+                width: "16px", height: "16px", marginLeft: "-8px", marginTop: "-8px",
+                borderRadius: "16px", background: "#ffffff",
+              }} />
+            ))}
+            <div style={{
+              position: "absolute", left: "50%", top: "80%",
+              width: "20px", height: "20px", marginLeft: "-10px", marginTop: "-10px",
+              borderRadius: "20px", background: "#f4511e",
+            }} />
           </div>
           <div style={{ fontSize: "88px", fontWeight: 800, letterSpacing: "-2px" }}>Fellow</div>
         </div>

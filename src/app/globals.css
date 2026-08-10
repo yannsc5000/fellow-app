@@ -41,7 +41,17 @@ body{background:
 .brand{display:flex;align-items:center;gap:14px;padding:22px 0 22px}
 .brand-link{display:inline-flex;align-items:center;gap:14px;text-decoration:none;color:inherit;cursor:pointer}
 .brand .mark{width:52px;height:52px;border-radius:16px;background:linear-gradient(145deg,#12a394,var(--brand-ink));
-  display:grid;place-items:center;color:#fff;font-weight:800;font-size:26px;box-shadow:0 5px 14px rgba(14,140,128,.30)}
+  display:grid;place-items:center;color:#fff;box-shadow:0 5px 14px rgba(14,140,128,.30)}
+
+/* Brand loader — a faint ring of people with one accent dot whipping around it. The ease-in-out
+   on an endless rotation makes it accelerate, decelerate, then accelerate again each lap. The
+   global reduced-motion rule above neutralises the animation, leaving a calm static ring. */
+.fellow-loader{display:inline-flex;line-height:0}
+.fellow-loader .fl-track{fill:var(--brand);opacity:.24}
+.fellow-loader .fl-orbit{transform-box:view-box;transform-origin:50px 50px;
+  animation:fellow-orbit 1.25s cubic-bezier(.72,0,.28,1) infinite}
+@keyframes fellow-orbit{to{transform:rotate(360deg)}}
+.map-wrap--loading{display:grid;place-items:center}
 .brand h1{font-size:28px;margin:0;font-weight:850;letter-spacing:-.02em}
 .brand .tagline{font-size:14px;color:var(--ink-soft);border:0;background:none;padding:0;margin-top:1px}
 
@@ -252,6 +262,7 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .bubble{padding:12px 15px;border-radius:16px;font-size:16px;line-height:1.5;max-width:85%;white-space:pre-wrap}
 .msg.user .bubble{background:var(--brand);color:#fff;border-bottom-right-radius:5px}
 .msg.assistant .bubble{background:var(--surface-2);color:var(--ink);border-bottom-left-radius:5px}
+.bubble.bubble-thinking{display:inline-flex;align-items:center;padding:9px 12px}
 .bubble.typing{display:inline-flex;gap:4px}
 .bubble.typing span{width:7px;height:7px;border-radius:50%;background:var(--ink-soft);animation:blink 1.2s infinite}
 .bubble.typing span:nth-child(2){animation-delay:.2s}

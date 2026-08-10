@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
+import { Mark } from "@/components/Mark";
 
 export const metadata = { title: "Page not found — Fellow" };
 
@@ -8,7 +9,7 @@ export default function NotFound() {
     <main className="app" id="main-content">
       <header className="brand">
         <Link href="/" className="brand-link" aria-label="Fellow — back to home">
-          <div className="mark" aria-hidden>F</div>
+          <div className="mark" aria-hidden><Mark size={30} /></div>
           <div>
             <h1>Fellow</h1>
             <div className="tagline">Find your people</div>

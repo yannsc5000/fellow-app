@@ -2,6 +2,7 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { Icon } from "@/components/Icon";
+import { Mark } from "@/components/Mark";
 
 // Finder pulls in InstantSearch + MapLibre; Chat calls the /api/chat route — client-only.
 const Finder = dynamic(() => import("@/components/Finder"), { ssr: false });
@@ -40,7 +41,7 @@ export default function Page() {
     <main className="app" id="main-content" tabIndex={-1}>
       <header className="brand">
         <a href="/" className="brand-link" onClick={goHome} aria-label="Fellow — back to home">
-          <div className="mark" aria-hidden>F</div>
+          <div className="mark" aria-hidden><Mark size={30} /></div>
           <div>
             <h1>Fellow</h1>
             <div className="tagline">Find your people</div>
