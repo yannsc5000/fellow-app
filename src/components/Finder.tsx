@@ -318,6 +318,21 @@ async function zipToPlace(zip: string): Promise<Place> {
   } catch { return null; }
 }
 
+// City/place name → coordinates (keyless, Open-Meteo geocoding). Powers "aa in phoenix":
+// the named place recenters the whole search instead of leaking into the text query.
+async function geocodePlace(name: string): Promise<Place> {
+  try {
+    const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=5&language=en&format=json`);
+    if (!r.ok) return null;
+    const d = await r.json();
+    const list: any[] = d?.results || [];
+    if (!list.length) return null;
+    const pick = list.find((x) => x.country_code === "US") || list[0];
+    const label = pick.admin1 ? `${pick.name}, ${pick.admin1}` : pick.name;
+    return { lat: Number(pick.latitude), lng: Number(pick.longitude), label };
+  } catch { return null; }
+}
+
 // Applies the area filter. We filter to a radius around the chosen location for
 // in-person browsing; online meetings are location-agnostic, so when "Online" is
 // active we don't constrain by distance (the adapter also requires a radius whenever
@@ -401,6 +416,7 @@ export default function Finder() {
   const toggleDay = (d: number) => setDayToggles((cur) => (cur.includes(d) ? cur.filter((x) => x !== d) : [...cur, d]));
   const [raw, setRaw] = useState("");                       // exactly what the user typed
   const parsed = useMemo(() => parseQuery(raw), [raw]);     // → filters + residual text
+  const [placeMiss, setPlaceMiss] = useState(false);        // a named place that didn't geocode
   const nearMeRef = useRef(false);
 
   // Best-effort, keyless reverse geocode so the button can show the user's ZIP.
@@ -447,11 +463,28 @@ export default function Finder() {
     zipToPlace(parsed.zip).then((p) => { if (!cancelled && p) setPlace(p); });
     return () => { cancelled = true; };
   }, [parsed.zip]);
+  // Natural-language city ("aa in phoenix") → geocode the place and recenter the search on
+  // it (updates the location control + count). If it doesn't resolve, fall back to a plain
+  // text search that still includes the place word.
+  useEffect(() => {
+    if (!parsed.place) { setPlaceMiss(false); return; }
+    let cancelled = false;
+    setPlaceMiss(false);
+    geocodePlace(parsed.place).then((p) => {
+      if (cancelled) return;
+      if (p) setPlace(p); else setPlaceMiss(true);
+    });
+    return () => { cancelled = true; };
+  }, [parsed.place]);
 
   const user = place ? { lat: place.lat, lng: place.lng } : null;
-  // Drop the "near me" radius only when searching a DIFFERENT place. If the user explicitly
-  // said "near me", keep the radius even if there's residual text (e.g. "aa … near me").
-  const searching = !!parsed.text.trim() && !parsed.nearMe;
+  // A successfully geocoded place means we've recentered on it — keep the radius so results
+  // are AROUND that city. If geocoding missed, re-append the place word to the text query.
+  const placeActive = !!parsed.place && !placeMiss;
+  const queryText = parsed.place && placeMiss ? `${parsed.text} ${parsed.place}`.trim() : parsed.text;
+  // Drop the "near me" radius only when searching a DIFFERENT place by free text. If the user
+  // said "near me", or we recentered on a named city, keep the radius.
+  const searching = !!queryText.trim() && !parsed.nearMe && !placeActive;
   const nowD = new Date();
   const nowMin = nowD.getHours() * 60 + nowD.getMinutes();
   // "When" is an OR of everything selected: Starts soon (→ today), Today, Tomorrow, and any
@@ -465,7 +498,7 @@ export default function Finder() {
   return (
     <InstantSearch searchClient={searchClient} indexName={COLLECTION} future={{ preserveSharedStateOnUnmount: true }}>
       <GeoConfigure place={place} wide={wide} searching={searching} />
-      <QueryDriver text={parsed.text} />
+      <QueryDriver text={queryText} />
       <DaySync days={days} />
       <SearchBox value={raw} onChange={setRaw} onClear={() => setRaw("")} onSubmit={() => { if (!raw.trim()) nearMe(); }} />
       {parsed.labels.length > 0 && (

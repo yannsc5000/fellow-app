@@ -10,8 +10,12 @@ export type Parsed = {
   window: { lo: number; hi: number } | null; // minutes-since-midnight range
   zip: string | null;
   nearMe: boolean;
+  place: string | null;               // a city/place named with "in/near <place>" → geocoded + recentered
   labels: string[];                   // human-readable summary of what was understood
 };
+
+// Words that follow "in/near" but aren't places — don't treat these as a location.
+const NOT_A_PLACE = new Set(["person", "recovery", "the area", "my area", "town", "the morning", "the evening", "the afternoon"]);
 
 const DAY_WORDS: Record<string, number> = {
   sunday: 0, sun: 0, monday: 1, mon: 1, tuesday: 2, tues: 2, tue: 2,
@@ -37,6 +41,7 @@ export function parseQuery(raw: string): Parsed {
   let window: { lo: number; hi: number } | null = null;
   let zip: string | null = null;
   let nearMe = false;
+  let place: string | null = null;
   const strip = (re: RegExp) => { text = text.replace(re, " "); };
 
   if (/\b(near me|nearby|close to me|around me)\b/.test(text)) {
@@ -60,6 +65,22 @@ export function parseQuery(raw: string): Parsed {
     if (new RegExp(`\\b${w}\\b`).test(text)) { window = window || { lo: v.lo, hi: v.hi }; if (!labels.includes(v.label)) labels.push(v.label); strip(new RegExp(`\\b${w}\\b`, "g")); break; }
   }
 
+  // A place named explicitly with "in <place>" / "near <place>" (but "near me" was already
+  // handled above). Captured as a candidate; the caller geocodes it and recenters. Kept OUT
+  // of the residual text so it doesn't double-filter — but the caller re-appends it as text
+  // if geocoding fails, so a non-place like "in recovery" still degrades to a plain search.
+  if (!zip && !nearMe) {
+    const pm = text.match(/\b(?:in|near)\s+([a-z][a-z .'\-]{1,40}?)\s*$/);
+    if (pm) {
+      const cand = pm[1].trim().replace(/\s+/g, " ");
+      if (cand.length >= 2 && !NOT_A_PLACE.has(cand)) {
+        place = cand;
+        strip(/\b(?:in|near)\s+[a-z][a-z .'\-]{1,40}?\s*$/);
+        labels.push(place.replace(/\b\w/g, (c) => c.toUpperCase()));
+      }
+    }
+  }
+
   text = text.replace(/\bin\b|\bon\b|\bat\b|\bmeetings?\b|\bgroup\b/g, " ").replace(/\s+/g, " ").trim();
-  return { text, day, window, zip, nearMe, labels };
+  return { text, day, window, zip, nearMe, place, labels };
 }
