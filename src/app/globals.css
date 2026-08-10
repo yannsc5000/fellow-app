@@ -294,6 +294,15 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .prose .back{display:inline-block;font-weight:750;text-decoration:none;color:var(--brand-ink)}
 .prose .back:hover{text-decoration:underline}
 /* Footer */
+/* 404 / not-found */
+.nf{text-align:center;max-width:560px;margin:0 auto;padding:24px 8px 72px}
+.nf-code{font-size:104px;font-weight:900;line-height:1;letter-spacing:-5px;
+  color:color-mix(in srgb, var(--brand) 24%, transparent)}
+.nf h2{font-size:28px;font-weight:850;margin:8px 0 8px}
+.nf p{color:var(--ink-soft);font-size:18px;line-height:1.5;margin:0 0 28px}
+.nf-actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
+.nf-cta{font-size:17px;padding:0 24px}
+
 .site-footer{margin-top:40px;padding:22px 0 8px;border-top:1px solid var(--line);color:var(--ink-soft);font-size:14px;line-height:1.6}
 .site-footer p{margin:6px 0}
 .site-footer a{color:var(--brand-ink);font-weight:700;text-decoration:none}

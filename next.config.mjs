@@ -8,5 +8,9 @@ const nextConfig = {
     workerThreads: false,
     cpus: 1,
   },
+  // Friendly redirect: the sitemap lives at /sitemap.xml, but /sitemap is a natural guess.
+  async redirects() {
+    return [{ source: "/sitemap", destination: "/sitemap.xml", permanent: true }];
+  },
 };
 export default nextConfig;
