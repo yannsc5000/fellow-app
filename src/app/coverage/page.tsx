@@ -62,6 +62,7 @@ export default async function CoveragePage() {
         <p>
           Fellow indexes <strong>{fmt(c.total)}</strong> recovery meetings across all 50 states and DC — pulled from
           public intergroup feeds and refreshed regularly. Here&apos;s where they are, by state and by fellowship.
+          Tap any state to open its page.
         </p>
       </section>
 

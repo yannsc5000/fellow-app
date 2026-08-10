@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import type { Coverage } from "@/lib/coverage";
 import { fellowshipName } from "@/lib/fellowships";
 
@@ -77,17 +78,21 @@ export default function CoverageMap({ data }: { data: Coverage }) {
             const n = countFor(st);
             const lvl = levels[st];
             return (
-              <div
+              <Link
                 key={st}
+                href={`/state/${st.toLowerCase()}`}
                 className={"cov-cell" + (lvl === 0 ? " cov-empty" : "")}
                 data-lvl={lvl}
                 style={{ gridRow: r, gridColumn: c }}
+                aria-label={`${NAME[st]} — ${fmt(n)} ${label} meetings. View ${NAME[st]} page.`}
                 onMouseMove={(e) => setTip({ st, x: e.clientX, y: e.clientY })}
                 onMouseLeave={() => setTip(null)}
+                onFocus={(e) => { const rc = e.currentTarget.getBoundingClientRect(); setTip({ st, x: rc.left + rc.width / 2, y: rc.top }); }}
+                onBlur={() => setTip(null)}
               >
                 <span className="cov-ab">{st}</span>
                 <span className="cov-cn">{short(n)}</span>
-              </div>
+              </Link>
             );
           })}
         </div>

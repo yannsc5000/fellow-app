@@ -75,11 +75,11 @@ export default async function FellowshipsPage() {
           const name = fellowshipName(code);
           return (
             <section className="fh-card" key={code}>
-              <div className="fh-top">
+              <Link href={`/${fellowshipSlug(code)}`} className="fh-top fh-top-link">
                 <span className="fh-dot" style={{ background: fellowshipColor(code) }} aria-hidden />
                 <h3 className="fh-name">{name} <span className="fh-code">{code}</span></h3>
                 <span className="fh-count">{fmt(total)}<span className="fh-count-l"> meetings</span></span>
-              </div>
+              </Link>
               {group && <p className="fh-group">{group}</p>}
               {cities.length > 0 ? (
                 <p className="fh-cities">

@@ -462,3 +462,12 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .fh-actions{margin:0}
 .fh-search{color:var(--brand-ink);font-weight:800;text-decoration:none;font-size:14px}
 .fh-search:hover{text-decoration:underline;text-underline-offset:3px}
+
+/* coverage tiles are links to state pages */
+.cov-cell{text-decoration:none;cursor:pointer}
+.cov-cell:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+.fh-top-link{text-decoration:none;color:inherit}
+.fh-top-link:hover .fh-name{color:var(--brand-ink);text-decoration:underline;text-underline-offset:3px}
+.fh-card{transition:border-color .12s}
+.fh-card:hover{border-color:var(--ink-soft)}

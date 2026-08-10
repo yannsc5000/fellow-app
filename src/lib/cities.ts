@@ -178,5 +178,39 @@ export async function getFellowshipHub(): Promise<Record<string, { slug: string;
   return out;
 }
 
+// ---- state pages (/state/[st]) — every state's cities aggregated ----
+export const stateSlug = (abbr: string) => abbr.toLowerCase();
+export type StatePage = {
+  abbr: string; stateName: string; count: number;
+  fellowships: string[]; cities: { slug: string; city: string; count: number }[];
+};
+
+export async function getStateParams(): Promise<{ st: string }[]> {
+  const map = await build();
+  const set = new Set<string>();
+  for (const c of map.values()) set.add(c.state);
+  return [...set].map((s) => ({ st: stateSlug(s) }));
+}
+
+export async function getState(st: string): Promise<StatePage | null> {
+  const abbr = String(st || "").toUpperCase();
+  const stateName = STATE_NAMES[abbr];
+  if (!stateName) return null;
+  const map = await build();
+  let count = 0;
+  const fset = new Set<string>();
+  const cities: { slug: string; city: string; count: number }[] = [];
+  for (const c of map.values()) {
+    if (c.state !== abbr) continue;
+    count += c.count;
+    for (const f of c.fellowships) fset.add(f);
+    if (c.count >= CITY_MIN_MEETINGS) cities.push({ slug: c.slug, city: c.city, count: c.count });
+  }
+  if (count === 0) return null;
+  cities.sort((a, b) => b.count - a.count || a.city.localeCompare(b.city));
+  const fellowships = [...fset].sort((a, b) => (a === "AA" ? -1 : b === "AA" ? 1 : a.localeCompare(b)));
+  return { abbr, stateName, count, fellowships, cities };
+}
+
 export const fellowshipLabel = (code: string) => fellowshipName(code);
 export { STATE_NAMES };

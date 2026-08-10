@@ -29,7 +29,9 @@ export default async function MeetingsIndex() {
 
       {states.map((st) => (
         <section key={st} style={{ margin: "18px 0" }}>
-          <h2 style={{ fontSize: 20 }}>{st}</h2>
+          <h2 style={{ fontSize: 20 }}>
+            <Link href={`/state/${byState[st][0].state.toLowerCase()}`}>{st}</Link>
+          </h2>
           <p style={{ margin: 0, lineHeight: 2 }}>
             {byState[st].map((c, i) => (
               <span key={c.slug}>
