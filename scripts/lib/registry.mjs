@@ -220,4 +220,10 @@ export const SOURCES = [
   { id: "ua-national",     fellowship: "UA",       system: "meeting-guide", area: "Underearners Anonymous (national)",              url: "https://www.underearnersanonymous.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "aca-az",          fellowship: "ACA",      system: "meeting-guide", area: "ACA Arizona Intergroup",                         url: "https://aca-arizona.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "naranon-national",fellowship: "Nar-Anon", system: "meeting-guide", area: "Nar-Anon Family Groups (national)",             url: "https://nar-anon.org/wp-admin/admin-ajax.php?action=meetings" },
+  // SIA — Survivors of Incest Anonymous. National TSML feed VERIFIED (live JSON array with
+  // name/day/time/formatted_address/conference_url/types; 12_step_meeting_list 3.19.15).
+  { id: "sia-national", fellowship: "SIA", system: "meeting-guide", area: "Survivors of Incest Anonymous (national)", url: "https://siawso.org/wp-admin/admin-ajax.php?action=meetings" },
+  // SCA — Sexual Compulsives Anonymous. National site runs TSML (12_step_meeting_list 3.19.16
+  // meta tag + tsml-region/tsml-day patterns); WordPress install is in the /WP/ subdirectory.
+  { id: "sca-national", fellowship: "SCA", system: "meeting-guide", area: "Sexual Compulsives Anonymous (national)", url: "https://sca-recovery.org/WP/wp-admin/admin-ajax.php?action=meetings" },
 ];

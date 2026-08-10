@@ -33,6 +33,15 @@ async function getJSON(url) {
   return r.json();
 }
 
+// TSML plugins can cache their data to a plain static file under wp-content/uploads. That
+// asset usually sits OUTSIDE the WAF rule guarding admin-ajax.php, so it's worth a cheap try
+// before spinning up a browser. Derive it from the admin-ajax URL (handles subdir installs
+// like /wp/ or /WP/ by stripping everything from /wp-admin/ onward, case-insensitively).
+function tsmlCacheUrl(url) {
+  const m = /^(.*?)\/wp-admin\/admin-ajax\.php/i.exec(url);
+  return m ? `${m[1]}/wp-content/uploads/tsml/meetings.json` : null;
+}
+
 // Optional headless-browser fallback for feeds behind a Cloudflare/JS bot-challenge
 // (these fail every plain fetch regardless of IP; only a real browser gets through).
 // Opt in with USE_BROWSER=1 after: npm install playwright && npx playwright install chromium
@@ -118,7 +127,18 @@ async function loadSource(s) {
     }
     return await getJSON(s.url);
   } catch (e) {
-    // Plain fetch failed — try the browser fallback (Cloudflare/JS-challenged feeds).
+    // 1. TSML static cache — a plain asset, usually not behind the admin-ajax WAF rule.
+    //    Free to try and needs no browser; recovers whichever sites have caching enabled.
+    if (s.system === "meeting-guide") {
+      const cache = tsmlCacheUrl(s.url);
+      if (cache) {
+        try {
+          const r = await getJSON(cache);
+          if (Array.isArray(r) && r.length) { console.log(`  ↳ ${s.id} recovered via static cache`); return r; }
+        } catch {}
+      }
+    }
+    // 2. Headless-browser fallback (Cloudflare/JS-challenged feeds).
     const viaB = await getJSONviaBrowser(s.url);
     if (Array.isArray(viaB) && viaB.length) { console.log(`  ↳ ${s.id} recovered via browser`); return viaB; }
     console.warn(`! ${s.id} failed (${e.message}) — skipping`);
@@ -185,4 +205,13 @@ await writeFile(new URL("../public/data/meetings.json", import.meta.url), json);
 await writeFile(new URL("../public/data/meetings.json.gz", import.meta.url), gzipSync(json, { level: 9 }));
 const byFel = meetings.reduce((o, m) => ((o[m.fellowship] = (o[m.fellowship] || 0) + 1), o), {});
 console.log(`\nWrote ${meetings.length} meetings (${(json.length / 1048576).toFixed(1)}MB raw → meetings.json.gz committed):`, byFel);
+
+// Committed stats file so the app always knows which fellowships actually have meetings
+// (highest count first). The chatbot reads this to describe its coverage honestly and to
+// avoid ever suggesting a fellowship we don't index. Regenerated on every ingest, so it
+// can never drift from the data.
+const counts = Object.fromEntries(Object.entries(byFel).sort((a, b) => b[1] - a[1]));
+const stats = { generatedAt: new Date().toISOString(), total: meetings.length, counts };
+await writeFile(new URL("../src/lib/fellowship-stats.json", import.meta.url), JSON.stringify(stats, null, 2) + "\n");
+console.log(`+ wrote src/lib/fellowship-stats.json (${Object.keys(counts).length} fellowships)`);
 if (_browser) { try { await _browser.close(); } catch {} }

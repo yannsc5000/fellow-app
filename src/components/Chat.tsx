@@ -79,11 +79,15 @@ function LocationBar({ place, onSet }: { place: Place | null; onSet: (p: Place) 
   );
 }
 
+// Every starter maps to a fellowship Fellow actually indexes (AA, NA, Recovery Dharma,
+// Al-Anon, EDA, CMA, SLAA, ACA) and shows off a different capability: time-of-day,
+// natural-language need → the right fellowship, online-only, and non-12-step breadth.
+// Never add a starter for something we don't have meetings for (e.g. gambling).
 const SUGGESTIONS = [
   "AA meeting tonight near me",
-  "Something for gambling this weekend",
   "My partner's drinking is a problem",
   "Online NA meeting this morning",
+  "A meditation-based recovery meeting",
 ];
 
 // Contextual one-tap refinements shown under the latest results.

@@ -5,6 +5,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { searchMeetings, type MeetingResult } from "@/lib/serverSearch";
 import { FELLOWSHIPS, fellowshipName } from "@/lib/fellowships";
 import { officialFinder } from "@/lib/finders";
+import fellowshipStats from "@/lib/fellowship-stats.json";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -12,6 +13,14 @@ export const maxDuration = 30;
 const MODEL = process.env.ANTHROPIC_MODEL || "claude-haiku-4-5";
 
 const FELLOWSHIP_LIST = FELLOWSHIPS.map((f) => `${f.code} = ${f.name}`).join("; ");
+
+// The fellowships Fellow actually has meetings for, generated from the live index on every
+// ingest (src/lib/fellowship-stats.json). Built here so the system prompt can never drift
+// from the data — add a feed and re-ingest, and the bot's honest coverage updates itself.
+const INDEXED_FELLOWSHIPS = Object.entries((fellowshipStats as { counts: Record<string, number> }).counts)
+  .filter(([, n]) => n > 0)
+  .map(([code]) => `${code} (${fellowshipName(code)})`)
+  .join(", ");
 
 const SYSTEM = `You are Fellow, a warm, concise assistant that helps people find 12-step recovery meetings.
 
@@ -26,7 +35,8 @@ MAPPING WHAT PEOPLE DESCRIBE → FELLOWSHIP (pass the code as "fellowship")
 - Gambling → GA; overeating/food → OA; eating disorders → EDA; debt/spending → DA; sex/porn → SAA or SLAA; codependency → CoDA.
 - A LOVED ONE's drinking → Al-Anon (or Alateen for teens); a loved one's drug use → Nar-Anon.
 - Fellowship codes: ${FELLOWSHIP_LIST}.
-- If a described concept has no fellowship with meetings, say it isn't available yet rather than guessing.
+- IMPORTANT — Fellow currently indexes meetings for these fellowships ONLY: ${INDEXED_FELLOWSHIPS}. For any need outside these (e.g. gambling→GA, overeating→OA, debt→DA), do NOT imply Fellow has meetings and never proactively suggest that topic. Instead say plainly that Fellow doesn't list those yet, then still run the search (so the app can offer the official-finder and web-search buttons) — that hand-off is the help you give for gap topics.
+- If a described concept has no fellowship with meetings, say it isn't available yet rather than guessing. Never volunteer or recommend a fellowship Fellow doesn't index unless the user asks about it first.
 - SMART Recovery (secular, CBT/science-based, "self-empowering", a non-12-step alternative) → pass fellowship:"SMART". Fellow doesn't index SMART meetings, so the search will return nothing — that's expected; the app will then show a one-tap link to SMART's official finder (pre-filled to the user's area when their location is known). Also pass near_lat/near_lng if you have them so that link is location-aware.
 
 WHEN A SEARCH COMES BACK EMPTY — widen before giving up. Do the extra searches silently (more tool calls), then tell the user briefly what you widened:
