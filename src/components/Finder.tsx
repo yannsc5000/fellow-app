@@ -192,6 +192,14 @@ function railItem(m: any) {
   } catch { return null; }
 }
 
+// Is a meeting's start time within a minutes-since-midnight window? (client-side time filter)
+function inWindow(m: any, w: { lo: number; hi: number }) {
+  const [h, mm] = String(m.time).split(":").map(Number);
+  if (!Number.isFinite(h) || !Number.isFinite(mm)) return false;
+  const mins = h * 60 + mm;
+  return mins >= w.lo && mins <= w.hi;
+}
+
 // "Now" / "in Nm" label if this meeting is today and starts within [-20, +90] min.
 function soonLabel(m: any): string | null {
   if (m == null || m.day == null || !m.time) return null;
@@ -214,8 +222,9 @@ function hitMiles(m: any, user: { lat: number; lng: number } | null) {
   return haversineMi(user.lat, user.lng, lat, lng);
 }
 
-function Results({ onOpen, user, onClearLocation, startsSoon }: { onOpen: (m: any) => void; user: { lat: number; lng: number } | null; onClearLocation: () => void; startsSoon: boolean }) {
-  const { items } = useHits();
+function Results({ onOpen, user, onClearLocation, startsSoon, timeWindow }: { onOpen: (m: any) => void; user: { lat: number; lng: number } | null; onClearLocation: () => void; startsSoon: boolean; timeWindow: { lo: number; hi: number } | null }) {
+  const { items: rawItems } = useHits();
+  const items = timeWindow ? rawItems.filter((m: any) => inWindow(m, timeWindow)) : rawItems;
   const { status, error } = useInstantSearch();
   const busy = status === "loading" || status === "stalled";
 
@@ -296,30 +305,21 @@ async function zipToPlace(zip: string): Promise<Place> {
 // in-person browsing; online meetings are location-agnostic, so when "Online" is
 // active we don't constrain by distance (the adapter also requires a radius whenever
 // aroundLatLng is set, so this is the one Configure that owns geo).
-function GeoConfigure({ place, startsSoon, parsed }: { place: Place; startsSoon: boolean; parsed: Parsed }) {
+function GeoConfigure({ place, dayFilter, wide, searching }: { place: Place; dayFilter: number | null; wide: boolean; searching: boolean }) {
   const { items } = useRefinementList({ attribute: "online" });
   const onlineOnly = items.some((i) => i.value === "true" && i.isRefined);
   // Only constrain to the "near me" radius while BROWSING. When the user is actively
   // searching free text (e.g. a city like "Boston"), drop the radius so the query finds
   // matches anywhere. A pure day/time query (e.g. "sunday morning") keeps the radius.
-  const searching = !!parsed.text.trim();
   const geo = place && !onlineOnly && !searching
     ? { aroundLatLng: `${place.lat},${place.lng}`, aroundRadius: AREA_RADIUS_M }
     : {};
-  // Time filters: "Starts soon" (next 90 min today) takes precedence; otherwise apply the
-  // day + time-of-day parsed from the query. Both map to the indexed `minutes` field.
-  let numericFilters: string[] | undefined;
-  if (startsSoon) {
-    const now = new Date();
-    const nowMin = now.getHours() * 60 + now.getMinutes();
-    numericFilters = [`day=${now.getDay()}`, `minutes>=${Math.max(0, nowMin - 20)}`, `minutes<=${Math.min(1439, nowMin + 90)}`];
-  } else {
-    const nf: string[] = [];
-    if (parsed.day != null) nf.push(`day=${parsed.day}`);
-    if (parsed.window) nf.push(`minutes>=${parsed.window.lo}`, `minutes<=${parsed.window.hi}`);
-    if (nf.length) numericFilters = nf;
-  }
-  return <Configure hitsPerPage={100} {...geo} {...(numericFilters ? { numericFilters } : {})} />;
+  // Filter by DAY on the server (always indexed). Time-of-day is applied client-side (see
+  // Results/inWindow), so these features need no schema change and never error on an
+  // older index. Widen the page when a time window is active so the client filter has
+  // enough of the day's meetings to work with.
+  const numericFilters = dayFilter != null ? [`day=${dayFilter}`] : undefined;
+  return <Configure hitsPerPage={wide ? 250 : 100} {...geo} {...(numericFilters ? { numericFilters } : {})} />;
 }
 
 // The tappable location control: shows the current ZIP/area and lets people change it
@@ -370,10 +370,12 @@ function LocationControl({ place, onZip, onNearMe, onClear }:
   );
 }
 
-function ResultsCount({ place, startsSoon }: { place: Place; startsSoon: boolean }) {
+function ResultsCount({ place, startsSoon, timeWindow }: { place: Place; startsSoon: boolean; timeWindow: { lo: number; hi: number } | null }) {
   const { nbHits } = useStats();
+  const { items } = useHits();
+  const n = timeWindow ? items.filter((m: any) => inWindow(m, timeWindow)).length : nbHits;
   const suffix = startsSoon ? " starting soon" : place ? ` near ${place.label}` : "";
-  return <div className="count-line" aria-live="polite">{nbHits.toLocaleString()} meeting{nbHits === 1 ? "" : "s"}{suffix}</div>;
+  return <div className="count-line" aria-live="polite">{n.toLocaleString()} meeting{n === 1 ? "" : "s"}{suffix}</div>;
 }
 
 export default function Finder() {
@@ -431,10 +433,15 @@ export default function Finder() {
   }, [parsed.zip]);
 
   const user = place ? { lat: place.lat, lng: place.lng } : null;
+  const searching = !!parsed.text.trim();
+  const nowD = new Date();
+  const nowMin = nowD.getHours() * 60 + nowD.getMinutes();
+  const timeWindow = startsSoon ? { lo: nowMin - 20, hi: nowMin + 90 } : parsed.window;
+  const dayFilter = startsSoon ? nowD.getDay() : parsed.day;
 
   return (
     <InstantSearch searchClient={searchClient} indexName={COLLECTION} future={{ preserveSharedStateOnUnmount: true }}>
-      <GeoConfigure place={place} startsSoon={startsSoon} parsed={parsed} />
+      <GeoConfigure place={place} dayFilter={dayFilter} wide={!!timeWindow} searching={searching} />
       <QueryDriver text={parsed.text} />
       <SearchBox value={raw} onChange={setRaw} onClear={() => setRaw("")} onSubmit={() => { if (!raw.trim()) nearMe(); }} />
       {parsed.labels.length > 0 && (
@@ -455,7 +462,7 @@ export default function Finder() {
         <Toggle attribute="online" value="true" label="Online" />
       </div>
 
-      <ResultsCount place={place} startsSoon={startsSoon} />
+      <ResultsCount place={place} startsSoon={startsSoon} timeWindow={timeWindow} />
       <div className="results-head">
         <LocationControl place={place} onZip={setPlace} onNearMe={nearMe} onClear={() => setPlace(null)} />
         <div className="seg" role="group" aria-label="View">
@@ -465,7 +472,7 @@ export default function Finder() {
       </div>
 
       {view === "list" ? (
-        <Results onOpen={setSelected} user={user} onClearLocation={() => setPlace(null)} startsSoon={startsSoon} />
+        <Results onOpen={setSelected} user={user} onClearLocation={() => setPlace(null)} startsSoon={startsSoon} timeWindow={timeWindow} />
       ) : (
         <ErrorBoundary fallback={<div className="state"><h2>Map unavailable</h2><p>Switch back to List, or reload. (If this persists, the map key may be missing.)</p></div>}>
           <MapView onOpen={setSelected} />
