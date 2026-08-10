@@ -8,7 +8,11 @@ const Finder = dynamic(() => import("@/components/Finder"), { ssr: false });
 const Chat = dynamic(() => import("@/components/Chat"), { ssr: false });
 
 export default function Page() {
-  const [mode, setMode] = useState<"search" | "chat">("chat");
+  // Land on Search (not the chat default) when arriving with a ?q= query — powers shareable
+  // search links and Google's sitelinks search box.
+  const [mode, setMode] = useState<"search" | "chat">(
+    () => (typeof window !== "undefined" && new URLSearchParams(window.location.search).has("q") ? "search" : "chat"),
+  );
   const [resetKey, setResetKey] = useState(0);
   // Clicking the logo resets to the default home screen (default tab + fresh state).
   const goHome = (e: React.MouseEvent) => {

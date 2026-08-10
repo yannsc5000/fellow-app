@@ -414,8 +414,17 @@ export default function Finder() {
   const [soon, setSoon] = useState(false);                 // "Starts soon" toggle
   const [dayToggles, setDayToggles] = useState<number[]>([]); // Today / Tomorrow toggles
   const toggleDay = (d: number) => setDayToggles((cur) => (cur.includes(d) ? cur.filter((x) => x !== d) : [...cur, d]));
-  const [raw, setRaw] = useState("");                       // exactly what the user typed
+  // Seed from ?q= so shared search links and the sitelinks search box land pre-filled.
+  const [raw, setRaw] = useState(() =>
+    typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("q") || "" : "");
   const parsed = useMemo(() => parseQuery(raw), [raw]);     // → filters + residual text
+  // Keep the URL in sync with the query so any search is a copy-pasteable link.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const u = new URL(window.location.href);
+    if (raw.trim()) u.searchParams.set("q", raw); else u.searchParams.delete("q");
+    window.history.replaceState(null, "", u.toString());
+  }, [raw]);
   const [placeMiss, setPlaceMiss] = useState(false);        // a named place that didn't geocode
   const nearMeRef = useRef(false);
 

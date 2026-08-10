@@ -31,10 +31,41 @@ export const viewport: Viewport = {
   colorScheme: "light dark",
 };
 
+// Structured data: tells search engines what Fellow is (Organization) and enables the
+// sitelinks search box (WebSite + SearchAction → /?q=…). Keep in sync with the ?q= handling
+// in page.tsx / Finder.tsx.
+const JSONLD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://fellow.space/#org",
+      name: "Fellow",
+      url: "https://fellow.space",
+      logo: "https://fellow.space/icon-512.png",
+      description: "A free, independent, non-commercial finder for 12-step and related peer-support recovery meetings across the US.",
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://fellow.space/#website",
+      url: "https://fellow.space",
+      name: "Fellow",
+      description: "Find AA, NA, and other recovery meetings near you.",
+      publisher: { "@id": "https://fellow.space/#org" },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: { "@type": "EntryPoint", urlTemplate: "https://fellow.space/?q={search_term_string}" },
+        "query-input": "required name=search_term_string",
+      },
+    },
+  ],
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSONLD) }} />
         {children}
         <ServiceWorkerRegister />
         <Analytics />
