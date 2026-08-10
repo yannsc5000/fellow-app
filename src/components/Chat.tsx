@@ -75,7 +75,7 @@ function LocationBar({ place, onSet }: { place: Place | null; onSet: (p: Place) 
     <button className="loc-btn" onClick={() => setEditing(true)} aria-label={place ? `Location: ${place.label}. Tap to change.` : "Set your location"}>
       <Icon name="pin" size={16} />
       {place ? <span>Near <b>{place.label}</b></span> : <span>Set your location</span>}
-      <span className="loc-change">Change</span>
+      <Icon name="chevron" size={16} className="loc-caret" />
     </button>
   );
 }
