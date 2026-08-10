@@ -20,7 +20,10 @@ export function Mark({ size = 32, className, title }:
         <circle cx="20" cy="50" r="7" />
         <circle cx="29" cy="29" r="7" />
       </g>
-      <circle cx="50" cy="80" r="8.5" fill="var(--accent)" />
+      {/* Amber accent seat — brighter than the app's orange so it keeps strong brightness
+          contrast against the teal tile and stays visible for red-green color blindness
+          (orange-on-teal is near-equiluminant and "vibrates"/fades). */}
+      <circle cx="50" cy="80" r="9" fill="#f5b301" />
     </svg>
   );
 }

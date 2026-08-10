@@ -18,9 +18,10 @@ export function Loader({ size = 40, className, label = "Loading" }:
           <circle cx="20" cy="50" r="7" />
           <circle cx="29" cy="29" r="7" />
         </g>
-        {/* the accent that whips around the ring */}
+        {/* the accent that whips around the ring — amber, matching the brand mark's
+            high-brightness seat (visible for red-green color blindness) */}
         <g className="fl-orbit">
-          <circle cx="50" cy="20" r="9" fill="var(--accent)" />
+          <circle cx="50" cy="20" r="9" fill="#f5b301" />
         </g>
       </svg>
     </span>

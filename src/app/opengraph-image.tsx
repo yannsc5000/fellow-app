@@ -44,8 +44,8 @@ export default function OpengraphImage() {
             ))}
             <div style={{
               position: "absolute", left: "50%", top: "80%",
-              width: "20px", height: "20px", marginLeft: "-10px", marginTop: "-10px",
-              borderRadius: "20px", background: "#f4511e",
+              width: "21px", height: "21px", marginLeft: "-10.5px", marginTop: "-10.5px",
+              borderRadius: "21px", background: "#f5b301",
             }} />
           </div>
           <div style={{ fontSize: "88px", fontWeight: 800, letterSpacing: "-2px" }}>Fellow</div>

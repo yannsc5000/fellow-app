@@ -7,7 +7,10 @@ import { writeFile } from "node:fs/promises";
 import sharp from "sharp";
 import pngToIco from "png-to-ico";
 
-const TEAL_A = "#12a394", TEAL_B = "#0a655c", WHITE = "#ffffff", ACCENT = "#f4511e";
+// Amber accent (not the app's orange): keeps strong brightness contrast against the teal
+// tile so the "newcomer" seat stays visible for red-green color blindness, where orange
+// and teal are near-equiluminant and blur together.
+const TEAL_A = "#12a394", TEAL_B = "#0a655c", WHITE = "#ffffff", ACCENT = "#f5b301";
 
 // The ring: 8 seats around a circle. Seven are "people" (white); the eighth, at the bottom,
 // is the warm accent (the newcomer). Same geometry as the <Mark> component (viewBox 0..100).
@@ -30,7 +33,7 @@ function tileSVG({ size = 100, rounded = 22, ringScale = 0.6 } = {}) {
   const c = size / 2;
   const R = c * ringScale;
   const dotR = R * (7 / 30);       // matches Mark: ring R=30, dot r=7
-  const accentR = R * (8.5 / 30);
+  const accentR = R * (9 / 30);
   const rx = rounded ? (size * rounded) / 100 : 0;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
   <defs>

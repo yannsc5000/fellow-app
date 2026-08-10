@@ -19,5 +19,5 @@
     <rect width="100" height="100" fill="url(#sheen)"/>
     <rect width="100" height="100" fill="url(#vig)"/>
   </g>
-  <circle cx="50.00" cy="20.00" r="7.00" fill="#ffffff"/><circle cx="71.21" cy="28.79" r="7.00" fill="#ffffff"/><circle cx="80.00" cy="50.00" r="7.00" fill="#ffffff"/><circle cx="71.21" cy="71.21" r="7.00" fill="#ffffff"/><circle cx="50.00" cy="80.00" r="8.50" fill="#f4511e"/><circle cx="28.79" cy="71.21" r="7.00" fill="#ffffff"/><circle cx="20.00" cy="50.00" r="7.00" fill="#ffffff"/><circle cx="28.79" cy="28.79" r="7.00" fill="#ffffff"/>
+  <circle cx="50.00" cy="20.00" r="7.00" fill="#ffffff"/><circle cx="71.21" cy="28.79" r="7.00" fill="#ffffff"/><circle cx="80.00" cy="50.00" r="7.00" fill="#ffffff"/><circle cx="71.21" cy="71.21" r="7.00" fill="#ffffff"/><circle cx="50.00" cy="80.00" r="9.00" fill="#f5b301"/><circle cx="28.79" cy="71.21" r="7.00" fill="#ffffff"/><circle cx="20.00" cy="50.00" r="7.00" fill="#ffffff"/><circle cx="28.79" cy="28.79" r="7.00" fill="#ffffff"/>
 </svg>
