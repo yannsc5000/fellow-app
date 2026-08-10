@@ -6,11 +6,40 @@ import { Loader } from "./Loader";
 import { MeetingSheet } from "./Finder";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const DAYS_FULL = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 function to12(t: string) {
   const [h, m] = String(t).split(":").map(Number);
   const ap = (h || 0) < 12 ? "AM" : "PM";
   const hh = (h || 0) % 12 || 12;
   return `${hh}:${String(m || 0).padStart(2, "0")} ${ap}`;
+}
+function timeMin(t: string) {
+  const [h, m] = String(t).split(":").map(Number);
+  return (h || 0) * 60 + (m || 0);
+}
+// How many days from today (0..6) a weekly meeting's day is — used to order results
+// chronologically starting from today, then group them under day headers.
+function dayOffset(day: number, today: number) {
+  return (((day - today) % 7) + 7) % 7;
+}
+function dayLabel(offset: number, day: number) {
+  return offset === 0 ? "Today" : offset === 1 ? "Tomorrow" : DAYS_FULL[day];
+}
+// Sort meetings by (days-from-today, time), then split into contiguous day groups.
+function groupByDay(list: Meeting[]) {
+  const today = new Date().getDay();
+  const sorted = [...list].sort((a, b) => {
+    const d = dayOffset(a.day, today) - dayOffset(b.day, today);
+    return d !== 0 ? d : timeMin(a.time) - timeMin(b.time);
+  });
+  const groups: { offset: number; day: number; items: Meeting[] }[] = [];
+  for (const m of sorted) {
+    const off = dayOffset(m.day, today);
+    let g = groups.find((x) => x.offset === off);
+    if (!g) { g = { offset: off, day: m.day, items: [] }; groups.push(g); }
+    g.items.push(m);
+  }
+  return { sorted, groups };
 }
 
 type Meeting = { id: string; name: string; fellowship: string; day: number; time: string; place: string; address: string; online: boolean; lat: number | null; lng: number | null; conference_url?: string; conference_phone?: string; website?: string; updated?: string; end?: string; types?: string[]; notes?: string; transit_json?: string; parking_json?: string };
@@ -108,6 +137,35 @@ function ChatCard({ m, onOpen }: { m: Meeting; onOpen: (m: Meeting) => void }) {
   );
 }
 
+// Results block: meetings grouped under day headers (Today / Tomorrow / weekday), sorted
+// chronologically from today. Collapsed to the first 3 with a "View all" expander so the
+// first reply stays scannable; expanding reveals the rest, still grouped.
+function MeetingResults({ list, onOpen }: { list: Meeting[]; onOpen: (m: Meeting) => void }) {
+  const [expanded, setExpanded] = useState(false);
+  const { sorted } = groupByDay(list);
+  const shown = expanded ? sorted : sorted.slice(0, 3);
+  const groups = groupByDay(shown).groups;
+  const hasMore = sorted.length > 3;
+  return (
+    <div className="chat-results">
+      {groups.map((g) => (
+        <div key={g.offset} className="chat-daygroup">
+          <div className="chat-day">{dayLabel(g.offset, g.day)}</div>
+          <div className="chat-cards">
+            {g.items.map((mt) => <ChatCard key={mt.id} m={mt} onOpen={onOpen} />)}
+          </div>
+        </div>
+      ))}
+      {hasMore && (
+        <button className="chat-viewall" onClick={() => setExpanded((v) => !v)} aria-expanded={expanded}>
+          {expanded ? "Show fewer" : `View all ${sorted.length} meetings`}
+          <Icon name="chevron" size={16} className={`va-caret${expanded ? " va-up" : ""}`} />
+        </button>
+      )}
+    </div>
+  );
+}
+
 export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => void }) {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -118,6 +176,16 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
   const [listening, setListening] = useState(false);
   const threadRef = useRef<HTMLDivElement>(null);
   const recogRef = useRef<any>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Auto-grow the composer: reset to one line, then grow to fit up to ~5 lines. Runs on every
+  // input change (typing, voice fill, or clearing after send).
+  useEffect(() => {
+    const el = inputRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${Math.min(el.scrollHeight, 132)}px`;
+  }, [input]);
 
   // Voice input via the Web Speech API — supported in Chrome/Safari; the mic button
   // is hidden where it isn't. Fills the input so the user can review before sending.
@@ -197,7 +265,7 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
           <div key={i} className={`msg ${m.role}`}>
             {m.content && <div className="bubble">{m.content}</div>}
             {m.meetings && m.meetings.length > 0 && (
-              <div className="chat-cards">{m.meetings.map((mt) => <ChatCard key={mt.id} m={mt} onOpen={setSelected} />)}</div>
+              <MeetingResults list={m.meetings} onOpen={setSelected} />
             )}
             {m.webSearch && (!m.meetings || m.meetings.length === 0) && (
               <div className="web-fallbacks">
@@ -236,7 +304,9 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
       </div>
       <form className="chat-input" onSubmit={(e) => { e.preventDefault(); send(input); }}>
         <label htmlFor="chatq" style={{ position: "absolute", left: -9999 }}>Message</label>
-        <input id="chatq" value={input} onChange={(e) => setInput(e.currentTarget.value)}
+        <textarea id="chatq" ref={inputRef} rows={1} value={input}
+          onChange={(e) => setInput(e.currentTarget.value)}
+          onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input); } }}
           placeholder={listening ? "Listening…" : "Ask for a meeting…"} autoComplete="off" />
         {speechSupported && (
           <button type="button" className={`btn btn-soft chat-mic${listening ? " mic-on" : ""}`}
