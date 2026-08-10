@@ -217,7 +217,9 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 @keyframes blink{0%,80%,100%{opacity:.25}40%{opacity:.9}}
 @media (prefers-reduced-motion: reduce){.bubble.typing span{animation:none}}
 .chat-cards{display:flex;flex-direction:column;gap:8px;width:100%;max-width:540px}
-.chat-card{display:flex;align-items:center;gap:12px;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:10px 12px}
+.chat-card{display:flex;align-items:center;gap:12px;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:10px 12px;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.chat-card:hover{border-color:color-mix(in srgb, var(--fc) 45%, var(--line))}
+.chat-card .cc-chev{margin-left:auto;color:var(--ink-soft);flex:0 0 auto}
 .chat-card .cc-badge{flex:0 0 auto;min-width:46px;height:40px;padding:0 8px;border-radius:11px;background:var(--fc);color:#fff;font-weight:850;font-size:13px;display:grid;place-items:center;text-align:center}
 .cc-body{min-width:0;flex:1}
 .cc-name{display:block;font-weight:800;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

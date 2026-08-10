@@ -500,7 +500,7 @@ export default function Finder() {
   );
 }
 
-function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => void; onSeeAll: (q: string) => void }) {
+export function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => void; onSeeAll?: (q: string) => void }) {
   const t = to12(m.time);
   const panelRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
@@ -531,7 +531,7 @@ function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => void; o
   const mapsAddr = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((m.place ? m.place + ", " : "") + m.address)}`;
   const correctionBody = `Meeting: ${m.name}\nWhen: ${DAYS[m.day]} ${t.hh} ${t.ap}\n${m.online ? "Online meeting" : [m.place, m.address].filter(Boolean).join(", ")}\nFellowship: ${m.fellowship}\n\nWhat needs fixing?\n`;
   const correctionHref = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Fellow correction: " + m.name)}&body=${encodeURIComponent(correctionBody)}`;
-  const seeAll = (q: string) => { onSeeAll(q); onClose(); };
+  const seeAll = (q: string) => { onSeeAll?.(q); onClose(); };
   return (
     <div role="dialog" aria-modal aria-label={m.name} className="sheet-overlay"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
@@ -551,16 +551,18 @@ function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => void; o
         <div className="sheet-addr">
           {m.online ? "Online meeting" : <>{m.place ? m.place + " · " : ""}<a href={mapsAddr} target="_blank" rel="noopener">{m.address}</a></>}
         </div>
-        <div className="detail-links">
-          <button className="tlink" onClick={() => seeAll(m.name)}>
-            <Icon name="calmonth" size={16} /> All sessions of this group
-          </button>
-          {!m.online && m.place && (
-            <button className="tlink" onClick={() => seeAll(m.place)}>
-              <Icon name="pin" size={16} /> All sessions at this location
+        {onSeeAll && (
+          <div className="detail-links">
+            <button className="tlink" onClick={() => seeAll(m.name)}>
+              <Icon name="calmonth" size={16} /> All sessions of this group
             </button>
-          )}
-        </div>
+            {!m.online && m.place && (
+              <button className="tlink" onClick={() => seeAll(m.place)}>
+                <Icon name="pin" size={16} /> All sessions at this location
+              </button>
+            )}
+          </div>
+        )}
         {m.notes && <p className="notes-block">{m.notes}</p>}
         <DetailMap m={m} defaultMode="map" />
         {!m.online && (transit.length > 0 || parking.length > 0) && (

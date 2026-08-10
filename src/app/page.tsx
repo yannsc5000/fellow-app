@@ -8,7 +8,7 @@ const Finder = dynamic(() => import("@/components/Finder"), { ssr: false });
 const Chat = dynamic(() => import("@/components/Chat"), { ssr: false });
 
 export default function Page() {
-  const [mode, setMode] = useState<"search" | "chat">("search");
+  const [mode, setMode] = useState<"search" | "chat">("chat");
   return (
     <main className="app">
       <header className="brand">
@@ -20,11 +20,11 @@ export default function Page() {
       </header>
 
       <div className="mode-tabs" role="tablist" aria-label="Find meetings by">
-        <button role="tab" aria-selected={mode === "search"} className="mode-tab" onClick={() => setMode("search")}>
-          <Icon name="search" size={18} /> Search
-        </button>
         <button role="tab" aria-selected={mode === "chat"} className="mode-tab" onClick={() => setMode("chat")}>
           <Icon name="chat" size={18} /> Ask Fellow
+        </button>
+        <button role="tab" aria-selected={mode === "search"} className="mode-tab" onClick={() => setMode("search")}>
+          <Icon name="search" size={18} /> Search
         </button>
       </div>
 

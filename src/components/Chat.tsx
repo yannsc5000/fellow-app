@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { fellowshipColor, fellowshipName } from "@/lib/fellowships";
+import { fellowshipColor } from "@/lib/fellowships";
 import { Icon } from "./Icon";
+import { MeetingSheet } from "./Finder";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 function to12(t: string) {
@@ -21,19 +22,17 @@ const SUGGESTIONS = [
   "Online NA meeting this morning",
 ];
 
-function ChatCard({ m }: { m: Meeting }) {
-  const mapsAddr = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((m.place ? m.place + ", " : "") + m.address)}`;
+function ChatCard({ m, onOpen }: { m: Meeting; onOpen: (m: Meeting) => void }) {
   return (
-    <div className="chat-card" style={{ ["--fc" as any]: fellowshipColor(m.fellowship) }}>
+    <button className="chat-card" style={{ ["--fc" as any]: fellowshipColor(m.fellowship) }}
+      onClick={() => onOpen(m)} aria-label={`${m.name} details`}>
       <span className="cc-badge">{m.fellowship}</span>
       <span className="cc-body">
         <span className="cc-name">{m.name}</span>
         <span className="cc-meta">{DAYS[m.day]} · {to12(m.time)} · {m.online ? "Online" : m.place || m.address}</span>
       </span>
-      {m.online
-        ? <span className="cc-link cc-online">Online</span>
-        : <a className="cc-link" href={mapsAddr} target="_blank" rel="noopener" aria-label={`Directions to ${m.name}`}><Icon name="route" size={16} /></a>}
-    </div>
+      <Icon name="chevron" size={18} className="cc-chev" />
+    </button>
   );
 }
 
@@ -42,6 +41,7 @@ export default function Chat() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [selected, setSelected] = useState<Meeting | null>(null);
   const loc = useRef<{ lat: number; lng: number } | null>(null);
   const threadRef = useRef<HTMLDivElement>(null);
 
@@ -97,7 +97,7 @@ export default function Chat() {
           <div key={i} className={`msg ${m.role}`}>
             {m.content && <div className="bubble">{m.content}</div>}
             {m.meetings && m.meetings.length > 0 && (
-              <div className="chat-cards">{m.meetings.map((mt) => <ChatCard key={mt.id} m={mt} />)}</div>
+              <div className="chat-cards">{m.meetings.map((mt) => <ChatCard key={mt.id} m={mt} onOpen={setSelected} />)}</div>
             )}
           </div>
         ))}
@@ -112,6 +112,7 @@ export default function Chat() {
           <Icon name="nearme" size={18} />
         </button>
       </form>
+      {selected && <MeetingSheet m={selected} onClose={() => setSelected(null)} />}
     </div>
   );
 }
