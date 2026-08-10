@@ -1,7 +1,7 @@
 :root{
   --bg:#f4f2ec; --surface:#ffffff; --surface-2:#f5f2ea; --ink:#17161a; --ink-soft:#6b6660;
   --line:#e9e4d9; --brand:#0e8c80; --brand-ink:#0a655c; --brand-tint:#e2f4f0; --accent:#f4511e;
-  --focus:#2563eb; --radius:24px; --radius-sm:16px; --touch:56px;
+  --focus:#2563eb; --radius:24px; --radius-sm:16px; --touch:56px; --grain:.05;
   --shadow-sm:0 1px 2px rgba(23,22,26,.06), 0 2px 8px rgba(23,22,26,.05);
   --shadow-md:0 4px 12px rgba(23,22,26,.08), 0 12px 32px rgba(23,22,26,.10);
   --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
@@ -9,6 +9,7 @@
 @media (prefers-color-scheme: dark){:root{
   --bg:#141310; --surface:#1f1d18; --surface-2:#26231d; --ink:#f5f2ea; --ink-soft:#b7b1a4;
   --line:#332f28; --brand:#5eead4; --brand-ink:#99f6e4; --brand-tint:#123b37; --accent:#fb923c; --focus:#93c5fd;
+  --grain:.08;
 }}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:18px;-webkit-font-smoothing:antialiased}
@@ -16,6 +17,15 @@ body{background:
   radial-gradient(1100px 460px at 100% -10%, color-mix(in srgb, var(--brand) 12%, transparent) 0%, transparent 60%),
   radial-gradient(900px 460px at -10% -6%, color-mix(in srgb, var(--accent) 10%, transparent) 0%, transparent 55%),
   var(--bg);background-attachment:fixed}
+
+/* Subtle paper-grain over the whole app — a fixed, non-interactive noise layer that sits above
+   the background wash but below all content. Tiled SVG fractal noise (desaturated), kept faint
+   so it reads as texture, not static. --grain tunes strength per color scheme. */
+body::before{
+  content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  opacity:var(--grain,.05);
+  background-image:url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='160'%20height='160'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.82'%20numOctaves='2'%20stitchTiles='stitch'/%3E%3CfeColorMatrix%20type='saturate'%20values='0'/%3E%3C/filter%3E%3Crect%20width='100%25'%20height='100%25'%20filter='url(%23n)'/%3E%3C/svg%3E");
+}
 :focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:8px}
 
 /* Respect a reduced-motion preference across the whole app (covers every current and
@@ -40,8 +50,12 @@ body{background:
 /* Header */
 .brand{display:flex;align-items:center;gap:14px;padding:22px 0 22px}
 .brand-link{display:inline-flex;align-items:center;gap:14px;text-decoration:none;color:inherit;cursor:pointer}
-.brand .mark{width:52px;height:52px;border-radius:16px;background:linear-gradient(145deg,#12a394,var(--brand-ink));
-  display:grid;place-items:center;color:#fff;box-shadow:0 5px 14px rgba(14,140,128,.30)}
+.brand .mark{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;color:#fff;
+  box-shadow:0 5px 14px rgba(14,140,128,.30);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.20) 0%, rgba(255,255,255,.02) 45%, rgba(255,255,255,0) 62%),
+    linear-gradient(0deg, rgba(0,59,53,.22) 0%, rgba(0,59,53,0) 40%),
+    linear-gradient(145deg,#12a394,var(--brand-ink))}
 
 /* Brand loader — a faint ring of people with one accent dot whipping around it. The ease-in-out
    on an endless rotation makes it accelerate, decelerate, then accelerate again each lap. The

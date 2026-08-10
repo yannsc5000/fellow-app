@@ -23,6 +23,8 @@ function ringDots(cx, cy, R, dotR, accentR) {
 }
 
 // size: viewBox size; rounded: corner radius (0 = full-bleed); ringScale: ring radius / (size/2).
+// "Sheen" polish: a soft top highlight + a gentle bottom shade, so the tile reads as lit from
+// above. Kept faint; the ring dots stay flat and sit on top of the sheen.
 function tileSVG({ size = 100, rounded = 22, ringScale = 0.6 } = {}) {
   const c = size / 2;
   const R = c * ringScale;
@@ -30,10 +32,26 @@ function tileSVG({ size = 100, rounded = 22, ringScale = 0.6 } = {}) {
   const accentR = R * (8.5 / 30);
   const rx = rounded ? (size * rounded) / 100 : 0;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0" stop-color="${TEAL_A}"/><stop offset="1" stop-color="${TEAL_B}"/>
-  </linearGradient></defs>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="${TEAL_A}"/><stop offset="1" stop-color="${TEAL_B}"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.20"/>
+      <stop offset="0.45" stop-color="#ffffff" stop-opacity="0.02"/>
+      <stop offset="0.62" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="vig" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#003b35" stop-opacity="0.22"/>
+      <stop offset="0.4" stop-color="#003b35" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="clip"><rect width="${size}" height="${size}" rx="${rx}"/></clipPath>
+  </defs>
   <rect width="${size}" height="${size}" rx="${rx}" fill="url(#g)"/>
+  <g clip-path="url(#clip)">
+    <rect width="${size}" height="${size}" fill="url(#sheen)"/>
+    <rect width="${size}" height="${size}" fill="url(#vig)"/>
+  </g>
   ${ringDots(c, c, R, dotR, accentR)}
 </svg>`;
 }
