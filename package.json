@@ -17,6 +17,7 @@
     "bootstrap:local": "npm run typesense:up && npm run ingest -- --local && npm run index"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.116.0",
     "maplibre-gl": "^4.7.1",
     "next": "^15.1.0",
     "react": "^19.0.0",
