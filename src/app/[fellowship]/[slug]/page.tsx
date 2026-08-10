@@ -44,10 +44,23 @@ export default async function FellowshipCityPage({ params }: { params: Promise<{
 
   const jsonld = {
     "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    name: `${fc.name} meetings in ${fc.city}, ${fc.stateName}`,
-    url: `https://fellow.space/${fc.fslug}/${fc.citySlug}`,
-    isPartOf: { "@type": "WebSite", name: "Fellow", url: "https://fellow.space" },
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        name: `${fc.name} meetings in ${fc.city}, ${fc.stateName}`,
+        url: `https://fellow.space/${fc.fslug}/${fc.citySlug}`,
+        isPartOf: { "@type": "WebSite", name: "Fellow", url: "https://fellow.space" },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: "https://fellow.space" },
+          { "@type": "ListItem", position: 2, name: "Meetings by city", item: "https://fellow.space/meetings" },
+          { "@type": "ListItem", position: 3, name: `${fc.city}, ${fc.state}`, item: `https://fellow.space/meetings/${fc.citySlug}` },
+          { "@type": "ListItem", position: 4, name: `${fc.code} in ${fc.city}`, item: `https://fellow.space/${fc.fslug}/${fc.citySlug}` },
+        ],
+      },
+    ],
   };
 
   return (
