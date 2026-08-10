@@ -37,7 +37,7 @@ export default function Page() {
     if (typeof window !== "undefined") window.scrollTo({ top: 0 });
   };
   return (
-    <main className="app">
+    <main className="app" id="main-content" tabIndex={-1}>
       <header className="brand">
         <a href="/" className="brand-link" onClick={goHome} aria-label="Fellow — back to home">
           <div className="mark" aria-hidden>F</div>

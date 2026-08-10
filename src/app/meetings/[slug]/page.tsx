@@ -58,7 +58,7 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
   };
 
   return (
-    <main className="app prose">
+    <main className="app prose" id="main-content">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonld) }} />
       <p style={{ margin: "20px 0 8px" }}>
         <Link href="/" className="back">← Fellow home</Link> · <Link href="/meetings" className="back">All cities</Link>

@@ -51,7 +51,7 @@ export default async function FellowshipCityPage({ params }: { params: Promise<{
   };
 
   return (
-    <main className="app prose">
+    <main className="app prose" id="main-content">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonld) }} />
       <p style={{ margin: "20px 0 8px" }}>
         <Link href="/" className="back">← Fellow home</Link> ·{" "}

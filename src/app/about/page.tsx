@@ -14,7 +14,7 @@ const GROUP_ORDER = ["Alcohol & drugs", "Food & eating", "Sex & relationships", 
 export default function AboutPage() {
   const byGroup = GROUP_ORDER.map((g) => ({ g, list: FELLOWSHIPS.filter((f) => f.group === g) })).filter((x) => x.list.length);
   return (
-    <main className="app prose">
+    <main className="app prose" id="main-content">
       <p style={{ margin: "20px 0 8px" }}><a href="/" className="back">← Back to meetings</a></p>
       <h1>About Fellow</h1>
 

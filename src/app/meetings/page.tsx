@@ -17,7 +17,7 @@ export default async function MeetingsIndex() {
   const total = cities.reduce((n, c) => n + c.count, 0);
 
   return (
-    <main className="app prose">
+    <main className="app prose" id="main-content">
       <p style={{ margin: "20px 0 8px" }}><Link href="/" className="back">← Fellow home</Link></p>
       <h1>Recovery meetings by city</h1>
       <p>

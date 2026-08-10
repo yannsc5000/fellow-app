@@ -17,6 +17,24 @@ body{background:
   radial-gradient(900px 460px at -10% -6%, color-mix(in srgb, var(--accent) 10%, transparent) 0%, transparent 55%),
   var(--bg);background-attachment:fixed}
 :focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:8px}
+
+/* Respect a reduced-motion preference across the whole app (covers every current and
+   future animation/transition, including the "starts soon" pulse, typing dots, skeletons
+   and the mic listening pulse). */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms!important;animation-iteration-count:1!important;
+    transition-duration:.001ms!important;scroll-behavior:auto!important;
+  }
+}
+
+/* Skip link — first tab stop; jumps keyboard/screen-reader users past the header. */
+.skip-link{position:fixed;left:12px;top:-60px;z-index:1000;background:var(--surface);color:var(--brand-ink);
+  padding:12px 18px;border:2px solid var(--brand);border-radius:12px;font-weight:800;text-decoration:none;
+  box-shadow:var(--shadow-md);transition:top .15s ease}
+.skip-link:focus{top:12px}
+#main-content:focus{outline:none}
+
 .app{max-width:1040px;margin:0 auto;padding:0 18px 96px}
 
 /* Header */
@@ -249,7 +267,7 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .city-browse{margin:28px 0 8px;padding-top:20px;border-top:1px solid var(--line)}
 .city-browse h2{font-size:17px;font-weight:850;margin:0 0 12px}
 .city-chips{display:flex;flex-wrap:wrap;gap:8px}
-.city-chip{display:inline-flex;align-items:center;background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:8px 14px;font-size:14.5px;font-weight:700;color:var(--ink);text-decoration:none}
+.city-chip{display:inline-flex;align-items:center;min-height:44px;background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:8px 14px;font-size:14.5px;font-weight:700;color:var(--ink);text-decoration:none}
 .city-chip:hover{border-color:var(--brand);color:var(--brand-ink)}
 .city-chip-all{background:color-mix(in srgb, var(--brand) 10%, var(--surface));border-color:color-mix(in srgb, var(--brand) 40%, var(--line));color:var(--brand-ink)}
 .chat-followups{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;max-width:540px}

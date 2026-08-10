@@ -67,6 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSONLD) }} />
+        <a href="#main-content" className="skip-link">Skip to content</a>
         {children}
         <ServiceWorkerRegister />
         <Analytics />
