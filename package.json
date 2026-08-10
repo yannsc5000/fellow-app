@@ -20,6 +20,7 @@
     "@anthropic-ai/sdk": "^0.116.0",
     "maplibre-gl": "^4.7.1",
     "next": "^15.1.0",
+    "playwright": "^1.62.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-instantsearch": "^7.15.0",
