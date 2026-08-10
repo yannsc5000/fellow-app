@@ -32,7 +32,7 @@ const AGENCIES = [
   { id: "mbta",     name: "Boston (MBTA)",           url: "https://cdn.mbta.com/MBTA_GTFS.zip" },
   { id: "cta",      name: "Chicago (CTA 'L')",       url: "https://www.transitchicago.com/downloads/sch_data/google_transit.zip" },
   { id: "bart",     name: "San Francisco (BART)",    url: "https://www.bart.gov/dev/schedules/google_transit.zip" },
-  { id: "sfmuni",   name: "San Francisco (Muni)",    url: "https://gtfs.sfmta.com/transitdata/google_transit.zip" },
+  { id: "sfmuni",   name: "San Francisco (Muni)",    url: "https://muni-gtfs.apps.sfmta.com/data/muni_gtfs-current.zip" },
   { id: "lametro",  name: "Los Angeles Metro Rail",  url: "https://gitlab.com/LACMTA/gtfs_rail/-/raw/master/gtfs_rail.zip" },
   { id: "marta",    name: "Atlanta (MARTA)",         url: "https://www.itsmarta.com/google_transit_feed/google_transit.zip" },
   { id: "miami",    name: "Miami-Dade Metrorail",    url: "https://www.miamidade.gov/transit/googletransit/current/google_transit.zip" },
@@ -147,6 +147,15 @@ for (const ag of AGENCIES) {
     await download(ag.url, zip);
     await mkdir(dir, { recursive: true });
     await run("unzip", ["-o", "-q", zip, "-d", dir]);
+    // Some feeds (e.g. SEPTA) ship a zip-of-zips — extract any nested .zip one level down
+    // so findGtfsDirs can see the inner GTFS set(s). Rail lives in google_rail.zip; the
+    // bus zip extracts too but is skipped cheaply (no rail route_types → no stop_times read).
+    for (const f of await readdir(dir)) {
+      if (!f.toLowerCase().endsWith(".zip")) continue;
+      const sub = tmpPath(`${ag.id}/${f.replace(/\.zip$/i, "")}/`);
+      await mkdir(sub, { recursive: true });
+      await run("unzip", ["-o", "-q", `${dir}${f}`, "-d", sub]);
+    }
     const gdirs = await findGtfsDirs(dir.replace(/\/$/, ""));
     if (!gdirs.length) throw new Error("no stops.txt found (nested zip?)");
     const seen = new Set(), stations = [];
