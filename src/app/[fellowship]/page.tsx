@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getFellowshipHub, getFellowshipAll, getSeededFellowships, fellowshipSlug, stateSlug, STATE_NAMES } from "@/lib/cities";
+import { getFellowshipHub, getFellowshipAll, getSeededFellowships, fellowshipSlug, stateSlug, STATE_NAMES, HUB_CITIES_PER_STATE } from "@/lib/cities";
 import { fellowshipName, fellowshipColor, fellowshipDesc, CODE_BY_SLUG, BY_CODE, FELLOWSHIPS } from "@/lib/fellowships";
 import { officialFinder } from "@/lib/finders";
+import { SEO, EXTRA_FAQS } from "@/lib/fellowshipContent";
+import { CONTACT_EMAIL } from "@/lib/config";
 import { SoberActivities } from "@/components/SoberActivities";
 import { FellowshipBeyond } from "@/components/FellowshipBeyond";
 import { Icon } from "@/components/Icon";
@@ -32,14 +34,14 @@ export async function generateMetadata({ params }: { params: Promise<{ fellowshi
   if (!r) return {};
   const name = fellowshipName(r.code);
   const desc = fellowshipDesc(r.code);
-  // Long-tail, intent-rich title/description (see SEO principles doc) — "online & near you",
-  // "free and anonymous", "secular", the fellowship name — phrased naturally, not stuffed.
-  const title = `${name} (${r.code}) Meetings — Online & Near You | Fellow`;
-  const description = r.fa
+  // Prefer the tuned per-fellowship long-tail title/meta; fall back to a generated one.
+  const seo = SEO[r.code];
+  const title = seo?.title || `${name} (${r.code}) Meetings — Online & Near You | Fellow`;
+  const description = seo?.description || (r.fa
     ? `Find free, anonymous ${name} (${r.code}) meetings near you — ${fmt(r.fa.inPerson)} in person plus online. Browse by city, filter by day and time, and find secular and young people's groups on Fellow.`
     : (desc
         ? `${desc} Find ${r.code} meetings online and near you, plus the official ${r.code} directory — free and anonymous, on Fellow.`
-        : `${name} (${r.code}) meetings online and near you — free and anonymous, on Fellow.`);
+        : `${name} (${r.code}) meetings online and near you — free and anonymous, on Fellow.`));
   return {
     title, description,
     alternates: { canonical: `/${fellowship}` },
@@ -62,6 +64,7 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
   const hub = await getFellowshipHub();
   const cities = hub[code] || [];
   const liveSearch = `/?q=${encodeURIComponent(name)}`;
+  const submitHref = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`Submit a ${code} group or meeting`)}&body=${encodeURIComponent(`I'd like to submit a ${name} (${code}) group or meeting to Fellow.\n\nMeeting name:\nDay & time:\nLocation or online link:\nWebsite or contact (optional):\n`)}`;
 
   // group this fellowship's city pages by state
   const byState: Record<string, { slug: string; city: string; count: number }[]> = {};
@@ -71,8 +74,11 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
   // Related fellowships in the same family (internal links — relevant + good for SEO).
   const related = FELLOWSHIPS.filter((f) => f.code !== code && f.group === group).map((f) => f.code);
 
-  // Fellowship-specific FAQ — answers the real long-tail questions people search (free? online?
-  // non-religious? young people's meetings?). Rendered visibly AND as FAQPage structured data.
+  // FAQ = a couple of dynamically-generated, honest answers (free? online? — the online one
+  // reflects what Fellow actually indexes) + the fellowship-specific scope / "how is X different
+  // from Y?" questions from the content library (which double as "which group is right for me?"
+  // routing). Rendered as an accordion AND as FAQPage structured data.
+  const extra = EXTRA_FAQS[code] || [];
   const faqs: { q: string; a: string }[] = [
     {
       q: `Are ${code} meetings free and anonymous?`,
@@ -84,6 +90,7 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
         ? `Yes. Fellow lists ${fmt(online)} online ${code} meetings you can join from anywhere, alongside in-person groups near you.`
         : `Many ${code} groups meet online as well as in person. ${finder ? `The official ${code} finder lists current online meetings` : `Each group's own website lists current online meetings`}.`,
     },
+    ...extra,
     {
       q: `Do I have to be religious to join ${code}?`,
       a: `No. ${code} welcomes people of any religion or none. The program is usually described as spiritual rather than religious, and many areas offer secular, agnostic, or non-religious meetings.`,
@@ -136,40 +143,63 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
         {name} ({code}) meetings
       </h1>
 
-      {desc ? <p>{desc}</p> : null}
-
       {hasMeetings ? (
-        <p>
-          Fellow lists <strong>{fmt(inPerson)}</strong> in-person {name} ({code}) meetings across the US
-          {online ? <>, plus <strong>{fmt(online)}</strong> online</> : <>, plus online meetings</>}.
-          {" "}Details change often — confirm with the group before you go. For live day/time filters and maps,{" "}
-          <Link href={liveSearch}>search {code} meetings →</Link>
-        </p>
+        <>
+          {desc ? <p>{desc}</p> : null}
+          <p>
+            Fellow lists <strong>{fmt(inPerson)}</strong> in-person {name} ({code}) meetings across the US
+            {online ? <>, plus <strong>{fmt(online)}</strong> online</> : <>, plus online meetings</>}.
+            {" "}Details change often — confirm with the group before you go. For live day/time filters and maps,{" "}
+            <Link href={liveSearch}>search {code} meetings →</Link>
+          </p>
+          <p style={{ margin: "12px 0 6px", display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+            <Link href={`/${fellowship}/all`} className="city-chip city-chip-all">
+              See all {code} meetings — in-person &amp; online, by day →
+            </Link>
+            {finder ? (
+              <a href={finder.url} className="city-chip city-chip-all" target="_blank" rel="noopener nofollow">
+                {finder.label} <Icon name="external" size={14} />
+              </a>
+            ) : null}
+          </p>
+        </>
       ) : (
-        <p>
-          Fellow doesn’t index {code} meetings in its own directory yet.
-          {finder ? <> The official {code} meeting finder below is the most complete place to look right now.</> : <> Most {code} groups publish their schedule on their own websites; check back as Fellow’s coverage grows.</>}
-        </p>
+        <>
+          <p className="fell-apology">
+            Sorry, Fellow doesn’t currently have access to {name} ({code}) meetings. We continue to build our
+            coverage — below are related activities.
+          </p>
+          <p style={{ margin: "12px 0 8px", display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
+            <a href={submitHref} className="btn-secondary"><Icon name="add" size={16} /> Submit a group or meeting</a>
+            {finder ? (
+              <a href={finder.url} className="city-chip city-chip-all" target="_blank" rel="noopener nofollow">
+                {finder.label} <Icon name="external" size={14} />
+              </a>
+            ) : null}
+          </p>
+          {desc ? <p style={{ color: "var(--ink-soft)" }}>{desc}</p> : null}
+        </>
       )}
 
-      <p style={{ margin: "12px 0 6px", display: "flex", flexWrap: "wrap", gap: 8 }}>
-        {hasMeetings ? (
-          <Link href={`/${fellowship}/all`} className="city-chip city-chip-all">
-            See all {code} meetings — in-person &amp; online, by day →
-          </Link>
-        ) : null}
-        {finder ? (
-          <a href={finder.url} className="city-chip city-chip-all" target="_blank" rel="noopener nofollow">
-            {finder.label} <Icon name="external" size={14} />
-          </a>
-        ) : null}
-      </p>
+      {group === "Alcohol & drugs" ? (
+        <p className="safety-note">
+          <span className="sn-i"><Icon name="info" size={17} /></span>
+          <span>
+            A meeting is peer support, not medical care. If you’ve been drinking or using heavily for a
+            long time, stopping suddenly can be risky — some withdrawal needs medical attention, and
+            alcohol withdrawal in particular can be dangerous. If you feel unwell or unsafe, contact a
+            doctor or your local emergency number.
+          </span>
+        </p>
+      ) : null}
 
       {hasMeetings && states.length > 0 ? (
         <>
           <h2 style={{ fontSize: 20, marginTop: 24 }}>{code} meetings by city</h2>
           {states.map((abbr) => {
-            const list = byState[abbr].sort((a, b) => b.count - a.count);
+            // Take the 8 biggest cities in the state, then show them alphabetically.
+            const full = byState[abbr].sort((a, b) => b.count - a.count);
+            const list = full.slice(0, HUB_CITIES_PER_STATE).sort((a, b) => a.city.localeCompare(b.city));
             return (
               <section key={abbr} style={{ margin: "14px 0" }}>
                 <h3 style={{ fontSize: 16, margin: "0 0 8px" }}>
@@ -181,6 +211,11 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
                       {ct.city} <span style={{ color: "var(--ink-soft)", fontSize: 13 }}>({ct.count})</span>
                     </Link>
                   ))}
+                  {full.length > list.length ? (
+                    <Link href={`/state/${stateSlug(abbr)}`} className="city-chip city-chip-all">
+                      +{full.length - list.length} more in {STATE_NAMES[abbr] || abbr} →
+                    </Link>
+                  ) : null}
                 </div>
               </section>
             );
@@ -205,17 +240,22 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
         </>
       ) : null}
 
-      <hr style={{ border: 0, borderTop: "1px solid var(--panel-line)", margin: "28px 0 0" }} />
-      <h2 style={{ fontSize: 20, marginTop: 20 }}>Common questions about {code}</h2>
-      {faqs.map((f) => (
-        <div key={f.q} style={{ margin: "12px 0" }}>
-          <h3 style={{ fontSize: 16, margin: "0 0 4px" }}>{f.q}</h3>
-          <p style={{ margin: 0 }}>{f.a}</p>
-        </div>
-      ))}
-
       <SoberActivities fellowship={code} />
       <FellowshipBeyond code={code} />
+
+      <hr style={{ border: 0, borderTop: "1px solid var(--panel-line)", margin: "28px 0 0" }} />
+      <h2 style={{ fontSize: 20, marginTop: 20 }}>Common questions about {code}</h2>
+      <div className="faq-accordion">
+        {faqs.map((f, i) => (
+          <details key={f.q} className="faq-item" open={i === 0}>
+            <summary className="faq-q">
+              <span>{f.q}</span>
+              <Icon name="chevron" size={20} className="faq-caret" />
+            </summary>
+            <div className="faq-a">{f.a}</div>
+          </details>
+        ))}
+      </div>
 
       <p style={{ margin: "28px 0", color: "var(--ink-soft)", fontSize: 15 }}>
         Fellow is a free, independent meeting finder — not affiliated with {name} or any fellowship.

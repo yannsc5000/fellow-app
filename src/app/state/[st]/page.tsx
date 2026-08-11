@@ -87,7 +87,7 @@ export default async function StatePage({ params }: { params: Promise<{ st: stri
         <>
           <h2 style={{ fontSize: 20, marginTop: 22 }}>Cities in {s.stateName}</h2>
           <div className="city-chips">
-            {s.cities.map((ct) => (
+            {[...s.cities].sort((a, b) => a.city.localeCompare(b.city)).map((ct) => (
               <Link key={ct.slug} href={`/meetings/${ct.slug}`} className="city-chip">
                 {ct.city} <span style={{ color: "var(--ink-soft)", fontSize: 13 }}>({ct.count})</span>
               </Link>

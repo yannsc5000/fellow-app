@@ -34,6 +34,22 @@ const DEFS: Record<string, FinderDef> = {
   EDA: { label: "Find an EDA meeting (eatingdisordersanonymous.org)", url: "https://eatingdisordersanonymous.org/meetings/" },
   NicA: { label: "Find a Nicotine Anonymous meeting (nicotine-anonymous.org)", url: "https://nicotine-anonymous.org/find-a-meeting/" },
   RD: { label: "Recovery Dharma meetings (recoverydharma.org)", url: "https://recoverydharma.org/meetings/" },
+  // Added from the SEO deliverable's official/reference sources — SPOT-CHECK these URLs live
+  // before relying on them (the block above was verified 2026-08-10; these have not been).
+  CA: { label: "Find a CA meeting (ca.org)", url: "https://ca.org/meetings/" },
+  HA: { label: "Find an HA meeting (heroinanonymous.org)", url: "https://heroinanonymous.org/meetings/" },
+  PA: { label: "Find a PA meeting (pillsanonymous.org)", url: "https://www.pillsanonymous.org/find-a-meeting" },
+  FAIR: { label: "Find an FA meeting (foodaddicts.org)", url: "https://www.foodaddicts.org/find-a-meeting" },
+  FAA: { label: "Find an FAA meeting (foodaddicts anonymous)", url: "https://faacanhelp.org/meetings/" },
+  SCA: { label: "SCA meeting finder (onlinesca.org)", url: "https://onlinesca.org/" },
+  SRA: { label: "Find an SRA meeting (sexualrecovery.org)", url: "https://sexualrecovery.org/meetings/" },
+  SIA: { label: "Find an SIA meeting (siawso.org)", url: "https://siawso.org/meetings/" },
+  WA: { label: "Find a WA meeting (workaholics-anonymous.org)", url: "https://workaholics-anonymous.org/meetings/" },
+  CLA: { label: "Find a CLA meeting (clutterersanonymous.org)", url: "https://clutterersanonymous.org/meetings/" },
+  EA: { label: "Find an EA meeting (emotionsanonymous.org)", url: "https://emotionsanonymous.org/find-an-ea-meeting.html" },
+  "Gam-Anon": { label: "Find a Gam-Anon meeting (gam-anon.org)", url: "https://www.gam-anon.org/meeting-directory" },
+  "Co-Anon": { label: "Find a Co-Anon meeting (co-anon.org)", url: "https://co-anon.org/meetings/find-a-meeting" },
+  FA: { label: "Find a Families Anonymous meeting (familiesanonymous.org)", url: "https://familiesanonymous.org/meetings/" },
   // SMART Recovery (secular/CBT-based, not 12-step). Fellow indexes no SMART meetings —
   // their data lives on a closed platform — but their finder accepts coordinates in the
   // URL, so with the user's location we deep-link straight to pre-filled live results.

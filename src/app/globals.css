@@ -535,6 +535,32 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .sober-note b{color:var(--ink)}
 .sober-note .sn-i{flex:0 0 auto;color:var(--brand);margin-top:1px;display:inline-flex}
 
+/* ---- FAQ accordion (fellowship pages) ---- */
+.faq-accordion{margin:6px 0 0;border-top:1px solid var(--line)}
+.faq-item{border-bottom:1px solid var(--line)}
+.faq-q{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:14px 2px;font-size:16px;font-weight:800;color:var(--ink)}
+.faq-q::-webkit-details-marker{display:none}
+.faq-q:hover{color:var(--brand-ink)}
+.faq-caret{flex:0 0 auto;color:var(--ink-soft);transition:transform .18s ease,color .18s ease}
+.faq-item[open] .faq-caret{transform:rotate(90deg);color:var(--brand)}
+.faq-a{padding:0 2px 16px;color:var(--ink-soft);font-size:15px;line-height:1.6;max-width:64ch}
+
+/* ---- Substance-page safety note ---- */
+.safety-note{display:flex;gap:9px;align-items:flex-start;margin:14px 0 0;padding:12px 14px;border-radius:14px;
+  background:color-mix(in srgb, var(--accent) 8%, var(--surface));border:1px solid color-mix(in srgb, var(--accent) 28%, var(--line));
+  color:var(--ink-soft);font-size:13.5px;line-height:1.55}
+.safety-note .sn-i{flex:0 0 auto;color:var(--accent);margin-top:1px;display:inline-flex}
+
+/* Seeded (no-meetings) fellowship lead message + secondary action button */
+.fell-apology{font-size:16px;font-weight:650;color:var(--ink)}
+.btn-secondary{display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:9px 16px;border-radius:999px;
+  background:var(--accent);font-weight:800;font-size:14.5px;text-decoration:none;border:0;
+  box-shadow:0 4px 12px color-mix(in srgb, var(--accent) 32%, transparent);
+  transition:transform .14s ease,filter .14s ease}
+.btn-secondary,.prose a.btn-secondary{color:#fff}
+.btn-secondary:hover{filter:brightness(1.06);transform:translateY(-1px);color:#fff}
+
 /* 404 / not-found */
 .nf{text-align:center;max-width:560px;margin:0 auto;padding:24px 8px 72px}
 .nf-code{font-size:104px;font-weight:900;line-height:1;letter-spacing:-5px;

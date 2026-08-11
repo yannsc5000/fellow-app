@@ -24,14 +24,16 @@ const STATE_NAMES: Record<string, string> = {
 
 // Only build pages for cities with at least this many meetings (avoids thin/low-value pages).
 export const CITY_MIN_MEETINGS = 8;
-// Cap meetings rendered PER DAY on the full "view all" page so page weight stays bounded;
-// big cities link to live search for the rest.
-export const CITY_MAX_PER_DAY = 40;
+// GLOBAL RULE: every day-grouped meeting list shows at most 8 per day, then links to "view all"
+// (live search) for the rest. Keeps even huge fellowships/cities (AA) to a browsable length.
+export const CITY_MAX_PER_DAY = 8;
 // How many meetings to preview on the city page itself before the "view all" link.
 export const CITY_PREVIEW = 8;
-// Cap per day on a fellowship's "all meetings" page — small fellowships show in full, huge
-// ones (AA/NA) stay bounded and link to live search for the overflow.
-export const FELLOWSHIP_ALL_MAX_PER_DAY = 60;
+// Fellowship "all meetings" page uses the same 8-per-day rule.
+export const FELLOWSHIP_ALL_MAX_PER_DAY = 8;
+// Cap cities shown per state on the fellowship hub's "meetings by city" list (the rest link to
+// the state page) — this is what keeps the AA hub from ballooning to thousands of chips.
+export const HUB_CITIES_PER_STATE = 8;
 
 export type CityMeeting = {
   id: string; name: string; fellowship: string; day: number; time: string;

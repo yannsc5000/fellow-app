@@ -532,9 +532,9 @@ export default function Finder() {
         <button className="chip" aria-pressed={dayToggles.includes(TODAY)} onClick={() => toggleDay(TODAY)}>Today</button>
         <button className="chip" aria-pressed={dayToggles.includes((TODAY + 1) % 7)} onClick={() => toggleDay((TODAY + 1) % 7)}>Tomorrow</button>
         <Toggle attribute="types" value="Open" label="Open" />
-        <Toggle attribute="types" value="Wheelchair" label="Accessible" />
         <Toggle attribute="online" value="false" label="In person" />
         <Toggle attribute="online" value="true" label="Online" />
+        <Toggle attribute="types" value="Wheelchair" label="Accessible" />
       </div>
 
       <ResultsCount place={place} startsSoon={soleSoon} timeWindow={timeWindow} />
