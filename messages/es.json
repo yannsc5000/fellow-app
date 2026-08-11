@@ -1,0 +1,24 @@
+{
+  "common": {
+    "tagline": "Encuentra a tu gente",
+    "askFellow": "Pregunta a Fellow",
+    "find": "Buscar",
+    "backHome": "← Inicio de Fellow"
+  },
+  "footer": {
+    "findMeeting": "Buscar una reunión",
+    "supportGroups": "Grupos de apoyo",
+    "meetingsByCity": "Reuniones por ciudad",
+    "fellowships": "Comunidades",
+    "coverageMap": "Mapa de cobertura",
+    "about": "Acerca de y fuentes",
+    "privacy": "Privacidad y anonimato",
+    "blurb": "© {year} Fellow — un proyecto independiente y sin fines de lucro, no afiliado a ninguna comunidad de doce pasos. Los datos de las reuniones provienen de fuentes públicas de los intergrupos."
+  },
+  "home": {
+    "introHeading": "Encuentra una reunión de recuperación cerca de ti — gratis y anónimo",
+    "introBody": "Fellow es un buscador gratuito e independiente de reuniones de recuperación en todo Estados Unidos. Incluye {total} reuniones de Alcohólicos Anónimos (AA), Narcóticos Anónimos (NA) y otros programas de doce pasos y de apoyo entre pares en los {states} estados y DC — presenciales y en línea — sin registro, sin cuenta y sin rastreo. Busca por ciudad, día o comunidad, explora el <cov>mapa de cobertura nacional</cov>, o simplemente dile a <b>Pregunta a Fellow</b> qué necesitas y encontrará una reunión cerca de ti. ¿No sabes cuál es para ti? Empieza por <sg>lo que estás enfrentando</sg>.",
+    "cityBrowseHeading": "Explora reuniones por ciudad",
+    "allCities": "Todas las ciudades →"
+  }
+}

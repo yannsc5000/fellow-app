@@ -1,3 +1,5 @@
+import { setRequestLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import HomeExperience from "@/components/HomeExperience";
 import { CoveragePromo } from "@/components/CoveragePromo";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -21,7 +23,10 @@ const POPULAR_CITIES = [
   { name: "Tucson, AZ", slug: "tucson-az" }, { name: "Raleigh, NC", slug: "raleigh-nc" },
 ];
 
-export default async function Page() {
+export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("home");
   const [coverage, cities] = await Promise.all([getCoverage(), getCities()]);
   // Enforce the rule: only cities with a live meetings page (≥ the min-meetings threshold),
   // then show them alphabetically.
@@ -36,27 +41,27 @@ export default async function Page() {
       {/* Server-rendered, entity-rich intro so Google and AI search have real on-page copy about
           what Fellow is (the interactive widget above is client-only and not crawlable). */}
       <section className="home-intro" aria-labelledby="home-intro-h">
-        <h2 id="home-intro-h">Find a recovery meeting near you — free and anonymous</h2>
+        <h2 id="home-intro-h">{t("introHeading")}</h2>
         <p>
-          Fellow is a free, independent finder for recovery meetings across the United States. It lists{" "}
-          <strong>{coverage.total.toLocaleString()}</strong> Alcoholics Anonymous (AA), Narcotics Anonymous (NA)
-          and other 12-step and peer-support meetings in all {coverage.statesCovered} states and DC — both in
-          person and online — with no sign-up, no account, and no tracking. Search by city, day, or fellowship,
-          browse the <a href="/coverage">nationwide coverage map</a>, or just tell{" "}
-          <strong>Ask Fellow</strong> what you&apos;re looking for and it&apos;ll find a meeting near you. Not sure
-          which group fits? Start from <a href="/support-groups">what you&apos;re facing</a>.
+          {t.rich("introBody", {
+            total: coverage.total.toLocaleString(),
+            states: coverage.statesCovered,
+            b: (chunks) => <strong>{chunks}</strong>,
+            cov: (chunks) => <Link href="/coverage">{chunks}</Link>,
+            sg: (chunks) => <Link href="/support-groups">{chunks}</Link>,
+          })}
         </p>
       </section>
 
       <CoveragePromo data={coverage} />
 
       <section className="city-browse" aria-labelledby="city-browse-h">
-        <h2 id="city-browse-h">Browse meetings by city</h2>
+        <h2 id="city-browse-h">{t("cityBrowseHeading")}</h2>
         <div className="city-chips">
           {popular.map((c) => (
-            <a key={c.slug} href={`/meetings/${c.slug}`} className="city-chip">{c.name}</a>
+            <Link key={c.slug} href={`/meetings/${c.slug}`} className="city-chip">{c.name}</Link>
           ))}
-          <a href="/meetings" className="city-chip city-chip-all">All cities →</a>
+          <Link href="/meetings" className="city-chip city-chip-all">{t("allCities")}</Link>
         </div>
       </section>
 

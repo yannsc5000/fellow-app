@@ -1,0 +1,24 @@
+{
+  "common": {
+    "tagline": "Find your people",
+    "askFellow": "Ask Fellow",
+    "find": "Find",
+    "backHome": "← Fellow home"
+  },
+  "footer": {
+    "findMeeting": "Find a meeting",
+    "supportGroups": "Support groups",
+    "meetingsByCity": "Meetings by city",
+    "fellowships": "Fellowships",
+    "coverageMap": "Coverage map",
+    "about": "About & sources",
+    "privacy": "Privacy & anonymity",
+    "blurb": "© {year} Fellow — an independent, non-commercial project, not affiliated with any 12-step fellowship. Meeting data comes from public intergroup feeds."
+  },
+  "home": {
+    "introHeading": "Find a recovery meeting near you — free and anonymous",
+    "introBody": "Fellow is a free, independent finder for recovery meetings across the United States. It lists {total} Alcoholics Anonymous (AA), Narcotics Anonymous (NA) and other 12-step and peer-support meetings in all {states} states and DC — both in person and online — with no sign-up, no account, and no tracking. Search by city, day, or fellowship, browse the <cov>nationwide coverage map</cov>, or just tell <b>Ask Fellow</b> what you're looking for and it'll find a meeting near you. Not sure which group fits? Start from <sg>what you're facing</sg>.",
+    "cityBrowseHeading": "Browse meetings by city",
+    "allCities": "All cities →"
+  }
+}
