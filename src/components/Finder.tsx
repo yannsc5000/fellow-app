@@ -578,17 +578,21 @@ export function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => 
     // A rich, unfurl-able link: /m carries the meeting's data and serves an Open Graph card
     // (fellowship-colored, matching the sheet) so it previews as a card in Messages/Slack/etc.
     const qp = new URLSearchParams({
+      id: String(m.id || m.objectID || ""),
       n: m.name || "", f: m.fellowship || "", d: String(m.day), t: m.time || "",
       p: m.place || "", a: m.address || "", o: m.online ? "1" : "0",
     });
     const shareUrl = `${origin}/m?${qp.toString()}`;
     const heading = `${m.fellowship ? fellowshipName(m.fellowship) + " · " : ""}${m.name}`;
-    const text = `${heading}\n${when}\n${loc}\n\nShared via Fellow`;
     try {
       if (typeof navigator !== "undefined" && (navigator as any).share) {
-        await (navigator as any).share({ title: m.name, text, url: shareUrl });
+        // Share title + link (no body text). `title` becomes the email Subject when shared to
+        // Mail, and unlike body text it does NOT suppress the rich card in Messages/Slack, which
+        // only unfurl when the message body is just the URL.
+        await (navigator as any).share({ title: m.name, url: shareUrl });
       } else if (typeof navigator !== "undefined" && navigator.clipboard) {
-        await navigator.clipboard.writeText(`${text}\n${shareUrl}`);
+        // No native share sheet (e.g. desktop) — copy a readable summary plus the link.
+        await navigator.clipboard.writeText(`${heading}\n${when}\n${loc}\n${shareUrl}`);
         setCopied(true); setTimeout(() => setCopied(false), 1800);
       }
     } catch { /* user cancelled share — ignore */ }

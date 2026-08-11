@@ -412,6 +412,9 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .share-card .sheet-actions{border-top:0;margin-top:20px;padding-top:0}
 .share-card .btn{min-height:56px;flex:1 1 auto}
 .share-note{color:var(--ink-soft);font-size:13.5px;line-height:1.5;margin:16px 0 0}
+.share-explore{margin:20px 0 8px}
+.share-explore a{color:var(--brand-ink);font-weight:800;font-size:15.5px;text-decoration:none}
+.share-explore a:hover{text-decoration:underline;text-underline-offset:3px}
 /* Coverage map promo — a compact live choropleth teaser linking to /coverage. */
 .cov-promo{display:flex;align-items:center;gap:22px;margin:26px 0 4px;padding:18px 22px;
   border:1px solid var(--panel-line);border-radius:20px;

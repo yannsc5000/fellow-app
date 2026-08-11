@@ -65,7 +65,12 @@ export async function searchMeetings(p: SearchParams): Promise<MeetingResult[]> 
       return mins >= win.lo && mins <= win.hi;
     });
   }
-  return hits.map((m) => ({
+  return hits.map(toResult);
+}
+
+// Normalize a raw Typesense document into the MeetingResult shape the UI uses.
+function toResult(m: any): MeetingResult {
+  return {
     id: String(m.id ?? m.objectID ?? ""), name: m.name, fellowship: m.fellowship,
     day: m.day, time: m.time, place: m.place || "", address: m.address || "",
     online: !!m.online, lat: m.lat ?? null, lng: m.lng ?? null,
@@ -73,7 +78,19 @@ export async function searchMeetings(p: SearchParams): Promise<MeetingResult[]> 
     website: m.website || "", updated: m.updated || "", end: m.end || "",
     types: m.types || [], notes: m.notes || "",
     transit_json: m.transit_json || "", parking_json: m.parking_json || "",
-  }));
+  };
+}
+
+// Fetch a single meeting by its index id — powers the shared-meeting page (/m?id=…) so a shared
+// link opens the full meeting detail (map, website, notes) rather than a stub. null if not found.
+export async function getMeetingById(id: string): Promise<MeetingResult | null> {
+  if (!id) return null;
+  try {
+    const doc: any = await client.collections(COLLECTION).documents(String(id)).retrieve();
+    return doc ? toResult(doc) : null;
+  } catch {
+    return null;
+  }
 }
 
 // How many meetings are near the user in a given time-of-day window (used by the chat welcome:
