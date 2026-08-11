@@ -133,8 +133,16 @@ const SUGGESTIONS_ES: { text: string; code: string }[] = [
   { text: "Una reunión de recuperación con meditación", code: "RD" },
 ];
 const REFINE_ES = ["Solo en línea", "Mejor mañana", "Área más amplia", "Por la mañana"];
-// Detect Spanish once (client-only component, so navigator is always available — no SSR mismatch).
-const IS_ES = typeof navigator !== "undefined" && /^es/i.test(navigator.language || "");
+// Language: an explicit choice from the header toggle (fellow_lang cookie) wins; otherwise fall back
+// to the browser language. Client-only component, so document/navigator are always available.
+function detectEs(): boolean {
+  if (typeof document !== "undefined") {
+    const m = document.cookie.match(/(?:^|;\s*)fellow_lang=(en|es)/);
+    if (m) return m[1] === "es";
+  }
+  return typeof navigator !== "undefined" && /^es/i.test(navigator.language || "");
+}
+const IS_ES = detectEs();
 
 function ChatCard({ m, onOpen }: { m: Meeting; onOpen: (m: Meeting) => void }) {
   return (

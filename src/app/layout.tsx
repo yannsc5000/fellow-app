@@ -6,6 +6,7 @@ import "@fontsource-variable/nunito-sans";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import LangToggle from "@/components/LangToggle";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://fellow.space"),
@@ -95,6 +96,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {TS_ORIGIN && <link rel="preconnect" href={TS_ORIGIN} crossOrigin="anonymous" />}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSONLD) }} />
         <a href="#main-content" className="skip-link">Skip to content</a>
+        <LangToggle />
         {children}
         <ServiceWorkerRegister />
         <Analytics />
