@@ -16,10 +16,11 @@ const TOKENS: [string, string][] = [
   ["--line", "Hairline"],
   ["--ink", "Ink · text"],
   ["--ink-soft", "Ink soft · secondary text"],
-  ["--brand", "Brand · PRIMARY action"],
-  ["--brand-ink", "Brand ink · primary, deeper"],
+  ["--brand", "Brand · identity & links"],
+  ["--brand-ink", "Brand ink · deeper teal"],
   ["--brand-tint", "Brand tint"],
-  ["--accent", "Accent · SECONDARY action & alerts"],
+  ["--action", "Action · PRIMARY buttons (burnt orange)"],
+  ["--accent", "Accent · alerts & 2nd action"],
   ["--focus", "Focus ring"],
 ];
 
@@ -65,13 +66,12 @@ export function Styleguide() {
 
       <h2>Actions</h2>
       <p style={{ color: "var(--ink-soft)", margin: "0 0 12px" }}>
-        <strong>Primary</strong> = brand teal (solid <code>.btn-fc</code>, or the soft teal pills).{" "}
-        <strong>Secondary</strong> = accent orange (<code>.btn-secondary</code>). Note the accent also carries
-        alerts (safety notes, errors), so use the secondary button where a warm, clearly-distinct action helps —
-        not as a second primary.
+        <strong>Primary</strong> = burnt orange (<code>--action</code>, #c2410c) — one action color across both Find
+        and Ask Fellow; white text passes AA (5.2:1). <strong>Teal</strong> is identity: the logo, links, and calm
+        surfaces. The soft teal pills are tertiary; the accent is reserved for alerts (safety notes, errors).
       </p>
       <div className="sg-row">
-        <button className="btn btn-fc" style={{ ["--fc" as any]: "var(--brand)" }}><Icon name="search" size={18} /> Primary action</button>
+        <button className="btn btn-fc" style={{ ["--fc" as any]: "var(--action)" }}><Icon name="search" size={18} /> Primary action</button>
         <a className="btn-secondary" href="#"><Icon name="add" size={16} /> Secondary action</a>
         <a className="city-chip city-chip-all" href="#">Soft pill →</a>
         <button className="chip" aria-pressed={false}>Chip</button>

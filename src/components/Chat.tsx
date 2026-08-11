@@ -352,7 +352,7 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
             <Icon name="mic" size={18} />
           </button>
         )}
-        <button className="btn btn-fc" type="submit" disabled={busy || !input.trim()} style={{ ["--fc" as any]: "var(--brand)" }} aria-label="Send">
+        <button className="btn btn-fc" type="submit" disabled={busy || !input.trim()} style={{ ["--fc" as any]: "var(--action)" }} aria-label="Send">
           <Icon name="nearme" size={18} />
         </button>
       </form>
