@@ -934,3 +934,14 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .home-intro a{color:var(--brand-ink);font-weight:700}
 /* Styleguide note used on the living styleguide's card comparison. */
 .sg-note{color:var(--ink-soft);font-size:14px;line-height:1.5;max-width:640px;margin:6px 0 14px}
+
+/* ── Dark-mode contrast: fellowship color used as TEXT ─────────────────────────────────────
+   In dark mode a raw fellowship color as text (the .tag.fellow chips, the detail-sheet links and
+   summaries) fails WCAG AA badly — the dark blues/indigos (Nar-Anon, Gam-Anon, ACA, AA) land
+   around 1.6–2.4:1. Lighten the color toward the light ink so it clears 4.5:1 while keeping the
+   hue as fellowship identity. (Verified: worst case ≈ 5.5:1 across all fellowship colors.) */
+@media (prefers-color-scheme: dark){
+  .tag.fellow{color:color-mix(in srgb, var(--fc) 45%, #f5f2ea);background:color-mix(in srgb, var(--fc) 30%, var(--surface))}
+  .sheet-body .fact-link,.sheet-body .expect summary,.sheet-body .fact-when:hover .fact-add,.share-btn:hover{color:color-mix(in srgb, var(--fc) 50%, #f5f2ea)}
+  .sheet-body .fact-ico,.sheet-body .lx-cico{color:color-mix(in srgb, var(--fc) 55%, #f5f2ea)}
+}

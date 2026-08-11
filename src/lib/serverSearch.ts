@@ -63,12 +63,23 @@ export async function searchMeetings(p: SearchParams): Promise<MeetingResult[]> 
     // with thin SF coverage would drop "Francisco" and return "San Antonio"/"San Diego".
     drop_tokens_threshold: 0,
   };
-  let hits: any[];
-  try {
-    const res: any = await client.collections(COLLECTION).documents().search(searchParams);
-    hits = (res.hits || []).map((h: any) => h.document);
-  } catch {
-    return [];
+  const run = async (params: any): Promise<any[]> => {
+    try {
+      const res: any = await client.collections(COLLECTION).documents().search(params);
+      return (res.hits || []).map((h: any) => h.document);
+    } catch {
+      return [];
+    }
+  };
+  let hits = await run(searchParams);
+  // Token-relaxation fallback: the strict pass above requires every query token to match (so
+  // "San Francisco" never drifts to "San Antonio"). But a descriptive or misspelled word the data
+  // doesn't contain — "downtown", a typo like "dowtown" — would otherwise zero out the whole
+  // search. If a multi-word query finds nothing, retry allowing Typesense to drop the weakest
+  // tokens and tolerate typos, so the real place ("DC", "Washington") still lands results.
+  const tokenCount = (p.query?.trim().split(/\s+/).filter(Boolean).length) || 0;
+  if (!hits.length && tokenCount > 1) {
+    hits = await run({ ...searchParams, drop_tokens_threshold: 10, num_typos: 2 });
   }
   const win = p.time_of_day ? TIME_WINDOWS[p.time_of_day.toLowerCase()] : null;
   if (win) {
