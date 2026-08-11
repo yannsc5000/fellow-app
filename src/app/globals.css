@@ -347,7 +347,8 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 /* Avatar E: the teal "ring of people" on its own — no tile — sized up to hold presence while
    staying open and airy. Inherits --brand so it's teal in light and bright teal in dark. */
 .chat-ava{display:grid;place-items:center;color:var(--brand);flex:0 0 auto}
-.chat-greet-bubble{background:var(--surface-2);color:var(--ink);border-bottom-left-radius:5px;font-size:17.5px;line-height:1.5;margin:0}
+/* .chat-greet scope beats the later `.bubble{font-size:16px}` rule so this size actually wins. */
+.chat-greet .chat-greet-bubble{background:var(--surface-2);color:var(--ink);border-bottom-left-radius:5px;font-size:18px;line-height:1.5;margin:0}
 /* A friendly sentence, not a label: sentence case, and plenty of air below the greeting.
    Higher specificity than `.chat-intro p` so the spacing actually applies. */
 .chat-intro .chat-try{font-size:14px;font-weight:700;color:var(--ink-soft);margin:36px 0 14px}
@@ -406,6 +407,11 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .expect p{margin:0;padding:0 14px 13px;color:var(--ink-soft);font-size:14.5px;line-height:1.5}
 .btn-disabled{opacity:.55;cursor:default;pointer-events:none}
 .city-browse{margin:24px 0 8px}
+/* Shared-meeting landing (/m) — the MeetingSheet card design as a standalone page card. */
+.share-card{max-width:560px;margin:8px 0 26px;background:var(--surface);border:1px solid var(--panel-line);border-radius:24px;overflow:hidden;box-shadow:var(--shadow-md)}
+.share-card .sheet-actions{border-top:0;margin-top:20px;padding-top:0}
+.share-card .btn{min-height:56px;flex:1 1 auto}
+.share-note{color:var(--ink-soft);font-size:13.5px;line-height:1.5;margin:16px 0 0}
 /* Coverage map promo — a compact live choropleth teaser linking to /coverage. */
 .cov-promo{display:flex;align-items:center;gap:22px;margin:26px 0 4px;padding:18px 22px;
   border:1px solid var(--panel-line);border-radius:20px;

@@ -572,15 +572,23 @@ export function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => 
   }, [onClose]);
 
   async function share() {
-    const when = `${DAYS[m.day]} ${t.hh} ${t.ap}`;
-    const loc = m.online ? (m.conference_url || "Online meeting") : [m.place, m.address].filter(Boolean).join(", ");
-    const url = typeof window !== "undefined" ? window.location.origin : "";
-    const text = `${m.name} — ${when}\n${loc}${m.online ? "" : "\n" + mapsAddr}\n\nvia Fellow ${url}`.trim();
+    const when = `${FULL_DAYS[m.day]}, ${t.hh} ${t.ap}`;
+    const loc = m.online ? "Online meeting" : [m.place, m.address].filter(Boolean).join(", ");
+    const origin = typeof window !== "undefined" ? window.location.origin : "https://fellow.space";
+    // A rich, unfurl-able link: /m carries the meeting's data and serves an Open Graph card
+    // (fellowship-colored, matching the sheet) so it previews as a card in Messages/Slack/etc.
+    const qp = new URLSearchParams({
+      n: m.name || "", f: m.fellowship || "", d: String(m.day), t: m.time || "",
+      p: m.place || "", a: m.address || "", o: m.online ? "1" : "0",
+    });
+    const shareUrl = `${origin}/m?${qp.toString()}`;
+    const heading = `${m.fellowship ? fellowshipName(m.fellowship) + " · " : ""}${m.name}`;
+    const text = `${heading}\n${when}\n${loc}\n\nShared via Fellow`;
     try {
       if (typeof navigator !== "undefined" && (navigator as any).share) {
-        await (navigator as any).share({ title: m.name, text });
+        await (navigator as any).share({ title: m.name, text, url: shareUrl });
       } else if (typeof navigator !== "undefined" && navigator.clipboard) {
-        await navigator.clipboard.writeText(text);
+        await navigator.clipboard.writeText(`${text}\n${shareUrl}`);
         setCopied(true); setTimeout(() => setCopied(false), 1800);
       }
     } catch { /* user cancelled share — ignore */ }
