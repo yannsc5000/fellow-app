@@ -75,3 +75,24 @@ export async function searchMeetings(p: SearchParams): Promise<MeetingResult[]> 
     transit_json: m.transit_json || "", parking_json: m.parking_json || "",
   }));
 }
+
+// Just the total match count (Typesense `found`) for a filter — no documents fetched.
+// Used by the chat welcome to show how many meetings are near the user today. Returns 0 on error.
+export async function countMeetings(p: SearchParams): Promise<number> {
+  const filters: string[] = [];
+  if (Number.isInteger(p.day)) filters.push(`day:=${p.day}`);
+  if (typeof p.online === "boolean") filters.push(`online:=${p.online}`);
+  if (p.fellowship) filters.push(`fellowship:=${p.fellowship}`);
+  if (p.near_lat != null && p.near_lng != null) {
+    const km = ((p.radius_miles ?? 40) * 1.60934).toFixed(1);
+    filters.push(`_geoloc:(${p.near_lat}, ${p.near_lng}, ${km} km)`);
+  }
+  try {
+    const res: any = await client.collections(COLLECTION).documents().search({
+      q: "*", query_by: "name", filter_by: filters.join(" && "), per_page: 1,
+    });
+    return Number(res.found || 0);
+  } catch {
+    return 0;
+  }
+}

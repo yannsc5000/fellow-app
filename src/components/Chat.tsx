@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { fellowshipColor } from "@/lib/fellowships";
 import { Icon } from "./Icon";
+import { Mark } from "./Mark";
 import { Loader } from "./Loader";
 import { MeetingSheet } from "./Finder";
 
@@ -109,15 +110,15 @@ function LocationBar({ place, onSet }: { place: Place | null; onSet: (p: Place) 
   );
 }
 
-// Every starter maps to a fellowship Fellow actually indexes (AA, NA, Recovery Dharma,
-// Al-Anon, EDA, CMA, SLAA, ACA) and shows off a different capability: time-of-day,
-// natural-language need → the right fellowship, online-only, and non-12-step breadth.
+// Every starter maps to a fellowship Fellow actually indexes and shows off a different
+// capability: time-of-day, natural-language need → the right fellowship, online-only, and
+// non-12-step breadth. Each carries its fellowship's color as a dot. `code` drives that color.
 // Never add a starter for something we don't have meetings for (e.g. gambling).
-const SUGGESTIONS = [
-  "AA meeting tonight near me",
-  "My partner's drinking is a problem",
-  "Online NA meeting this morning",
-  "A meditation-based recovery meeting",
+const SUGGESTIONS: { text: string; code: string }[] = [
+  { text: "AA meeting tonight near me", code: "AA" },
+  { text: "My partner's drinking is a problem", code: "Al-Anon" },
+  { text: "Online NA meeting this morning", code: "NA" },
+  { text: "A meditation-based recovery meeting", code: "RD" },
 ];
 
 // Contextual one-tap refinements shown under the latest results.
@@ -173,6 +174,7 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
   const [err, setErr] = useState("");
   const [selected, setSelected] = useState<Meeting | null>(null);
   const [place, setPlace] = useState<Place | null>(null);
+  const [nearbyCount, setNearbyCount] = useState<number | null>(null);
   const [listening, setListening] = useState(false);
   const threadRef = useRef<HTMLDivElement>(null);
   const recogRef = useRef<any>(null);
@@ -220,6 +222,30 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
   }, []);
   useEffect(() => { threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight, behavior: "smooth" }); }, [msgs, busy]);
 
+  // Once we know the user's area, count today's meetings near them for the welcome greeting.
+  // Keyed on coordinates so the label-refinement re-render doesn't re-fetch.
+  useEffect(() => {
+    if (!place) { setNearbyCount(null); return; }
+    let cancelled = false;
+    fetch(`/api/nearby-count?lat=${place.lat}&lng=${place.lng}&day=${new Date().getDay()}`)
+      .then((r) => r.json())
+      .then((d) => { if (!cancelled) setNearbyCount(typeof d.count === "number" ? d.count : null); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [place?.lat, place?.lng]);
+
+  // Time-of-day greeting. When we have a location and a live count, lead with it; otherwise a
+  // warm, still-personal fallback. Never shows a "0" — falls back to the support line instead.
+  const hour = new Date().getHours();
+  const salute = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const near = place?.label && place.label !== "your area" ? place.label : "you";
+  const greeting = place && nearbyCount != null && nearbyCount > 0
+    ? `${salute} 👋 There are ${nearbyCount.toLocaleString()} meetings near ${near} today — here are a few ways to start.`
+    : place
+      ? `${salute} 👋 I can help you find a meeting near ${near} or the right kind of support — here are a few ways to start.`
+      : `${salute} 👋 I can help you find a meeting or the right kind of support — what are you looking for?`;
+
   async function send(text: string) {
     const q = text.trim();
     if (!q || busy) return;
@@ -252,10 +278,17 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
       <div className="chat-thread" ref={threadRef} role="log" aria-live="polite" aria-label="Conversation">
         {msgs.length === 0 && (
           <div className="chat-intro">
-            <p><strong>Ask me to find a meeting.</strong> Try something like:</p>
+            <div className="chat-greet">
+              <span className="chat-ava" aria-hidden><Mark size={22} /></span>
+              <div className="bubble chat-greet-bubble">{greeting}</div>
+            </div>
+            <p className="chat-try">Try one of these</p>
             <div className="chat-suggest">
               {SUGGESTIONS.map((s) => (
-                <button key={s} className="chip" onClick={() => send(s)}>{s}</button>
+                <button key={s.text} className="chip" onClick={() => send(s.text)}>
+                  <span className="sug-dot" style={{ background: fellowshipColor(s.code) }} aria-hidden />
+                  {s.text}
+                </button>
               ))}
             </div>
             <p className="chat-fine">Fellow is independent and not affiliated with any fellowship. It finds meetings — it isn’t a substitute for professional help.</p>
