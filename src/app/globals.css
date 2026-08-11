@@ -877,3 +877,47 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 
 .st-footer{margin-top:26px;padding-top:16px;border-top:1px solid var(--line);
   font-size:11.5px;color:var(--ink-soft);text-align:center}
+
+/* ── Studio: product scorecard (KPIs vs goals) ─────────────────────────────────────────── */
+.st-scorecard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-sm);
+  padding:18px 18px 16px;box-shadow:var(--shadow-sm);margin-bottom:22px}
+.st-sc-group{margin-top:14px}
+.st-sc-grouphead{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+  color:var(--ink-soft);margin:0 0 8px}
+.st-sc-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media (max-width:860px){.st-sc-cards{grid-template-columns:repeat(2,1fr)}}
+.st-sc-card{border:1px solid var(--line);border-left:4px solid var(--ink-soft);border-radius:12px;
+  padding:12px 13px;background:var(--surface-2)}
+.st-sc-card.kp-met{border-left-color:var(--sv-good)}
+.st-sc-card.kp-approaching{border-left-color:var(--sv-info)}
+.st-sc-card.kp-ontrack{border-left-color:var(--ink-soft)}
+.st-sc-card.kp-atrisk{border-left-color:var(--sv-warning)}
+.st-sc-card.kp-na{border-left-color:var(--line);opacity:.72}
+.st-sc-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;min-height:32px}
+.st-sc-label{font-size:12.5px;font-weight:700;line-height:1.25}
+.st-sc-badge{font-size:13px;flex:none;line-height:1}
+.kp-met .st-sc-badge{color:var(--sv-good)} .kp-approaching .st-sc-badge{color:var(--sv-info)}
+.kp-ontrack .st-sc-badge{color:var(--ink-soft)} .kp-atrisk .st-sc-badge{color:var(--sv-warning)}
+.kp-na .st-sc-badge{color:var(--ink-soft)}
+.st-sc-val{font-size:24px;font-weight:800;letter-spacing:-.02em;margin:6px 0 8px;display:flex;align-items:baseline;gap:8px}
+.st-sc-await{color:var(--ink-soft);font-weight:700}
+.st-sc-trend{font-size:12px;font-weight:700;color:var(--ink-soft)}
+.st-sc-track{height:6px;border-radius:4px;background:var(--st-track);overflow:hidden}
+.st-sc-bar{display:block;height:100%;border-radius:4px;background:var(--brand)}
+.kp-met .st-sc-bar{background:var(--sv-good)} .kp-atrisk .st-sc-bar{background:var(--sv-warning)}
+.kp-approaching .st-sc-bar{background:var(--sv-info)}
+.st-sc-goal{font-size:11px;color:var(--ink-soft);margin-top:6px}
+.st-sc-legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.st-sc-legend-item{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--ink-soft);font-weight:600}
+.st-sc-chip{font-size:12px}
+.st-sc-chip.kp-met{color:var(--sv-good)} .st-sc-chip.kp-approaching{color:var(--sv-info)}
+.st-sc-chip.kp-ontrack{color:var(--ink-soft)} .st-sc-chip.kp-atrisk{color:var(--sv-warning)} .st-sc-chip.kp-na{color:var(--ink-soft)}
+
+/* ── Studio: chatbot activity ──────────────────────────────────────────────────────────── */
+.st-cb-cols{display:grid;grid-template-columns:1.3fr 1fr;gap:22px;margin-top:4px}
+@media (max-width:860px){.st-cb-cols{grid-template-columns:1fr}}
+.st-cb-h{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);margin-bottom:10px}
+.st-cb-bars{display:flex;align-items:flex-end;gap:3px;height:120px;padding-top:4px}
+.st-cb-bar-wrap{flex:1;height:100%;display:flex;align-items:flex-end}
+.st-cb-bar{display:block;width:100%;min-height:2px;border-radius:3px 3px 0 0;
+  background:color-mix(in srgb, var(--brand) 78%, transparent)}

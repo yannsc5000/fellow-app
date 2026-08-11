@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getDataHealth, type Severity, type Recommendation } from "@/lib/studio";
+import { getKpis, kpiRecommendations, fmtVal, type Kpi, type KpiStatus } from "@/lib/kpis";
+import chatbot from "@/lib/chatbot-analytics.json";
+import { fellowshipName, fellowshipColor } from "@/lib/fellowships";
 import { Mark } from "@/components/Mark";
 
 // Internal-only data-health dashboard. noindex/nofollow + disallowed in robots + absent from the
@@ -20,6 +23,50 @@ const SEV: Record<Severity, { label: string; glyph: string; cls: string }> = {
   info: { label: "Note", glyph: "◆", cls: "sv-info" },
   good: { label: "Healthy", glyph: "✓", cls: "sv-good" },
 };
+
+const KST: Record<KpiStatus, { label: string; glyph: string; cls: string }> = {
+  met: { label: "Goal met", glyph: "✓", cls: "kp-met" },
+  approaching: { label: "Approaching", glyph: "◆", cls: "kp-approaching" },
+  on_track: { label: "On track", glyph: "●", cls: "kp-ontrack" },
+  at_risk: { label: "At risk", glyph: "▲", cls: "kp-atrisk" },
+  na: { label: "Awaiting data", glyph: "○", cls: "kp-na" },
+};
+const SOURCE_AWAIT: Record<string, string> = { gsc: "awaiting Search Console", chatbot: "awaiting chatbot analytics", data: "awaiting data" };
+
+type ChatbotAnalytics = {
+  connected: boolean; generatedAt: string | null; range: string | null;
+  days: { date: string; total: number; empty: number; online: number }[];
+  byFellowship: Record<string, number>;
+  totals: { conversations: number; foundMeeting: number; empty: number; online: number };
+};
+
+function KpiCard({ k }: { k: Kpi }) {
+  const st = KST[k.status];
+  const arrow = k.trend == null || k.trend === 0 ? "" : k.trend > 0 ? "▲" : "▼";
+  return (
+    <div className={"st-sc-card " + st.cls}>
+      <div className="st-sc-top">
+        <span className="st-sc-label">{k.label}</span>
+        <span className="st-sc-badge" title={st.label}>{st.glyph}</span>
+      </div>
+      {k.awaiting ? (
+        <>
+          <div className="st-sc-val st-sc-await">—</div>
+          <div className="st-sc-goal">{SOURCE_AWAIT[k.source] || "awaiting data"}</div>
+        </>
+      ) : (
+        <>
+          <div className="st-sc-val">
+            {fmtVal(k.unit, k.value)}
+            {arrow ? <span className="st-sc-trend">{arrow} {fmtVal(k.unit, Math.abs(k.trend as number))}</span> : null}
+          </div>
+          <div className="st-sc-track"><span className="st-sc-bar" style={{ width: `${Math.round(k.progress * 100)}%` }} /></div>
+          <div className="st-sc-goal">Goal {k.dir === "down" ? "≤ " : ""}{fmtVal(k.unit, k.target)}{k.dir === "up" ? " target" : ""} · {st.label}</div>
+        </>
+      )}
+    </div>
+  );
+}
 
 function Kpi({ n, label, sub, accent }: { n: string; label: string; sub?: string; accent?: boolean }) {
   return (
@@ -48,9 +95,19 @@ function RecRow({ r }: { r: Recommendation }) {
   );
 }
 
-export default async function StudioPage() {
-  const h = await getDataHealth();
+const RANK: Record<Severity, number> = { serious: 0, warning: 1, info: 2, good: 3 };
 
+export default async function StudioPage() {
+  const [h, { groups }] = await Promise.all([getDataHealth(), getKpis()]);
+  const kpis = groups.flatMap((g) => g.kpis);
+
+  // The KPI scorecard IS the first set of rules: at-risk / met / approaching KPIs become
+  // recommendations, ranked ahead of the operational data rules.
+  const recs: Recommendation[] = [...kpiRecommendations(kpis), ...h.recommendations].sort(
+    (a, b) => RANK[a.severity] - RANK[b.severity],
+  );
+
+  const cb = chatbot as ChatbotAnalytics;
   const datedPct = (n: number) => (h.datedTotal ? Math.round((n / h.datedTotal) * 100) : 0);
   const maxState = h.topStates[0]?.total || 1;
   const maxFel = h.fellowships[0]?.total || 1;
@@ -78,7 +135,33 @@ export default async function StudioPage() {
         ingest ({h.refDate || "unknown date"}); freshness is measured relative to that ingest, not live.
       </p>
 
-      {/* KPIs */}
+      {/* Product scorecard — KPIs vs goals */}
+      <section className="st-scorecard">
+        <div className="st-panel-head">
+          <h2>Product scorecard</h2>
+          <span className="st-panel-tag">MVP goals</span>
+        </div>
+        <p className="st-panel-lede">
+          How we&apos;re tracking against the MVP targets in <code>kpi-targets.json</code>. Each tile shows current vs goal;
+          the alert engine emails on status changes. Demand &amp; engagement rows read as <em>awaiting</em> until Search
+          Console and chatbot analytics are connected.
+        </p>
+        {groups.map((g) => (
+          <div className="st-sc-group" key={g.group}>
+            <div className="st-sc-grouphead">{g.group}</div>
+            <div className="st-sc-cards">
+              {g.kpis.map((k) => <KpiCard key={k.id} k={k} />)}
+            </div>
+          </div>
+        ))}
+        <div className="st-sc-legend">
+          {(["met", "approaching", "on_track", "at_risk", "na"] as KpiStatus[]).map((s) => (
+            <span className="st-sc-legend-item" key={s}><span className={"st-sc-chip " + KST[s].cls}>{KST[s].glyph}</span> {KST[s].label}</span>
+          ))}
+        </div>
+      </section>
+
+      {/* Operational snapshot */}
       <section className="st-kpis">
         <Kpi n={fmt(h.total)} label="Listings indexed" sub={`${fmt(h.inPerson)} in-person · ${fmt(h.online)} online`} />
         <Kpi n={fmt(h.placed)} label="Placed on the map" sub={`${h.unplaceable ? fmt(h.unplaceable) + " unplaceable" : "all placed"}`} />
@@ -94,10 +177,11 @@ export default async function StudioPage() {
           <span className="st-panel-tag">rules-based engine</span>
         </div>
         <p className="st-panel-lede">
-          Deterministic rules over the metrics below — each suggestion traces to a visible number. Ranked by urgency.
+          Scorecard status first (KPIs off/at goal), then deterministic rules over the data below — each traces to a
+          visible number. Ranked by urgency.
         </p>
         <div className="st-recs">
-          {h.recommendations.map((r, i) => <RecRow key={i} r={r} />)}
+          {recs.map((r, i) => <RecRow key={i} r={r} />)}
         </div>
       </section>
 
@@ -245,12 +329,81 @@ export default async function StudioPage() {
             </div>
           )}
         </section>
+
+        {/* Chatbot activity */}
+        <section className="st-panel st-panel-wide">
+          <div className="st-panel-head">
+            <h2>Chatbot activity</h2>
+            <span className={"st-panel-tag " + (cb.connected ? "sv-good" : "sv-info")}>{cb.connected ? (cb.range || "analytics") : "not connected"}</span>
+          </div>
+          {cb.connected ? (
+            <ChatbotPanel cb={cb} />
+          ) : (
+            <div className="st-empty">
+              <p><b>Chatbot analytics aren&apos;t connected yet.</b> Once a store is wired up, this panel shows how many people ask <em>Ask Fellow</em>, which fellowships they ask for, the found-a-meeting rate, and online vs in-person — the two Engagement KPIs above fill in from the same feed.</p>
+              <p className="st-foot">
+                <b>Privacy first:</b> only non-identifying aggregates are ever recorded — daily counts of conversations,
+                which fellowship was searched, whether a meeting was found, and online vs in-person.
+                <b> No raw questions, no message text, no IPs, no personal data.</b> That keeps the anonymity promise intact.
+                To connect: set an analytics store (<code>ANALYTICS_UPSTASH_URL</code> / <code>ANALYTICS_UPSTASH_TOKEN</code>)
+                and run <code>npm run chatbot:stats</code> (or the daily Action) to write <code>src/lib/chatbot-analytics.json</code>.
+              </p>
+            </div>
+          )}
+        </section>
       </div>
 
       <footer className="st-footer">
         Fellow Studio · generated at build from the {h.refDate || "latest"} ingest · internal, not indexed.
       </footer>
     </main>
+  );
+}
+
+// Chatbot activity — privacy-preserving aggregates only. Volume-over-time bars, found-a-meeting
+// rate, online share, and the top fellowships people asked for. Fed by chatbot-analytics.json.
+function ChatbotPanel({ cb }: { cb: ChatbotAnalytics }) {
+  const t = cb.totals;
+  const hitRate = t.conversations ? Math.round((t.foundMeeting / t.conversations) * 100) : 0;
+  const onlineRate = t.conversations ? Math.round((t.online / t.conversations) * 100) : 0;
+  const days = cb.days.slice(-28);
+  const maxDay = Math.max(1, ...days.map((d) => d.total));
+  const fels = Object.entries(cb.byFellowship).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const maxFel = Math.max(1, ...fels.map(([, n]) => n));
+  return (
+    <>
+      <div className="st-sc-kpis">
+        <div className="st-sc-kpi"><div className="st-sc-n">{fmt(t.conversations)}</div><div className="st-sc-l">Conversations</div></div>
+        <div className="st-sc-kpi"><div className="st-sc-n">{hitRate}%</div><div className="st-sc-l">Found a meeting</div></div>
+        <div className="st-sc-kpi"><div className="st-sc-n">{onlineRate}%</div><div className="st-sc-l">Asked for online</div></div>
+        <div className="st-sc-kpi"><div className="st-sc-n">{fmt(t.empty)}</div><div className="st-sc-l">Came up empty</div></div>
+      </div>
+      <div className="st-cb-cols">
+        <div>
+          <div className="st-cb-h">Conversations per day</div>
+          <div className="st-cb-bars" role="img" aria-label="Chatbot conversations per day">
+            {days.map((d) => (
+              <span className="st-cb-bar-wrap" key={d.date} title={`${d.date}: ${d.total}`}>
+                <span className="st-cb-bar" style={{ height: `${Math.round((d.total / maxDay) * 100)}%` }} />
+              </span>
+            ))}
+          </div>
+        </div>
+        <div>
+          <div className="st-cb-h">Top fellowships asked</div>
+          <div className="st-states">
+            {fels.map(([code, n]) => (
+              <div className="st-state" key={code}>
+                <span className="st-state-n"><span className="st-fel-dot" style={{ background: fellowshipColor(code) }} /> {fellowshipName(code)}</span>
+                <span className="st-state-track"><span className="st-state-bar" style={{ width: `${Math.round((n / maxFel) * 100)}%`, background: fellowshipColor(code) }} /></span>
+                <span className="st-state-v">{fmt(n)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <p className="st-foot">Aggregate counts only — no message text or personal data recorded. {cb.range ? `Window: ${cb.range}.` : ""}</p>
+    </>
   );
 }
 

@@ -5,6 +5,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { searchMeetings, type MeetingResult } from "@/lib/serverSearch";
 import { FELLOWSHIPS, fellowshipName } from "@/lib/fellowships";
 import { officialFinder } from "@/lib/finders";
+import { logChatEvent } from "@/lib/analytics";
 import fellowshipStats from "@/lib/fellowship-stats.json";
 
 export const runtime = "nodejs";
@@ -176,6 +177,8 @@ export async function POST(req: Request) {
       // De-dupe collected meetings by id, keep first ~12.
       const seen = new Set<string>();
       const meetings = collected.filter((m) => (m.id && !seen.has(m.id) ? (seen.add(m.id), true) : false)).slice(0, 12);
+      // Privacy-preserving analytics: aggregate counters only (no message text, place, or IP).
+      await logChatEvent({ fellowship: lastInput?.fellowship, found: meetings.length > 0, online: lastInput?.online === true });
       return Response.json(meetings.length ? { reply, meetings } : { reply, meetings, webSearch: buildWebSearch() });
     }
     return Response.json({ reply: "Sorry — I had trouble pulling that together. Try rephrasing?", meetings: [], webSearch: buildWebSearch() });

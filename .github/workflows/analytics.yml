@@ -1,0 +1,52 @@
+name: Analytics & KPI alerts
+
+# Daily: refresh chatbot analytics from the counter store, then evaluate the product KPIs and email
+# the alert address on any status change (crossing a threshold or hitting a goal). Commits the
+# refreshed chatbot-analytics.json + kpi-state.json when something meaningful changed.
+#
+# All inputs are optional — each script no-ops or dry-runs when its secret isn't set, so this
+# workflow is safe to enable before the stores/email are wired up:
+#   ANALYTICS_UPSTASH_URL / ANALYTICS_UPSTASH_TOKEN   chatbot counter store (Upstash Redis REST)
+#   RESEND_API_KEY (+ ALERT_EMAIL, ALERT_FROM)  OR  ALERT_WEBHOOK   how KPI alerts are delivered
+on:
+  schedule:
+    - cron: "0 11 * * *"    # daily at 11:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  analytics:
+    runs-on: ubuntu-latest
+    concurrency: { group: analytics, cancel-in-progress: true }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+
+      - name: Refresh chatbot analytics
+        run: npm run chatbot:stats
+        env:
+          ANALYTICS_UPSTASH_URL: ${{ secrets.ANALYTICS_UPSTASH_URL }}
+          ANALYTICS_UPSTASH_TOKEN: ${{ secrets.ANALYTICS_UPSTASH_TOKEN }}
+
+      - name: Evaluate KPIs & send alerts
+        run: npm run kpi:alerts
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ALERT_WEBHOOK: ${{ secrets.ALERT_WEBHOOK }}
+          ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
+          ALERT_FROM: ${{ secrets.ALERT_FROM }}
+
+      - name: Commit if changed (ignoring timestamp-only diffs)
+        run: |
+          git add -A src/lib/chatbot-analytics.json src/lib/kpi-state.json
+          DIFF=$(git diff --cached -U0 -- src/lib/chatbot-analytics.json src/lib/kpi-state.json \
+                 | grep -E '^[+-]' | grep -vE '^[+-]{3}' | grep -vE '"(updatedAt|generatedAt)"' || true)
+          if [ -z "$DIFF" ]; then echo "No meaningful change."; git reset -q; exit 0; fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: refresh analytics + KPI state"
+          git push

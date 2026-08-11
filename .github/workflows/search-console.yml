@@ -1,0 +1,55 @@
+name: Refresh Search Console export
+
+# Pulls Google Search Console performance for fellow.space and commits the result to
+# src/lib/search-console.json, which the internal /studio dashboard reads at build time.
+# Weekly + on demand. Auto-commits only when the numbers actually change, so it won't churn
+# the history with no-op commits. Requires one repo secret: GSC_SERVICE_ACCOUNT (the full
+# service-account JSON key, for an account added as a user on the fellow.space property).
+on:
+  schedule:
+    - cron: "0 10 * * 1"    # Mondays at 10:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write            # needed to commit the refreshed export back to the repo
+
+jobs:
+  search-console:
+    runs-on: ubuntu-latest
+    concurrency: { group: search-console, cancel-in-progress: true }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+
+      # Materialize the service-account key from the secret into a temp file the script reads.
+      - name: Write service-account key
+        run: printf '%s' "$GSC_SERVICE_ACCOUNT" > "$RUNNER_TEMP/gsc-key.json"
+        env:
+          GSC_SERVICE_ACCOUNT: ${{ secrets.GSC_SERVICE_ACCOUNT }}
+
+      - name: Fetch Search Console performance
+        run: npm run gsc
+        env:
+          GSC_KEY_FILE: ${{ runner.temp }}/gsc-key.json
+          # GSC_SITE: "https://fellow.space/"   # (default) use "sc-domain:fellow.space" for a domain property
+          # GSC_DAYS: "28"                       # (default) reporting window
+          # GSC_LAG: "3"                         # (default) skip the most recent N days while data settles
+
+      # Commit only when the export changed. `generatedAt` always differs, so restore the file
+      # unless a real metric moved — compare everything except the timestamp line.
+      - name: Commit if changed
+        run: |
+          if git diff --quiet -- src/lib/search-console.json; then
+            echo "No file change."; exit 0
+          fi
+          # Ignore a diff that is only the generatedAt timestamp.
+          if [ -z "$(git diff -U0 -- src/lib/search-console.json | grep -E '^[+-]' | grep -vE '^[+-]{3}' | grep -v '"generatedAt"')" ]; then
+            echo "Only generatedAt changed — reverting to avoid a no-op commit."
+            git checkout -- src/lib/search-console.json; exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add src/lib/search-console.json
+          git commit -m "chore: refresh Search Console export"
+          git push
