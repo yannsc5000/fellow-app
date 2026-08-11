@@ -10,7 +10,7 @@ export default function NotFound() {
     <main className="app" id="main-content">
       <header className="brand">
         <Link href="/" className="brand-link" aria-label="Fellow — back to home">
-          <div className="mark" aria-hidden><Mark size={50} /></div>
+          <div className="mark" aria-hidden><Mark size={52} logo /></div>
           <div>
             <h1>Fellow</h1>
             <div className="tagline">Find your people</div>

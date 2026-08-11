@@ -59,12 +59,11 @@ body::before{
 /* Header */
 .brand{display:flex;align-items:center;gap:14px;padding:22px 0 22px}
 .brand-link{display:inline-flex;align-items:center;gap:14px;text-decoration:none;color:inherit;cursor:pointer}
-.brand .mark{width:52px;height:52px;border-radius:16px;display:grid;place-items:center;color:#fff;
-  box-shadow:0 5px 14px rgba(14,140,128,.30);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.20) 0%, rgba(255,255,255,.02) 45%, rgba(255,255,255,0) 62%),
-    linear-gradient(0deg, rgba(0,59,53,.22) 0%, rgba(0,59,53,0) 40%),
-    linear-gradient(145deg,#12a394,var(--brand-ink))}
+/* Header mark: tile-less and airy — the ring stands on its own in brand teal. The lower dots
+   (.mk-deep) drop to a deeper teal for a lit-from-above, dimensional feel. (Favicon, app icon
+   and share card keep the bold tile — those are separate assets.) */
+.brand .mark{width:54px;height:54px;display:grid;place-items:center;color:var(--brand)}
+.mk-deep{fill:color-mix(in srgb, var(--brand) 58%, #05413b)}
 
 /* Brand loader — a faint ring of people with one accent dot whipping around it. The ease-in-out
    on an endless rotation makes it accelerate, decelerate, then accelerate again each lap. The
