@@ -65,6 +65,9 @@ export default async function FellowshipsPage() {
           Fellow indexes meetings from <strong>{list.length}</strong> recovery fellowships — 12-step programs and
           related peer-support paths. Pick one to see where it meets, or search any of them by name.
         </p>
+        <p style={{ margin: "10px 0 0" }}>
+          <Link href="/support-groups" className="city-chip city-chip-all">Not sure which fits? Find support by what you're facing →</Link>
+        </p>
       </section>
 
       <div className="fh-list">
