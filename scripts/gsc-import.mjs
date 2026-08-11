@@ -55,10 +55,15 @@ async function csvDir() {
   console.error("✗ Pass either the exported .zip or a folder of the exported CSVs."); process.exit(1);
 }
 
-async function findCsv(dir, keyword) {
+// Find a CSV by trying several name keywords in order (Search Console's naming varies: the
+// time-series file is "Chart.csv" in the UI export but "Dates.csv" elsewhere).
+async function findCsv(dir, ...keywords) {
   const files = await readdir(dir);
-  const hit = files.find((f) => f.toLowerCase().includes(keyword) && f.toLowerCase().endsWith(".csv"));
-  return hit ? path.join(dir, hit) : null;
+  for (const keyword of keywords) {
+    const hit = files.find((f) => f.toLowerCase().includes(keyword) && f.toLowerCase().endsWith(".csv"));
+    if (hit) return path.join(dir, hit);
+  }
+  return null;
 }
 async function readRows(file) {
   if (!file) return { header: [], rows: [] };
@@ -74,8 +79,9 @@ const col = (header, ...names) => {
 async function main() {
   const { dir, cleanup } = await csvDir();
 
-  // Totals from Dates.csv (sum clicks/impressions; impression-weighted average position).
-  const dates = await readRows(await findCsv(dir, "date"));
+  // Totals from the time-series file — "Chart.csv" in the UI export, "Dates.csv" elsewhere.
+  const datesFile = await findCsv(dir, "chart", "date");
+  const dates = await readRows(datesFile);
   let clicks = 0, impressions = 0, posWeighted = 0, dateMin = "", dateMax = "";
   if (dates.rows.length) {
     const H = dates.header;
@@ -134,8 +140,13 @@ async function main() {
   console.log(`+ wrote src/lib/search-console.json`);
   console.log(`  ${out.range} · ${clicks.toLocaleString()} clicks / ${impressions.toLocaleString()} impressions · avg pos ${position}`);
   console.log(`  ${topQueries.length} top queries, ${opportunities.length} opportunity pages`);
+  const foundAnyFile = !!(datesFile || (await findCsv(dir, "quer")) || (await findCsv(dir, "page")));
   if (!dates.rows.length && !q.rows.length && !pg.rows.length) {
-    console.log("  ⚠ No Dates/Queries/Pages CSVs found in there — make sure you exported the Performance report as CSV.");
+    if (foundAnyFile) {
+      console.log("  ℹ The export's CSVs have no data rows yet — that's expected until the property has search traffic. Re-run once it does.");
+    } else {
+      console.log("  ⚠ No Chart/Queries/Pages CSVs found in there — make sure you exported the Performance report as CSV.");
+    }
   } else {
     console.log("  Next: commit src/lib/search-console.json and push — Vercel redeploys and /studio lights up.");
   }
