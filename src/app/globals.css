@@ -84,7 +84,9 @@ body::before{
 .searchbar{display:flex;gap:10px;align-items:center;background:var(--surface);border:2px solid var(--line);
   border-radius:var(--radius);padding:8px 8px 8px 18px;box-shadow:var(--shadow-sm)}
 .searchbar:focus-within{border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-tint)}
-.searchbar input{flex:1;border:0;background:transparent;font-size:18px;color:var(--ink);padding:14px 0;font-family:inherit}
+/* appearance:none strips iOS's native type=search chrome (inset field / doubled look) that
+   otherwise clashes with our custom bar once it's prepopulated. */
+.searchbar input{flex:1;min-width:0;appearance:none;-webkit-appearance:none;border:0;background:transparent;font-size:18px;color:var(--ink);padding:14px 0;font-family:inherit;line-height:1.2}
 .searchbar input::placeholder{color:#9a948b}
 .searchbar input:focus{outline:none}
 .searchbar input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
@@ -315,7 +317,7 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .exp-tabs{display:flex;gap:6px;padding-left:0}
 /* Each tab is the doorway to a distinct experience, so it should feel substantial in both
    states: a tucked icon sitting close to a strong label. */
-.exp-tab{cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:8px;
+.exp-tab{cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:8px;line-height:1;
   font-weight:800;font-size:16.5px;min-height:54px;padding:13px 22px;color:var(--ink-soft);
   background:color-mix(in srgb, var(--surface) 72%, transparent);border:1px solid var(--panel-line);border-bottom:0;
   border-radius:16px 16px 0 0;margin-bottom:-1px;transition:background .15s,color .15s}
