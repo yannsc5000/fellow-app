@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getCoverage } from "@/lib/coverage";
 import { getFellowshipHub, fellowshipSlug } from "@/lib/cities";
-import { fellowshipName, BY_CODE, fellowshipColor } from "@/lib/fellowships";
+import { fellowshipName, BY_CODE, fellowshipColor, FELLOWSHIPS } from "@/lib/fellowships";
 import { Mark } from "@/components/Mark";
 import { SiteFooter } from "@/components/SiteFooter";
 
@@ -24,7 +24,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function FellowshipsPage() {
   const [c, hub] = await Promise.all([getCoverage(), getFellowshipHub()]);
-  const list = c.fellowships; // indexed fellowships, biggest in-person first
+  // List EVERY fellowship: the ones we index (biggest in-person first), then the rest of the
+  // taxonomy (seeded pages, "coverage coming"), so the hub covers the whole family.
+  const indexed = c.fellowships;
+  const seeded = FELLOWSHIPS.map((f) => f.code).filter((code) => !indexed.includes(code));
+  const list = [...indexed, ...seeded];
 
   const jsonld = {
     "@context": "https://schema.org",
@@ -62,8 +66,9 @@ export default async function FellowshipsPage() {
       <section className="cov-head">
         <h2>Recovery fellowships</h2>
         <p>
-          Fellow indexes meetings from <strong>{list.length}</strong> recovery fellowships — 12-step programs and
-          related peer-support paths. Pick one to see where it meets, or search any of them by name.
+          Fellow covers <strong>{list.length}</strong> recovery fellowships — 12-step programs and related
+          peer-support paths — with live meetings indexed for <strong>{indexed.length}</strong> of them and an
+          overview page for every one. Pick a fellowship to see where it meets, or search any by name.
         </p>
         <p style={{ margin: "10px 0 0" }}>
           <Link href="/support-groups" className="city-chip city-chip-all">Not sure which fits? Find support by what you're facing →</Link>
@@ -76,15 +81,20 @@ export default async function FellowshipsPage() {
           const total = c.inPerson[code] || 0;
           const group = BY_CODE[code]?.group;
           const name = fellowshipName(code);
+          const isSeeded = !indexed.includes(code);
           return (
-            <section className="fh-card" key={code}>
+            <section className={"fh-card" + (isSeeded ? " fh-card-seeded" : "")} key={code}>
               <Link href={`/${fellowshipSlug(code)}`} className="fh-top fh-top-link">
                 <span className="fh-dot" style={{ background: fellowshipColor(code) }} aria-hidden />
                 <h3 className="fh-name">{name} <span className="fh-code">{code}</span></h3>
-                <span className="fh-count">{fmt(total)}<span className="fh-count-l"> meetings</span></span>
+                {isSeeded
+                  ? <span className="fh-count fh-count-soon">Coverage coming</span>
+                  : <span className="fh-count">{fmt(total)}<span className="fh-count-l"> meetings</span></span>}
               </Link>
               {group && <p className="fh-group">{group}</p>}
-              {cities.length > 0 ? (
+              {isSeeded ? (
+                <p className="fh-cities"><span className="fh-cities-l">Not indexed yet</span> — the page has an overview and the official {code} finder.</p>
+              ) : cities.length > 0 ? (
                 <p className="fh-cities">
                   <span className="fh-cities-l">Top cities:</span>{" "}
                   {cities.map((ct, i) => (
@@ -98,7 +108,9 @@ export default async function FellowshipsPage() {
                 <p className="fh-cities"><span className="fh-cities-l">Nationwide</span> — including online meetings.</p>
               )}
               <p className="fh-actions">
-                <Link href={searchHref(code)} className="fh-search">Search {code} meetings →</Link>
+                {isSeeded
+                  ? <Link href={`/${fellowshipSlug(code)}`} className="fh-search">Open the {code} page →</Link>
+                  : <Link href={searchHref(code)} className="fh-search">Search {code} meetings →</Link>}
               </p>
             </section>
           );
@@ -107,9 +119,9 @@ export default async function FellowshipsPage() {
 
       <section className="cov-foot-note">
         <p>
-          Fellow also recognizes many other programs — Overeaters Anonymous, Gamblers Anonymous, SMART Recovery,
-          Sex Addicts Anonymous and more. If a fellowship isn&apos;t listed above, its meetings aren&apos;t in an open,
-          shareable directory yet, but <Link href="/">Ask Fellow</Link> can point you to its official finder.
+          Fellowships marked <em>coverage coming</em> aren&apos;t in an open, shareable meeting directory yet — their
+          page carries an overview and a link to the official finder, and we add live meetings as feeds become
+          available. Not sure which fellowship fits? <Link href="/support-groups">Find support by what you&apos;re facing →</Link>
         </p>
         <p style={{ margin: "20px 0" }}><Link href="/" className="back">← Back to Fellow</Link></p>
       </section>

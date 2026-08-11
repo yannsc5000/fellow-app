@@ -8,9 +8,10 @@ export function SiteFooter() {
   return (
     <footer className="site-footer">
       <p className="foot-links">
-        <Link href="/">Find a meeting</Link> · <Link href="/meetings">Meetings by city</Link> ·{" "}
-        <Link href="/fellowships">Fellowships</Link> · <Link href="/coverage">Coverage map</Link> ·{" "}
-        <Link href="/about">About &amp; sources</Link> · <Link href="/about#privacy">Privacy &amp; anonymity</Link>
+        <Link href="/">Find a meeting</Link> · <Link href="/support-groups">Support groups</Link> ·{" "}
+        <Link href="/meetings">Meetings by city</Link> · <Link href="/fellowships">Fellowships</Link> ·{" "}
+        <Link href="/coverage">Coverage map</Link> · <Link href="/about">About &amp; sources</Link> ·{" "}
+        <Link href="/about#privacy">Privacy &amp; anonymity</Link>
       </p>
       <p className="foot-blurb">
         © {year} Fellow — an independent, non-commercial project, not affiliated with any 12-step

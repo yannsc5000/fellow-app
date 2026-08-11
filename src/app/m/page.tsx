@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { fellowshipColor, fellowshipName } from "@/lib/fellowships";
 import { officialFinder } from "@/lib/finders";
+import { CONTACT_EMAIL } from "@/lib/config";
 import { getMeetingById } from "@/lib/serverSearch";
 import { Icon } from "@/components/Icon";
 import { Mark } from "@/components/Mark";
@@ -17,6 +18,15 @@ function to12(t: string) {
   if (!Number.isFinite(h)) return "";
   const ap = h < 12 ? "AM" : "PM";
   return `${h % 12 || 12}:${String(m || 0).padStart(2, "0")} ${ap}`;
+}
+const SCHEMA_DAY = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+// Format the source "updated" timestamp ("2025-10-10 14:38:29") to a friendly date. No Date()
+// parsing — just the visible parts — so it's a plain, honest "last updated" signal.
+function fmtDate(s: string): string {
+  const mm = String(s).match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!mm) return "";
+  return `${MON[Number(mm[2]) - 1] || ""} ${Number(mm[3])}, ${mm[1]}`;
 }
 type SP = Record<string, string | string[] | undefined>;
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) || "";
@@ -62,9 +72,45 @@ export default async function SharedMeeting({ searchParams }: { searchParams: Pr
   const mapsAddr = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((m.place ? m.place + ", " : "") + (m.address || ""))}`;
   const finder = officialFinder(code);
   const hasLinks = m.website || finder;
+  const updatedStr = m.updated ? fmtDate(String(m.updated)) : "";
+
+  // A prefilled "report a change" email — the report-a-change path the AI/data guidance asks for.
+  const correctionHref = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Fellow correction: " + m.name)}&body=${encodeURIComponent(`I'd like to report a change to this meeting on Fellow.\n\nMeeting: ${m.name}\n${when}\n${m.online ? "Online" : (m.place || m.address || "")}\n\nWhat's changed:\n`)}`;
+
+  // Event structured data — only for a real, verified record (not the params fallback), described
+  // as a weekly recurring schedule so the markup accurately matches the visible meeting details.
+  const isReal = !!(id && m.id);
+  const validDay = Number.isInteger(m.day) && m.day >= 0 && m.day <= 6;
+  const eventLd = isReal && validDay && m.time ? {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: m.name,
+    description: [when, m.online ? "Online meeting" : (m.place || m.address)].filter(Boolean).join(" · "),
+    eventAttendanceMode: m.online ? "https://schema.org/OnlineEventAttendanceMode" : "https://schema.org/OfflineEventAttendanceMode",
+    eventStatus: "https://schema.org/EventScheduled",
+    isAccessibleForFree: true,
+    inLanguage: "en",
+    eventSchedule: {
+      "@type": "Schedule",
+      repeatFrequency: "P1W",
+      byDay: `https://schema.org/${SCHEMA_DAY[m.day]}`,
+      startTime: m.time,
+      ...(m.end ? { endTime: m.end } : {}),
+    },
+    ...(code ? { organizer: { "@type": "Organization", name: fellowshipName(code) } } : {}),
+    location: m.online
+      ? { "@type": "VirtualLocation", url: m.conference_url || m.website || "https://fellow.space/" }
+      : {
+          "@type": "Place",
+          ...(m.place ? { name: m.place } : {}),
+          ...(m.address ? { address: m.address } : {}),
+          ...(m.lat != null && m.lng != null ? { geo: { "@type": "GeoCoordinates", latitude: m.lat, longitude: m.lng } } : {}),
+        },
+  } : null;
 
   return (
     <main className="app" id="main-content" tabIndex={-1}>
+      {eventLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(eventLd) }} /> : null}
       <header className="brand">
         <Link href="/" className="brand-link" aria-label="Fellow — home">
           <div className="mark" aria-hidden><Mark size={52} logo /></div>
@@ -162,6 +208,10 @@ export default async function SharedMeeting({ searchParams }: { searchParams: Pr
               : <a className="btn btn-fc" href={mapsAddr} target="_blank" rel="noopener" style={{ ["--fc" as any]: fc }}><Icon name="route" size={18} /> Directions</a>}
           </div>
           <p className="share-note">Shared via Fellow — independent and not affiliated with any fellowship. Please confirm details with the group, as meetings can change.</p>
+          <p className="share-note share-meta">
+            {updatedStr ? <>Listing last updated {updatedStr}. </> : null}
+            <a href={correctionHref} className="report-inline">Report a change →</a>
+          </p>
         </div>
       </div>
 

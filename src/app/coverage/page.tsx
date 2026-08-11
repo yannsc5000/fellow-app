@@ -5,8 +5,15 @@ import { fellowshipName } from "@/lib/fellowships";
 import { Mark } from "@/components/Mark";
 import CoverageMap from "@/components/CoverageMap";
 import { SiteFooter } from "@/components/SiteFooter";
+import stats from "@/lib/fellowship-stats.json";
 
 const fmt = (n: number) => n.toLocaleString("en-US");
+// Honest freshness date from the ingest run that produced the committed dataset.
+const MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+function fmtStamp(iso: string): string {
+  const m = String(iso || "").match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? `${MON[Number(m[2]) - 1]} ${Number(m[3])}, ${m[1]}` : "";
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const c = await getCoverage();
@@ -23,6 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function CoveragePage() {
   const c = await getCoverage();
   const topFellowships = c.fellowships.map((f) => `${fellowshipName(f)} (${fmt(c.inPerson[f])})`);
+  const refreshed = fmtStamp((stats as { generatedAt?: string }).generatedAt || "");
 
   const jsonld = {
     "@context": "https://schema.org",
@@ -61,8 +69,8 @@ export default async function CoveragePage() {
         <h2>U.S. meeting coverage</h2>
         <p>
           Fellow indexes <strong>{fmt(c.total)}</strong> recovery meetings across all 50 states and DC — pulled from
-          public intergroup feeds and refreshed regularly. Here&apos;s where they are, by state and by fellowship.
-          Tap any state to open its page.
+          public intergroup feeds{refreshed ? <>, last refreshed <strong>{refreshed}</strong></> : ""}. Here&apos;s where
+          they are, by state and by fellowship. Tap any state to open its page.
         </p>
       </section>
 
@@ -72,6 +80,7 @@ export default async function CoveragePage() {
         <div className="cov-stat"><div className="n">{fmt(c.online)}</div><div className="l">online (nationwide)</div></div>
         <div className="cov-stat"><div className="n n-accent">{c.statesCovered}/51</div><div className="l">states + DC covered</div></div>
       </div>
+      {refreshed ? <p className="cov-fresh">Meeting data last refreshed {refreshed}. Individual listings can change between refreshes — always confirm details with the group before you go.</p> : null}
 
       <CoverageMap data={c} />
 

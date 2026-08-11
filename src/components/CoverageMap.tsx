@@ -31,6 +31,10 @@ const short = (n: number) => (n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1)
 export default function CoverageMap({ data }: { data: Coverage }) {
   const [sel, setSel] = useState<string>("__all");
   const [tip, setTip] = useState<{ st: string; x: number; y: number } | null>(null);
+  // A tap/click "pins" the popup (with a link to the state page) instead of navigating away —
+  // so on mobile you get the info first and choose when to go through. `tip` is the transient
+  // desktop hover preview.
+  const [pin, setPin] = useState<{ st: string; x: number; y: number } | null>(null);
 
   const countFor = (st: string) => {
     const o = data.byState[st];
@@ -84,10 +88,16 @@ export default function CoverageMap({ data }: { data: Coverage }) {
                 className={"cov-cell" + (lvl === 0 ? " cov-empty" : "")}
                 data-lvl={lvl}
                 style={{ gridRow: r, gridColumn: c }}
-                aria-label={`${NAME[st]} — ${fmt(n)} ${label} meetings. View ${NAME[st]} page.`}
-                onMouseMove={(e) => setTip({ st, x: e.clientX, y: e.clientY })}
+                aria-label={`${NAME[st]} — ${fmt(n)} ${label} meetings. Tap for details and the ${NAME[st]} page.`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  const rc = e.currentTarget.getBoundingClientRect();
+                  setPin((p) => (p?.st === st ? null : { st, x: rc.left + rc.width / 2, y: rc.top }));
+                  setTip(null);
+                }}
+                onMouseMove={(e) => { if (!pin) setTip({ st, x: e.clientX, y: e.clientY }); }}
                 onMouseLeave={() => setTip(null)}
-                onFocus={(e) => { const rc = e.currentTarget.getBoundingClientRect(); setTip({ st, x: rc.left + rc.width / 2, y: rc.top }); }}
+                onFocus={(e) => { if (!pin) { const rc = e.currentTarget.getBoundingClientRect(); setTip({ st, x: rc.left + rc.width / 2, y: rc.top }); } }}
                 onBlur={() => setTip(null)}
               >
                 <span className="cov-ab">{st}</span>
@@ -104,16 +114,31 @@ export default function CoverageMap({ data }: { data: Coverage }) {
         </div>
       </div>
 
-      {tip && (() => {
-        const o = data.byState[tip.st] || {};
-        const n = countFor(tip.st);
+      {(() => {
+        const active = pin || tip;
+        if (!active) return null;
+        const st = active.st;
+        const o = data.byState[st] || {};
+        const n = countFor(st);
+        const winW = typeof window !== "undefined" ? window.innerWidth : 1200;
+        const isPin = !!pin;
         return (
-          <div className="cov-tip" style={{ left: Math.min(tip.x + 14, (typeof window !== "undefined" ? window.innerWidth : 1200) - 232), top: tip.y + 14 }}>
-            <div className="cov-tip-t">{NAME[tip.st]}</div>
+          <div
+            className={"cov-tip" + (isPin ? " cov-tip-pin" : "")}
+            style={{ left: Math.min(active.x + 14, winW - 236), top: active.y + 14 }}
+            role={isPin ? "dialog" : undefined}
+          >
+            {isPin && <button type="button" className="cov-tip-x" aria-label="Close" onClick={() => setPin(null)}>×</button>}
+            <div className="cov-tip-t">{NAME[st]}</div>
             <div className="cov-tip-r"><span>{label}</span><b>{fmt(n)}</b></div>
             {sel === "__all"
               ? <div className="cov-tip-r"><span>AA / NA</span><b>{fmt(o.AA || 0)} / {fmt(o.NA || 0)}</b></div>
               : <div className="cov-tip-r"><span>all fellowships</span><b>{fmt(o.__all || 0)}</b></div>}
+            {isPin && (
+              <Link className="cov-tip-cta" href={`/state/${st.toLowerCase()}`}>
+                See all meetings in {NAME[st]} →
+              </Link>
+            )}
           </div>
         );
       })()}

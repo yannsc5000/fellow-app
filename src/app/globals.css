@@ -659,6 +659,12 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .cov-tip-t{font-weight:850;margin-bottom:4px}
 .cov-tip-r{display:flex;justify-content:space-between;gap:14px;color:var(--ink-soft)}
 .cov-tip-r b{color:var(--ink);font-variant-numeric:tabular-nums;font-weight:800}
+.cov-tip-pin{pointer-events:auto;padding-bottom:11px;padding-right:22px}
+.cov-tip-x{position:absolute;top:3px;right:5px;border:0;background:transparent;color:var(--ink-soft);font-size:19px;line-height:1;cursor:pointer;padding:2px 7px;border-radius:8px}
+.cov-tip-x:hover{background:var(--surface-2);color:var(--ink)}
+.cov-tip-cta{display:block;margin-top:9px;padding-top:9px;border-top:1px solid var(--line);color:var(--brand-ink);font-weight:800;font-size:13.5px;text-decoration:none}
+.cov-tip-cta:hover{text-decoration:underline;text-underline-offset:3px}
+.cov-fresh{margin:10px 0 0;color:var(--ink-soft);font-size:13.5px;text-align:center}
 .cov-foot-note{margin:22px 0 8px}
 .cov-foot-note p{color:var(--ink-soft);font-size:13.5px;line-height:1.55;margin:0 0 10px;max-width:720px}
 .cov-links a{color:var(--brand-ink);font-weight:700;text-decoration:none}
@@ -685,6 +691,11 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
   border-radius:6px;padding:1px 6px;margin-left:4px;vertical-align:middle}
 .fh-count{font-weight:850;font-size:16px;font-variant-numeric:tabular-nums;flex:0 0 auto}
 .fh-count-l{font-weight:600;font-size:12.5px;color:var(--ink-soft)}
+.fh-count-soon{font-weight:800;font-size:12px;color:var(--brand-ink);background:color-mix(in srgb, var(--brand) 12%, var(--surface));padding:3px 9px;border-radius:999px;white-space:nowrap;flex:0 0 auto}
+
+/* Meeting page (/m): freshness + report-a-change line */
+.share-meta{margin-top:5px}
+.report-inline{color:var(--brand-ink);font-weight:700;text-decoration:underline;text-underline-offset:3px}
 .fh-group{margin:4px 0 10px;font-size:13px;color:var(--ink-soft)}
 .fh-cities{margin:0 0 10px;font-size:14px;line-height:1.6}
 .fh-cities-l{font-weight:800;color:var(--ink)}
