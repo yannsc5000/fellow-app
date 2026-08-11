@@ -211,7 +211,27 @@ console.log(`\nWrote ${meetings.length} meetings (${(json.length / 1048576).toFi
 // avoid ever suggesting a fellowship we don't index. Regenerated on every ingest, so it
 // can never drift from the data.
 const counts = Object.fromEntries(Object.entries(byFel).sort((a, b) => b[1] - a[1]));
-const stats = { generatedAt: new Date().toISOString(), total: meetings.length, counts };
+const generatedAt = new Date().toISOString();
+const stats = { generatedAt, total: meetings.length, counts };
 await writeFile(new URL("../src/lib/fellowship-stats.json", import.meta.url), JSON.stringify(stats, null, 2) + "\n");
 console.log(`+ wrote src/lib/fellowship-stats.json (${Object.keys(counts).length} fellowships)`);
+
+// Append this run to a small committed history so the internal /studio dashboard can chart
+// growth over time (total, in-person/placed/online split, per-fellowship). One compact row
+// per ingest; capped so the file never balloons. Same-day re-runs replace the day's row so a
+// build loop can't stack duplicate points.
+const online2 = meetings.filter((m) => m.online).length;
+const inPerson2 = meetings.length - online2;
+const placed2 = meetings.filter((m) => !m.online && US_STATES.some((st) => new RegExp(`\\b${st}\\b`).test(m.address || ""))).length;
+const snapshot = { generatedAt, total: meetings.length, inPerson: inPerson2, placed: placed2, online: online2, counts };
+let history = [];
+try { history = JSON.parse(await readFile(new URL("../src/lib/data-history.json", import.meta.url))); } catch {}
+if (!Array.isArray(history)) history = [];
+const day = generatedAt.slice(0, 10);
+history = history.filter((h) => String(h.generatedAt || "").slice(0, 10) !== day);
+history.push(snapshot);
+history.sort((a, b) => String(a.generatedAt).localeCompare(String(b.generatedAt)));
+if (history.length > 400) history = history.slice(history.length - 400);
+await writeFile(new URL("../src/lib/data-history.json", import.meta.url), JSON.stringify(history, null, 2) + "\n");
+console.log(`+ appended ingest snapshot to src/lib/data-history.json (${history.length} points)`);
 if (_browser) { try { await _browser.close(); } catch {} }
