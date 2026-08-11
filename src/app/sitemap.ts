@@ -22,6 +22,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${base}/${fellowshipSlug(code)}`,
       lastModified: now, changeFrequency: "weekly" as const, priority: 0.7,
     })),
+    ...cov.fellowships.map((code) => ({
+      url: `${base}/${fellowshipSlug(code)}/all`,
+      lastModified: now, changeFrequency: "weekly" as const, priority: 0.6,
+    })),
     ...states.map((s) => ({
       url: `${base}/state/${s.st}`,
       lastModified: now, changeFrequency: "weekly" as const, priority: 0.7,
@@ -29,6 +33,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...cities.map((c) => ({
       url: `${base}/meetings/${c.slug}`,
       lastModified: now, changeFrequency: "weekly" as const, priority: 0.7,
+    })),
+    ...cities.map((c) => ({
+      url: `${base}/meetings/${c.slug}/all`,
+      lastModified: now, changeFrequency: "weekly" as const, priority: 0.6,
     })),
     ...fc.map((x) => ({
       url: `${base}/${x.fellowship}/${x.slug}`,

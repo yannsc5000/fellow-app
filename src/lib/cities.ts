@@ -24,9 +24,14 @@ const STATE_NAMES: Record<string, string> = {
 
 // Only build pages for cities with at least this many meetings (avoids thin/low-value pages).
 export const CITY_MIN_MEETINGS = 8;
-// Cap meetings rendered PER DAY so every day of the week is represented and page weight
-// stays bounded; big cities link to live search for the rest.
+// Cap meetings rendered PER DAY on the full "view all" page so page weight stays bounded;
+// big cities link to live search for the rest.
 export const CITY_MAX_PER_DAY = 40;
+// How many meetings to preview on the city page itself before the "view all" link.
+export const CITY_PREVIEW = 8;
+// Cap per day on a fellowship's "all meetings" page — small fellowships show in full, huge
+// ones (AA/NA) stay bounded and link to live search for the overflow.
+export const FELLOWSHIP_ALL_MAX_PER_DAY = 60;
 
 export type CityMeeting = {
   id: string; name: string; fellowship: string; day: number; time: string;
@@ -56,7 +61,12 @@ function parseCityState(address: string): { city: string; state: string } | null
   return null;
 }
 
+// Compact per-fellowship listing (in-person + online) — small fields only — built in the SAME
+// pass as the city map so the 90MB dataset is parsed just once per build worker.
+export type FAllMeeting = { id: string; name: string; day: number; time: string; online: boolean; loc: string };
 let _cache: Map<string, City> | null = null;
+let _fellowAll: Map<string, FAllMeeting[]> | null = null;
+let _fellowCode: Map<string, string> | null = null;
 
 async function build(): Promise<Map<string, City>> {
   if (_cache) return _cache;
@@ -72,9 +82,25 @@ async function build(): Promise<Map<string, City>> {
   }
 
   const map = new Map<string, City>();
+  const fall = new Map<string, FAllMeeting[]>();
+  const fcode = new Map<string, string>();
   for (const m of raw) {
+    const day = Number(m.day);
+    const cs = parseCityState(String(m.address || ""));
+
+    // fellowship-all index: EVERY meeting (in-person + online) with a valid day.
+    if (m.fellowship && Number.isInteger(day) && day >= 0 && day <= 6) {
+      const fs = fellowshipSlug(String(m.fellowship));
+      let arr = fall.get(fs);
+      if (!arr) { arr = []; fall.set(fs, arr); fcode.set(fs, m.fellowship); }
+      arr.push({
+        id: String(m.id ?? `${fs}-${arr.length}`), name: m.name || "Meeting",
+        day, time: String(m.time || ""), online: !!m.online, loc: cs ? `${cs.city}, ${cs.state}` : "",
+      });
+    }
+
+    // city map: in-person meetings with a parseable "City, ST".
     if (m.online || !m.address) continue;
-    const cs = parseCityState(String(m.address));
     if (!cs) continue;
     const slug = slugify(cs.city, cs.state);
     if (!slug) continue;
@@ -90,6 +116,9 @@ async function build(): Promise<Map<string, City>> {
       fellowship: m.fellowship, day: m.day, time: m.time, place: m.place || "", address: m.address,
     });
   }
+  for (const arr of fall.values()) arr.sort((a, b) => (a.day - b.day) || a.time.localeCompare(b.time));
+  _fellowAll = fall;
+  _fellowCode = fcode;
   // Sort each city's meetings chronologically; sort fellowships by frequency-ish (AA first).
   for (const c of map.values()) {
     c.meetings.sort((a, b) => (a.day - b.day) || String(a.time).localeCompare(String(b.time)));
@@ -214,3 +243,25 @@ export async function getState(st: string): Promise<StatePage | null> {
 
 export const fellowshipLabel = (code: string) => fellowshipName(code);
 export { STATE_NAMES };
+
+// ---- fellowship "all meetings" pages (/[fellowship]/all) — local + online, by day ----
+// Served from the index built in build() (single parse) — see _fellowAll above.
+export type FellowshipAll = {
+  code: string; name: string; fslug: string;
+  total: number; inPerson: number; online: number; meetings: FAllMeeting[];
+};
+
+// Every fellowship present in the dataset (in-person OR online) — drives the all-page params.
+export async function getFellowshipAllParams(): Promise<{ fellowship: string }[]> {
+  await build();
+  return [...(_fellowAll?.keys() || [])].map((f) => ({ fellowship: f }));
+}
+
+export async function getFellowshipAll(fslug: string): Promise<FellowshipAll | null> {
+  await build();
+  const meetings = _fellowAll?.get(fslug);
+  if (!meetings || !meetings.length) return null;
+  const code = _fellowCode?.get(fslug) || fslug;
+  const online = meetings.filter((m) => m.online).length;
+  return { code, name: fellowshipName(code), fslug, total: meetings.length, inPerson: meetings.length - online, online, meetings };
+}

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getState, getStateParams, fellowshipSlug } from "@/lib/cities";
 import { fellowshipName, fellowshipColor } from "@/lib/fellowships";
-import { Mark } from "@/components/Mark";
+import { SoberActivities } from "@/components/SoberActivities";
 import { SiteFooter } from "@/components/SiteFooter";
 
 const fmt = (n: number) => n.toLocaleString("en-US");
@@ -99,6 +99,8 @@ export default async function StatePage({ params }: { params: Promise<{ st: stri
           Meetings in {s.stateName} are best found by live search right now. <Link href={liveSearch}>Search {s.stateName} →</Link>
         </p>
       )}
+
+      <SoberActivities stateName={s.stateName} />
 
       <p style={{ margin: "28px 0", color: "var(--ink-soft)", fontSize: 15 }}>
         Fellow is a free, independent, non-commercial meeting finder — not affiliated with any fellowship.

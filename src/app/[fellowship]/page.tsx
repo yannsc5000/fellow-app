@@ -4,7 +4,7 @@ import Link from "next/link";
 import { getCoverage } from "@/lib/coverage";
 import { getFellowshipHub, fellowshipSlug, stateSlug, STATE_NAMES } from "@/lib/cities";
 import { fellowshipName, BY_CODE, fellowshipColor } from "@/lib/fellowships";
-import { Mark } from "@/components/Mark";
+import { SoberActivities } from "@/components/SoberActivities";
 import { SiteFooter } from "@/components/SiteFooter";
 
 const fmt = (n: number) => n.toLocaleString("en-US");
@@ -90,6 +90,12 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
         filters, <Link href={liveSearch}>search {code} meetings →</Link>
       </p>
 
+      <p style={{ margin: "4px 0 8px" }}>
+        <Link href={`/${fellowship}/all`} className="city-chip city-chip-all">
+          See all {code} meetings — in-person &amp; online, by day →
+        </Link>
+      </p>
+
       {states.length > 0 ? (
         <>
           <h2 style={{ fontSize: 20, marginTop: 24 }}>{code} meetings by city</h2>
@@ -116,6 +122,8 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
           {name} meetings are available across the US, including online. <Link href={liveSearch}>Search {code} meetings live →</Link>
         </p>
       )}
+
+      <SoberActivities />
 
       <p style={{ margin: "28px 0", color: "var(--ink-soft)", fontSize: 15 }}>
         Fellow is a free, independent meeting finder — not affiliated with {name} or any fellowship.

@@ -482,15 +482,58 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .prose .back{display:inline-block;font-weight:750;text-decoration:none;color:var(--brand-ink)}
 .prose .back:hover{text-decoration:underline}
 /* Footer */
-/* Clickable meeting rows on the city / fellowship landing pages → live Fellow search.
-   Chevron affordance matches the chat cards + search results (consistent "tap me" rule). */
-.mtg-row{display:flex;align-items:center;gap:10px;padding:10px 12px;margin:0 -12px;border-radius:10px;
-  color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line)}
-.mtg-row:hover{background:var(--surface-2)}
+/* Clickable meeting cards on the city / fellowship landing pages → live Fellow search.
+   These are the primary, in-app-actionable thing on the page, so they get the tactile,
+   tappable card treatment (border + lift + big touch target), ahead of the lighter outbound
+   sober links below. Chevron affordance matches the chat cards + search results. */
+.mtg-row{display:flex;align-items:center;gap:12px;padding:13px 15px;margin:0 0 9px;min-height:var(--touch);
+  color:var(--ink);text-decoration:none;background:var(--surface);border:1px solid var(--panel-line);
+  border-radius:14px;box-shadow:0 1px 1.5px rgba(16,70,60,.04);
+  transition:border-color .14s ease,box-shadow .14s ease,transform .14s ease}
+.mtg-row:hover{border-color:color-mix(in srgb, var(--brand) 45%, var(--line));box-shadow:var(--shadow-sm);transform:translateY(-1px)}
+.mtg-dot{flex:0 0 auto;width:9px;height:9px;border-radius:50%;margin-right:1px}
 .mtg-body{flex:1;min-width:0}
 .mtg-row .mtg-meta{color:var(--ink-soft)}
-.mtg-chev{flex:0 0 auto;color:var(--ink-soft);transition:transform .12s ease,color .12s ease}
-.mtg-row:hover .mtg-chev{color:var(--brand-ink);transform:translateX(2px)}
+.mtg-chev{flex:0 0 auto;color:var(--brand-ink);opacity:.55;transition:transform .12s ease,opacity .12s ease}
+.mtg-row:hover .mtg-chev{opacity:1;transform:translateX(2px)}
+
+/* ---- "view all" pages: day-grouped meeting lists (MeetingDayList.tsx) ---- */
+.va-day{margin:18px 0}
+.va-dayhead{font-size:20px;font-weight:800;margin:0 0 4px}
+.va-count{color:var(--ink-soft);font-weight:650;font-size:16px}
+.va-list{list-style:none;padding:0;margin:0}
+.va-more{margin:8px 0 0;color:var(--ink-soft);font-size:14px}
+.va-badge{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;font-size:11.5px;font-weight:800;
+  vertical-align:middle;background:color-mix(in srgb, var(--brand) 14%, var(--surface));color:var(--brand-ink)}
+
+/* ---- Beyond the meetings: sober-activities outbound section (SoberActivities.tsx) ---- */
+.sober{margin-top:34px;padding-top:26px;border-top:1px solid var(--panel-line)}
+.sober-eyebrow{display:inline-block;font-size:12px;font-weight:850;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--brand-ink);background:color-mix(in srgb, var(--brand) 14%, var(--surface));padding:5px 11px;border-radius:999px;margin:0 0 12px}
+.sober-h{font-size:22px;font-weight:850;letter-spacing:-.01em;margin:0 0 6px}
+.sober-lede{font-size:14.5px;line-height:1.55;color:var(--ink-soft);margin:0 0 16px;max-width:58ch}
+.sober-grp{font-size:12px;font-weight:850;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);margin:18px 0 9px}
+/* Outbound sober links: deliberately LIGHTER than the meeting cards above (a divided list, not
+   elevated cards) so the in-app meetings stay the visual priority — but each row carries its
+   platform's brand color in a round chip (a lettermark stand-in for the logo) and a matching
+   external-link icon, so the list reads as a structured, recognizable set rather than floating. */
+.sober-cards{display:grid;border-top:1px solid var(--line)}
+.sober-card{display:flex;align-items:center;gap:12px;min-height:54px;padding:10px 6px;text-decoration:none;
+  border-bottom:1px solid var(--line);transition:background .12s ease}
+.sober-card:hover{background:var(--surface-2)}
+.sober-card .lx-cico{flex:0 0 auto;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  font-size:14px;font-weight:850;letter-spacing:-.02em;
+  background:color-mix(in srgb, var(--pc, var(--brand)) 15%, var(--surface));color:var(--pc, var(--brand))}
+.sober-card .lx-ctext{flex:1;min-width:0}
+.sober-card .lx-ctext b{display:block;color:var(--ink);font-size:14px;font-weight:750;line-height:1.25}
+.sober-card .lx-ctext small{display:block;color:var(--ink-soft);font-size:12px;margin-top:1px}
+.sober-card .lx-ext{flex:0 0 auto;color:var(--pc, var(--ink-soft));opacity:.8;transition:opacity .12s ease}
+.sober-card:hover .lx-ext{opacity:1}
+.sober-note{display:flex;gap:9px;align-items:flex-start;margin:16px 0 0;padding:12px 14px;border-radius:14px;
+  background:color-mix(in srgb, var(--brand) 6%, var(--surface));border:1px dashed var(--panel-line);
+  color:var(--ink-soft);font-size:13px;line-height:1.5}
+.sober-note b{color:var(--ink)}
+.sober-note .sn-i{flex:0 0 auto;color:var(--brand);margin-top:1px;display:inline-flex}
 
 /* 404 / not-found */
 .nf{text-align:center;max-width:560px;margin:0 auto;padding:24px 8px 72px}

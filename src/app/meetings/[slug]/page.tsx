@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getCities, getCity, fellowshipLabel, cityFellowshipLinks, CITY_MAX_PER_DAY } from "@/lib/cities";
+import { getCities, getCity, fellowshipLabel, cityFellowshipLinks, CITY_PREVIEW } from "@/lib/cities";
+import { fellowshipColor } from "@/lib/fellowships";
 import { Icon } from "@/components/Icon";
+import { SoberActivities } from "@/components/SoberActivities";
 import { SiteFooter } from "@/components/SiteFooter";
 
-const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const DAY_ABBR = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 function to12(t: string) {
   const [h, m] = String(t).split(":").map(Number);
   const ap = (h || 0) < 12 ? "AM" : "PM";
@@ -41,11 +43,9 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
   const c = await getCity(slug);
   if (!c) notFound();
 
-  // Group ALL meetings by day, then cap per day so every day of the week shows.
-  const byDay: Record<number, typeof c.meetings> = {};
-  for (const m of c.meetings) (byDay[m.day] ||= []).push(m);
-  let shown = 0;
-  for (let d = 0; d < 7; d++) if (byDay[d]) shown += Math.min(byDay[d].length, CITY_MAX_PER_DAY);
+  // Short preview on the city page itself (meetings are pre-sorted by day then time); the full
+  // day-by-day listing lives on /meetings/[slug]/all.
+  const preview = c.meetings.slice(0, CITY_PREVIEW);
   const fellNames = c.fellowships.map(fellowshipLabel);
   const fellowshipLinks = cityFellowshipLinks(c);
   const liveSearch = `/?q=${encodeURIComponent(c.city)}`;
@@ -97,43 +97,30 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
         </p>
       )}
 
-      {DAYS.map((dayName, d) => {
-        const all = byDay[d];
-        if (!all || !all.length) return null;
-        const rows = all.slice(0, CITY_MAX_PER_DAY);
-        return (
-          <section key={d} style={{ margin: "18px 0" }}>
-            <h2 style={{ fontSize: 20 }}>{dayName} — {all.length} meeting{all.length === 1 ? "" : "s"}</h2>
-            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-              {rows.map((m) => (
-                <li key={m.id}>
-                  <a className="mtg-row" href={`/?q=${encodeURIComponent(`${m.name} in ${c.city}`)}`}>
-                    <span className="mtg-body">
-                      <strong>{to12(m.time)}</strong> — {m.name}
-                      <span className="mtg-meta">
-                        {" "}· {fellowshipLabel(m.fellowship)}{m.place || m.address ? ` · ${m.place || m.address}` : ""}
-                      </span>
-                    </span>
-                    <Icon name="chevron" size={20} className="mtg-chev" />
-                  </a>
-                </li>
-              ))}
-            </ul>
-            {all.length > rows.length && (
-              <p style={{ margin: "8px 0 0", color: "var(--ink-soft)", fontSize: 14 }}>
-                +{all.length - rows.length} more on {dayName} — <Link href={liveSearch}>see all live →</Link>
-              </p>
-            )}
-          </section>
-        );
-      })}
+      <h2 style={{ fontSize: 20, marginTop: 22 }}>A few of this week’s meetings</h2>
+      <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+        {preview.map((m) => (
+          <li key={m.id}>
+            <a className="mtg-row" href={`/?q=${encodeURIComponent(`${m.name} in ${c.city}`)}`}>
+              <span className="mtg-dot" style={{ background: fellowshipColor(m.fellowship) }} aria-hidden />
+              <span className="mtg-body">
+                <strong>{DAY_ABBR[m.day]} · {to12(m.time)}</strong> — {m.name}
+                <span className="mtg-meta">
+                  {" "}· {fellowshipLabel(m.fellowship)}{m.place ? ` · ${m.place}` : ""}
+                </span>
+              </span>
+              <Icon name="chevron" size={20} className="mtg-chev" />
+            </a>
+          </li>
+        ))}
+      </ul>
+      <p style={{ margin: "14px 0 0" }}>
+        <Link href={`/meetings/${c.slug}/all`} className="city-chip city-chip-all">
+          View all {c.count.toLocaleString()} meetings in {c.city}, by day →
+        </Link>
+      </p>
 
-      {c.count > shown && (
-        <p style={{ marginTop: 16 }}>
-          Showing {shown} of {c.count.toLocaleString()} meetings in {c.city}.{" "}
-          <Link href={liveSearch}>See them all with live day, time and online filters →</Link>
-        </p>
-      )}
+      <SoberActivities city={c.city} state={c.state} />
 
       <p style={{ margin: "28px 0", color: "var(--ink-soft)", fontSize: 15 }}>
         Fellow is a free, independent, non-commercial meeting finder — not affiliated with any fellowship.
