@@ -95,6 +95,13 @@ function rateLimited(ip: string): boolean {
   return arr.length > RL_MAX;
 }
 
+// De-dupe collected meetings by id, keeping first-seen order, capped at 12. The client re-sorts
+// these by day-from-today, so order here only needs to be stable.
+function dedupeMeetings(list: MeetingResult[]): MeetingResult[] {
+  const seen = new Set<string>();
+  return list.filter((m) => (m.id && !seen.has(m.id) ? (seen.add(m.id), true) : false)).slice(0, 12);
+}
+
 export async function POST(req: Request) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return Response.json({ error: "Chat isn't configured yet." }, { status: 503 });
@@ -148,7 +155,7 @@ export async function POST(req: Request) {
   };
 
   try {
-    for (let i = 0; i < 5; i++) { // room for the "widen before giving up" retry ladder
+    for (let i = 0; i < 7; i++) { // room for the "widen before giving up" retry ladder
       const resp = await anthropic.messages.create({
         model: MODEL,
         max_tokens: 700,
@@ -161,8 +168,15 @@ export async function POST(req: Request) {
         const toolResults: Anthropic.ToolResultBlockParam[] = [];
         for (const block of resp.content) {
           if (block.type !== "tool_use") continue;
-          lastInput = block.input || lastInput;
-          const found = await searchMeetings((block.input || {}) as any);
+          const input = (block.input || {}) as any;
+          lastInput = input || lastInput;
+          let found = await searchMeetings(input);
+          // Deterministic safety net for the widen ladder: if an in-person search with a location
+          // or a specific day comes back empty, automatically retry online (nationwide) so we never
+          // return "nothing found" without having actually tried the online option first.
+          if (!found.length && input.online !== true && (input.near_lat != null || Number.isInteger(input.day))) {
+            found = await searchMeetings({ ...input, online: true, near_lat: undefined, near_lng: undefined, radius_miles: undefined });
+          }
           collected.push(...found);
           toolResults.push({
             type: "tool_result",
@@ -174,14 +188,20 @@ export async function POST(req: Request) {
         continue;
       }
       const reply = resp.content.filter((c) => c.type === "text").map((c: any) => c.text).join("").trim();
-      // De-dupe collected meetings by id, keep first ~12.
-      const seen = new Set<string>();
-      const meetings = collected.filter((m) => (m.id && !seen.has(m.id) ? (seen.add(m.id), true) : false)).slice(0, 12);
+      const meetings = dedupeMeetings(collected);
       // Privacy-preserving analytics: aggregate counters only (no message text, place, or IP).
       await logChatEvent({ fellowship: lastInput?.fellowship, found: meetings.length > 0, online: lastInput?.online === true });
       return Response.json(meetings.length ? { reply, meetings } : { reply, meetings, webSearch: buildWebSearch() });
     }
-    return Response.json({ reply: "Sorry — I had trouble pulling that together. Try rephrasing?", meetings: [], webSearch: buildWebSearch() });
+    // Ran out of turns — never throw away what we already found. Return the collected meetings
+    // (deduped) rather than an empty result, so the ladder's work isn't lost.
+    const meetings = dedupeMeetings(collected);
+    await logChatEvent({ fellowship: lastInput?.fellowship, found: meetings.length > 0, online: lastInput?.online === true });
+    return Response.json(
+      meetings.length
+        ? { reply: "Here are the meetings I found for you:", meetings }
+        : { reply: "Sorry — I had trouble pulling that together. Mind trying that again, maybe with a bit more detail?", meetings, webSearch: buildWebSearch() },
+    );
   } catch (e: any) {
     const status = e?.status === 429 ? 429 : 500;
     const msg = status === 429 ? "We've hit today's chat limit — the regular search still works." : "Something went wrong. Please try again.";

@@ -4,9 +4,15 @@ import { getCities } from "@/lib/cities";
 import { SiteFooter } from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
-  title: "Recovery Meetings by City — Browse AA, NA & more | Fellow",
+  title: "Recovery meetings by city — browse AA, NA & more | Fellow",
   description: "Browse recovery meetings by city across the US. Find AA, NA, and other 12-step and peer-support meetings near you, free on Fellow.",
   alternates: { canonical: "/meetings" },
+  openGraph: {
+    title: "Recovery meetings by city | Fellow",
+    description: "Browse in-person recovery meetings by city across the US — AA, NA and more, free on Fellow.",
+    url: "/meetings",
+    type: "website",
+  },
 };
 
 export default async function MeetingsIndex() {
@@ -17,8 +23,29 @@ export default async function MeetingsIndex() {
   const states = Object.keys(byState).sort();
   const total = cities.reduce((n, c) => n + c.count, 0);
 
+  const jsonld = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        name: "Recovery meetings by city",
+        url: "https://fellow.space/meetings",
+        description: `Browse in-person recovery meetings across ${states.length} states and ${cities.length} cities on Fellow.`,
+        isPartOf: { "@type": "WebSite", name: "Fellow", url: "https://fellow.space" },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: "https://fellow.space" },
+          { "@type": "ListItem", position: 2, name: "Meetings by city", item: "https://fellow.space/meetings" },
+        ],
+      },
+    ],
+  };
+
   return (
     <main className="app prose" id="main-content">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonld) }} />
       <p style={{ margin: "20px 0 8px" }}><Link href="/" className="back">← Fellow home</Link></p>
       <h1>Recovery meetings by city</h1>
       <p>

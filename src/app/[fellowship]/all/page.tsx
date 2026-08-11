@@ -43,8 +43,31 @@ export default async function FellowshipAllPage({ params }: { params: Promise<{ 
   }));
   const liveSearch = `/?q=${encodeURIComponent(fa.name)}`;
 
+  const jsonld = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        name: `All ${fa.name} (${fa.code}) meetings`,
+        url: `https://fellow.space/${fellowship}/all`,
+        description: `Every ${fa.name} (${fa.code}) meeting on Fellow — ${fmt(fa.inPerson)} in-person and ${fmt(fa.online)} online, by day.`,
+        isPartOf: { "@type": "WebSite", name: "Fellow", url: "https://fellow.space" },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: "https://fellow.space" },
+          { "@type": "ListItem", position: 2, name: "Fellowships", item: "https://fellow.space/fellowships" },
+          { "@type": "ListItem", position: 3, name: fa.code, item: `https://fellow.space/${fellowship}` },
+          { "@type": "ListItem", position: 4, name: "All meetings", item: `https://fellow.space/${fellowship}/all` },
+        ],
+      },
+    ],
+  };
+
   return (
     <main className="app prose" id="main-content">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonld) }} />
       <p style={{ margin: "20px 0 8px" }}>
         <Link href={`/${fellowship}`} className="back">← {fa.code} overview</Link> ·{" "}
         <Link href="/fellowships" className="back">All fellowships</Link>

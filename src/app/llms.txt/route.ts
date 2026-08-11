@@ -10,17 +10,24 @@ export function GET() {
 ## What Fellow does
 - Search 70,000+ recovery meetings by city, fellowship, day, time, and online vs in-person.
 - Ask Fellow: a chat assistant that finds real meetings from a person's own words.
-- Browse city and fellowship directory pages for reference.
+- Start from what you're facing ("which support group is right for me?") and get pointed to the right fellowship.
+- Browse city, state, and fellowship directory pages for reference.
 
 ## Key pages
 - [Home and live search](https://fellow.space/)
+- [Which support group is right for me?](https://fellow.space/support-groups) — start from what you're facing (alcohol, drugs, gambling, food, relationships, family)
+- [Fellowships](https://fellow.space/fellowships) — every recovery fellowship, with an overview page for each
 - [Meetings by city](https://fellow.space/meetings) — directory of every city with meetings
+- [Coverage map](https://fellow.space/coverage) — meeting coverage by state and fellowship
 - [About and sources](https://fellow.space/about) — how it works, data sources, privacy and anonymity
 - [Sitemap](https://fellow.space/sitemap.xml) — all pages, including per-city and per-fellowship listings
 
 ## URL patterns
 - Per-city listings: https://fellow.space/meetings/<city>-<state>  (e.g. /meetings/phoenix-az)
 - Per-fellowship, per-city: https://fellow.space/<fellowship>/<city>-<state>  (e.g. /aa/phoenix-az)
+- Per-fellowship overview: https://fellow.space/<fellowship>  (e.g. /aa, /na, /al-anon)
+- Per-state listings: https://fellow.space/state/<st>  (e.g. /state/ca)
+- Problem-first router: https://fellow.space/support-groups/<problem>  (e.g. /support-groups/alcohol, /support-groups/gambling)
 
 ## Notes for AI agents
 - Meeting details change often — always advise confirming with the group before attending.

@@ -79,7 +79,7 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
   // "At a glance" facts (entity clarity for humans + AI). Derived from real data — no fabricated dates.
   const focus = GLANCE_FOCUS[group || ""] || "Peer-support recovery";
   const program = code === "RD" ? "Buddhist-inspired peer recovery" : "Twelve Step peer support";
-  const onFellow = hasMeetings ? `${fmt(inPerson)} in person · ${fmt(online)} online` : "Not yet indexed — see official finder";
+  const onFellow = hasMeetings ? `${fmt(inPerson)} in person · ${fmt(online)} online` : "Not on Fellow yet — see the official finder";
   let finderDomain = "";
   try { finderDomain = finder ? new URL(finder.url).hostname.replace(/^www\./, "") : ""; } catch { finderDomain = ""; }
 

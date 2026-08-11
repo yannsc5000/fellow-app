@@ -33,6 +33,21 @@ export default async function Page() {
     <main className="app" id="main-content" tabIndex={-1}>
       <HomeExperience />
 
+      {/* Server-rendered, entity-rich intro so Google and AI search have real on-page copy about
+          what Fellow is (the interactive widget above is client-only and not crawlable). */}
+      <section className="home-intro" aria-labelledby="home-intro-h">
+        <h2 id="home-intro-h">Find a recovery meeting near you — free and anonymous</h2>
+        <p>
+          Fellow is a free, independent finder for recovery meetings across the United States. It lists{" "}
+          <strong>{coverage.total.toLocaleString()}</strong> Alcoholics Anonymous (AA), Narcotics Anonymous (NA)
+          and other 12-step and peer-support meetings in all {coverage.statesCovered} states and DC — both in
+          person and online — with no sign-up, no account, and no tracking. Search by city, day, or fellowship,
+          browse the <a href="/coverage">nationwide coverage map</a>, or just tell{" "}
+          <strong>Ask Fellow</strong> what you&apos;re looking for and it&apos;ll find a meeting near you. Not sure
+          which group fits? Start from <a href="/support-groups">what you&apos;re facing</a>.
+        </p>
+      </section>
+
       <CoveragePromo data={coverage} />
 
       <section className="city-browse" aria-labelledby="city-browse-h">

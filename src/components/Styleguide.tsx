@@ -100,16 +100,26 @@ export function Styleguide() {
         ))}
       </div>
 
-      <h2>Meeting card</h2>
-      <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-        <li>
-          <a className="mtg-row" href="#">
-            <span className="mtg-dot" style={{ background: FELLOWSHIP_COLORS.AA }} aria-hidden />
-            <span className="mtg-body"><strong>Mon · 7:00 AM</strong> — Early Bird Group<span className="mtg-meta"> · Alcoholics Anonymous · Dupont Circle</span></span>
-            <Icon name="chevron" size={20} className="mtg-chev" />
-          </a>
-        </li>
-      </ul>
+      <h2>Meeting cards</h2>
+      <p className="sg-note">The two surfaces that show a meeting — Search (left) and Ask Fellow (right). They
+        share one design language: same surface, 2px border, soft shadow, hover lift, and the
+        fellowship-colored leading chip. Ask Fellow&apos;s card is a more compact sibling.</p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 16, maxWidth: 720 }}>
+        <button className="card" style={{ ["--fc" as any]: FELLOWSHIP_COLORS.AA }}>
+          <div className="timechip"><span className="hh">7:00</span><span className="ap">AM</span></div>
+          <div className="cardbody">
+            <h3>Early Bird Group</h3>
+            <div className="meta">Mon · <b>Dupont Circle</b></div>
+            <div className="tags"><span className="tag fellow">AA</span><span className="tag">Open</span></div>
+            <div className="rt"><span className="line" style={{ background: FELLOWSHIP_COLORS.AA }} />Red Line · 0.2 mi<span className="dist">1.2 mi</span><Icon name="chevron" size={18} className="rt-chev" /></div>
+          </div>
+        </button>
+        <button className="chat-card" style={{ ["--fc" as any]: FELLOWSHIP_COLORS.AA, alignSelf: "start" }}>
+          <span className="cc-badge">AA</span>
+          <span className="cc-body"><span className="cc-name">Early Bird Group</span><span className="cc-meta">Mon · 7:00 AM · Dupont Circle</span></span>
+          <Icon name="chevron" size={18} className="cc-chev" />
+        </button>
+      </div>
 
       <h2>Outbound resource card</h2>
       <div className="sober-cards" style={{ maxWidth: 560 }}>

@@ -266,10 +266,10 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
         body: JSON.stringify({ messages: next.map((m) => ({ role: m.role, content: m.content })), location: place }),
       });
       const d = await r.json();
-      if (!r.ok) { setErr(d?.error || "Something went wrong."); setBusy(false); return; }
+      if (!r.ok) { setErr(d?.error || "Sorry — something went wrong on my end. Mind trying that again?"); setBusy(false); return; }
       setMsgs((cur) => [...cur, { role: "assistant", content: d.reply || "", meetings: d.meetings || [], webSearch: d.webSearch }]);
     } catch {
-      setErr("Couldn’t reach the assistant. Check your connection.");
+      setErr("I couldn’t reach Fellow just now. Check your connection and try once more — or use classic Search below.");
     } finally {
       setBusy(false);
     }

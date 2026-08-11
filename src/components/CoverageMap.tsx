@@ -76,7 +76,7 @@ export default function CoverageMap({ data }: { data: Coverage }) {
       </p>
 
       <div className="cov-mapcard">
-        <div className="cov-grid" role="img" aria-label={`U.S. map of ${label} meeting counts by state`}>
+        <div className="cov-grid" role="group" aria-label={`U.S. map of ${label} meeting counts by state — select a state to see its meetings`}>
           {STATES.map((st) => {
             const [r, c] = GRID[st];
             const n = countFor(st);

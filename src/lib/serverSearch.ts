@@ -34,17 +34,31 @@ export async function searchMeetings(p: SearchParams): Promise<MeetingResult[]> 
   if (Number.isInteger(p.day)) filters.push(`day:=${p.day}`);
   if (typeof p.online === "boolean") filters.push(`online:=${p.online}`);
   if (p.fellowship) filters.push(`fellowship:=${p.fellowship}`);
-  const geo = p.near_lat != null && p.near_lng != null;
+  // Online meetings carry no coordinates (_geoloc is unset), so a geo filter/sort would exclude
+  // every one of them. When the search is online-only, drop the geo constraint entirely — this is
+  // what makes the "always try online first" widening actually return results.
+  const geo = p.near_lat != null && p.near_lng != null && p.online !== true;
   if (geo) {
     const km = ((p.radius_miles ?? 40) * 1.60934).toFixed(1);
     filters.push(`_geoloc:(${p.near_lat}, ${p.near_lng}, ${km} km)`);
   }
+  // Sort priority: text relevance first when the user named something (a city, ZIP, or group), so
+  // an exact match never sits below a weak one. Then nearest (for "near me") or time-of-day. We
+  // deliberately avoid absolute day:asc as the lead key — it buries today's meetings behind
+  // Sunday's; the client regroups by day-from-today over the fuller set we return here.
+  const hasQuery = !!(p.query && p.query.trim());
+  const geoSort = `_geoloc(${p.near_lat}, ${p.near_lng}):asc`;
+  const sort_by = hasQuery
+    ? (geo ? `_text_match:desc,${geoSort}` : "_text_match:desc,time:asc")
+    : (geo ? geoSort : "day:asc,time:asc");
   const searchParams: any = {
     q: p.query?.trim() || "*",
     query_by: "name,place,address,notes,fellowship,fellowship_name,fellowship_terms,types",
     filter_by: filters.join(" && "),
-    sort_by: geo ? `_geoloc(${p.near_lat}, ${p.near_lng}):asc` : "day:asc,time:asc",
-    per_page: Math.min(Math.max(p.limit ?? 10, 1), 30),
+    sort_by,
+    // Fetch a fuller set than we display so the client's day-from-today grouping has every day to
+    // work with (a small page sorted by day would truncate today's meetings away server-side).
+    per_page: Math.min(Math.max(p.limit ?? 10, 20), 40),
     // Require all query tokens to match — never drop a token. Otherwise "San Francisco"
     // with thin SF coverage would drop "Francisco" and return "San Antonio"/"San Diego".
     drop_tokens_threshold: 0,

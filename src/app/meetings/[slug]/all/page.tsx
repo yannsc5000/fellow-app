@@ -41,8 +41,31 @@ export default async function CityAllPage({ params }: { params: Promise<{ slug: 
   }));
   const liveSearch = `/?q=${encodeURIComponent(c.city)}`;
 
+  const jsonld = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        name: `All recovery meetings in ${c.city}, ${c.stateName}`,
+        url: `https://fellow.space/meetings/${c.slug}/all`,
+        description: `Every one of Fellow's ${c.count} in-person recovery meetings in ${c.city}, ${c.stateName}, by day.`,
+        isPartOf: { "@type": "WebSite", name: "Fellow", url: "https://fellow.space" },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Home", item: "https://fellow.space" },
+          { "@type": "ListItem", position: 2, name: "Meetings by city", item: "https://fellow.space/meetings" },
+          { "@type": "ListItem", position: 3, name: `${c.city}, ${c.state}`, item: `https://fellow.space/meetings/${c.slug}` },
+          { "@type": "ListItem", position: 4, name: "All meetings", item: `https://fellow.space/meetings/${c.slug}/all` },
+        ],
+      },
+    ],
+  };
+
   return (
     <main className="app prose" id="main-content">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonld) }} />
       <p style={{ margin: "20px 0 8px" }}>
         <Link href={`/meetings/${c.slug}`} className="back">← {c.city} meetings</Link> ·{" "}
         <Link href="/meetings" className="back">All cities</Link>

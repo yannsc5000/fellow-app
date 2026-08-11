@@ -255,9 +255,9 @@ function Results({ onOpen, user, onClearLocation, startsSoon, timeWindow }: { on
   if (error) {
     return (
       <div className="state" role="alert">
-        <h2>Can’t reach the meeting service</h2>
-        <p>Something went wrong loading meetings. Check your connection and try again.</p>
-        <button className="btn btn-soft" onClick={() => location.reload()}>Retry</button>
+        <h2>We’re having trouble loading meetings</h2>
+        <p>That’s on us, not you. Check your connection and give it another try — the meetings are still here.</p>
+        <button className="btn btn-soft" onClick={() => location.reload()}>Try again</button>
       </div>
     );
   }
@@ -265,7 +265,7 @@ function Results({ onOpen, user, onClearLocation, startsSoon, timeWindow }: { on
   if (!items.length) {
     return (
       <div className="state">
-        <h2>{startsSoon ? "Nothing starting right now" : "No meetings match"}</h2>
+        <h2>{startsSoon ? "Nothing starting right now" : "We couldn’t find a match"}</h2>
         <p>{startsSoon
           ? "No meetings start in the next 90 minutes here. Turn off “Starts soon” to see the full schedule, or check online meetings."
           : user ? "No meetings found within about 50 miles yet. Try widening your search or view online meetings." : "Try removing a filter, widening your search, or switching to online meetings."}</p>
@@ -520,7 +520,7 @@ export default function Finder() {
       <SearchBox value={raw} onChange={setRaw} onClear={() => setRaw("")} onSubmit={() => { if (!raw.trim()) nearMe(); }} />
       {parsed.labels.length > 0 && (
         <div className="parse-hint">
-          <Icon name="search" size={13} /> Reading: {parsed.labels.join(" · ")}{parsed.text ? ` · “${parsed.text}”` : ""}
+          <Icon name="search" size={13} /> Searching for: {parsed.labels.join(" · ")}{parsed.text ? ` · “${parsed.text}”` : ""}
         </div>
       )}
 
@@ -550,7 +550,7 @@ export default function Finder() {
       {view === "list" ? (
         <Results onOpen={setSelected} user={user} onClearLocation={() => setPlace(null)} startsSoon={soleSoon} timeWindow={timeWindow} />
       ) : (
-        <ErrorBoundary fallback={<div className="state"><h2>Map unavailable</h2><p>Switch back to List, or reload. (If this persists, the map key may be missing.)</p></div>}>
+        <ErrorBoundary fallback={<div className="state"><h2>The map didn’t load</h2><p>Switch back to List to keep browsing meetings, or reload the page.</p></div>}>
           <MapView onOpen={setSelected} />
         </ErrorBoundary>
       )}

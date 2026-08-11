@@ -5,8 +5,15 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { Icon } from "@/components/Icon";
 
 export const metadata: Metadata = {
-  title: "About & sources — Fellow",
+  title: "About & sources | Fellow",
   description: "How Fellow works, where its meeting data comes from, how it handles privacy and anonymity (including the Ask Fellow chat), and how to report a correction.",
+  alternates: { canonical: "/about" },
+  openGraph: {
+    title: "About & sources | Fellow",
+    description: "How Fellow works, where its meeting data comes from, and how it handles privacy and anonymity.",
+    url: "/about",
+    type: "website",
+  },
 };
 
 const CONTACT = `mailto:${CONTACT_EMAIL}`;

@@ -78,7 +78,7 @@ export default function MapView({ onOpen }: { onOpen: (m: any) => void }) {
 
   return (
     <div className="map-wrap-wrap">
-      <div className="map-wrap" ref={el} aria-label="Map of meetings" role="application" />
+      <div className="map-wrap" ref={el} aria-label="Map of meetings" role="group" />
       {focused && (
         <div className="map-focus-card">
           <div className="mfc-head">

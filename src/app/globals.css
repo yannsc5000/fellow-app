@@ -86,7 +86,7 @@ body::before{
 /* appearance:none strips iOS's native type=search chrome (inset field / doubled look) that
    otherwise clashes with our custom bar once it's prepopulated. */
 .searchbar input{flex:1;min-width:0;appearance:none;-webkit-appearance:none;border:0;background:transparent;font-size:18px;color:var(--ink);padding:14px 0;font-family:inherit;line-height:1.2}
-.searchbar input::placeholder{color:#9a948b}
+.searchbar input::placeholder{color:#6b6660}
 .searchbar input:focus{outline:none}
 .searchbar input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
 .search-clear{border:0;background:var(--surface-2);color:var(--ink-soft);width:44px;height:44px;border-radius:12px;
@@ -137,7 +137,7 @@ body::before{
 .count-line{font-weight:850;font-size:16px;padding:10px 2px 2px;color:var(--ink)}
 /* Flat location pill — self-contained button; a chevron signals it opens the change UI. */
 .loc-btn{display:inline-flex;align-items:center;gap:7px;background:color-mix(in srgb, var(--surface) 72%, transparent);
-  border:1px solid var(--line);border-radius:999px;padding:7px 12px;min-height:0;font-family:inherit;font-weight:800;
+  border:1px solid var(--line);border-radius:999px;padding:7px 14px;min-height:44px;font-family:inherit;font-weight:800;
   font-size:14.5px;color:var(--ink);cursor:pointer;transition:background .12s,border-color .12s}
 .loc-btn:hover{background:var(--brand-tint);border-color:transparent}
 .loc-btn b{font-weight:850}
@@ -376,14 +376,18 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .chat-daygroup{display:flex;flex-direction:column;gap:8px}
 .chat-day{font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-soft);padding:2px 2px 0}
 .chat-viewall{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;border:0;background:none;
-  color:var(--brand-ink);font-family:inherit;font-weight:800;font-size:14.5px;cursor:pointer;padding:6px 2px;min-height:0}
+  color:var(--brand-ink);font-family:inherit;font-weight:800;font-size:14.5px;cursor:pointer;padding:6px 2px;min-height:44px}
 .chat-viewall:hover{text-decoration:underline;text-underline-offset:3px}
 .chat-viewall .va-caret{transform:rotate(90deg);transition:transform .15s ease}
 .chat-viewall .va-caret.va-up{transform:rotate(-90deg)}
-.chat-card{display:flex;align-items:center;gap:12px;background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:10px 12px;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer}
-.chat-card:hover{border-color:color-mix(in srgb, var(--fc) 45%, var(--line))}
-.chat-card .cc-chev{margin-left:auto;color:var(--ink-soft);flex:0 0 auto}
-.chat-card .cc-badge{flex:0 0 auto;min-width:46px;height:40px;padding:0 8px;border-radius:11px;background:var(--fc);color:#fff;font-weight:850;font-size:13px;display:grid;place-items:center;text-align:center}
+/* Chat result card — a more compact sibling of the search .card, but sharing its design language:
+   same surface, 2px border, --radius-sm, soft shadow and hover lift, and the fellowship-colored
+   leading chip. Keeps Ask Fellow and Search feeling like one product. */
+.chat-card{display:flex;align-items:center;gap:12px;background:var(--surface);border:2px solid var(--line);border-radius:var(--radius-sm);padding:11px 13px;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;box-shadow:var(--shadow-sm);transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease}
+.chat-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:color-mix(in srgb, var(--fc) 45%, var(--line))}
+.chat-card .cc-chev{margin-left:auto;color:var(--ink-soft);flex:0 0 auto;transition:transform .12s ease,color .12s ease}
+.chat-card:hover .cc-chev{color:var(--brand-ink);transform:translateX(2px)}
+.chat-card .cc-badge{flex:0 0 auto;min-width:48px;height:44px;padding:0 8px;border-radius:14px;background:var(--fc);color:#fff;font-weight:850;font-size:13px;display:grid;place-items:center;text-align:center;box-shadow:0 1px 2px rgba(23,22,26,.10)}
 .cc-body{min-width:0;flex:1}
 .cc-name{display:block;font-weight:800;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cc-meta{display:block;color:var(--ink-soft);font-size:13.5px}
@@ -458,7 +462,7 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .chat-input textarea{flex:1;border:2px solid var(--brand);border-radius:16px;padding:14px 16px;font:inherit;font-size:16px;
   line-height:1.4;background:var(--surface);color:var(--ink);box-shadow:0 3px 12px rgba(14,140,128,.13);
   resize:none;overflow-y:auto;min-height:52px;max-height:132px;display:block}
-.chat-input textarea::placeholder{color:#9a948b}
+.chat-input textarea::placeholder{color:#6b6660}
 .chat-input textarea:focus{outline:none;box-shadow:0 0 0 4px var(--brand-tint),0 3px 12px rgba(14,140,128,.16)}
 .chat-input .btn{min-height:0;height:52px;width:52px;padding:0;border-radius:15px}
 /* Mobile: phones expose voice dictation on the keyboard, so drop the mic and give that width
@@ -622,8 +626,8 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .cov-stat .n-accent{color:var(--brand)}
 .cov-stat .l{font-size:12.5px;color:var(--ink-soft);margin-top:2px}
 .cov-fells{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
-.cov-fell{display:inline-flex;align-items:baseline;gap:7px;border:1px solid var(--line);background:var(--surface);
-  color:var(--ink);border-radius:999px;padding:8px 14px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;
+.cov-fell{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--surface);
+  color:var(--ink);border-radius:999px;padding:8px 14px;min-height:44px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;
   transition:border-color .12s,background .12s}
 .cov-fell .cov-c{font-weight:700;color:var(--ink-soft);font-size:12.5px;font-variant-numeric:tabular-nums}
 .cov-fell:hover{border-color:var(--ink-soft)}
@@ -660,7 +664,7 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .cov-tip-r{display:flex;justify-content:space-between;gap:14px;color:var(--ink-soft)}
 .cov-tip-r b{color:var(--ink);font-variant-numeric:tabular-nums;font-weight:800}
 .cov-tip-pin{pointer-events:auto;padding-bottom:11px;padding-right:22px}
-.cov-tip-x{position:absolute;top:3px;right:5px;border:0;background:transparent;color:var(--ink-soft);font-size:19px;line-height:1;cursor:pointer;padding:2px 7px;border-radius:8px}
+.cov-tip-x{position:absolute;top:2px;right:2px;border:0;background:transparent;color:var(--ink-soft);font-size:19px;line-height:1;cursor:pointer;min-width:40px;min-height:40px;display:inline-flex;align-items:center;justify-content:center;border-radius:8px}
 .cov-tip-x:hover{background:var(--surface-2);color:var(--ink)}
 .cov-tip-cta{display:block;margin-top:9px;padding-top:9px;border-top:1px solid var(--line);color:var(--brand-ink);font-weight:800;font-size:13.5px;text-decoration:none}
 .cov-tip-cta:hover{text-decoration:underline;text-underline-offset:3px}
@@ -921,3 +925,12 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .st-cb-bar-wrap{flex:1;height:100%;display:flex;align-items:flex-end}
 .st-cb-bar{display:block;width:100%;min-height:2px;border-radius:3px 3px 0 0;
   background:color-mix(in srgb, var(--brand) 78%, transparent)}
+
+/* Home answer-ready intro — crawlable entity copy under the interactive widget. */
+.home-intro{max-width:760px;margin:26px auto 4px;padding:0 4px}
+.home-intro h2{font-size:19px;font-weight:800;letter-spacing:-.01em;margin:0 0 8px}
+.home-intro p{color:var(--ink-soft);font-size:15.5px;line-height:1.6;margin:0}
+.home-intro strong{color:var(--ink)}
+.home-intro a{color:var(--brand-ink);font-weight:700}
+/* Styleguide note used on the living styleguide's card comparison. */
+.sg-note{color:var(--ink-soft);font-size:14px;line-height:1.5;max-width:640px;margin:6px 0 14px}

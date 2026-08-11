@@ -5,11 +5,11 @@ import { Icon } from "@/components/Icon";
 import { SiteFooter } from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
-  title: "Which Support Group Is Right for Me? | Find Recovery Support",
+  title: "Which Support Group Is Right for Me? | Fellow",
   description: "Not sure which recovery group fits? Start from what you're facing — alcohol, drugs, gambling, food, relationships, family of someone struggling — and we'll point you to the right fellowship and real meetings.",
   alternates: { canonical: "/support-groups" },
   openGraph: {
-    title: "Which Support Group Is Right for Me? | Find Recovery Support",
+    title: "Which Support Group Is Right for Me? | Fellow",
     description: "Start from what you're facing and find the right recovery fellowship and meetings.",
     url: "/support-groups",
     type: "website",

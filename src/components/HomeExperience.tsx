@@ -43,15 +43,36 @@ export default function HomeExperience() {
       </header>
 
       <div className="experience">
-        <div className="exp-tabs" role="tablist" aria-label="Find meetings by">
-          <button role="tab" aria-selected={mode === "chat"} className="exp-tab" onClick={() => setMode("chat")}>
+        {/* Arrow keys move between tabs (ARIA tablist contract); each tab controls the shared panel. */}
+        <div
+          className="exp-tabs"
+          role="tablist"
+          aria-label="Find meetings by"
+          onKeyDown={(e) => {
+            if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+              e.preventDefault();
+              setMode((m) => (m === "chat" ? "search" : "chat"));
+            }
+          }}
+        >
+          <button
+            role="tab" id="tab-chat" aria-controls="exp-panel" aria-selected={mode === "chat"}
+            tabIndex={mode === "chat" ? 0 : -1} className="exp-tab" onClick={() => setMode("chat")}
+          >
             <Icon name="chatdots" size={22} /> Ask Fellow
           </button>
-          <button role="tab" aria-selected={mode === "search"} className="exp-tab" onClick={() => setMode("search")}>
+          <button
+            role="tab" id="tab-search" aria-controls="exp-panel" aria-selected={mode === "search"}
+            tabIndex={mode === "search" ? 0 : -1} className="exp-tab" onClick={() => setMode("search")}
+          >
             <Icon name="searchtab" size={22} /> Search
           </button>
         </div>
-        <div className={`exp-body ${mode === "search" ? "is-search" : "is-chat"}`}>
+        <div
+          id="exp-panel" role="tabpanel" tabIndex={0}
+          aria-labelledby={mode === "search" ? "tab-search" : "tab-chat"}
+          className={`exp-body ${mode === "search" ? "is-search" : "is-chat"}`}
+        >
           {mode === "search" ? <Finder key={resetKey} /> : <Chat key={resetKey} onSwitchToSearch={() => setMode("search")} />}
         </div>
       </div>
