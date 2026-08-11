@@ -40,10 +40,10 @@ export default function HomeExperience() {
       <div className="experience">
         <div className="exp-tabs" role="tablist" aria-label="Find meetings by">
           <button role="tab" aria-selected={mode === "chat"} className="exp-tab" onClick={() => setMode("chat")}>
-            <Icon name="chat" size={21} /> Ask Fellow
+            <Icon name="chatdots" size={22} /> Ask Fellow
           </button>
           <button role="tab" aria-selected={mode === "search"} className="exp-tab" onClick={() => setMode("search")}>
-            <Icon name="search" size={21} /> Search
+            <Icon name="searchtab" size={22} /> Search
           </button>
         </div>
         <div className={`exp-body ${mode === "search" ? "is-search" : "is-chat"}`}>

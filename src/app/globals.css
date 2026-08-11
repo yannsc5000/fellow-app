@@ -70,9 +70,11 @@ body::before{
    on an endless rotation makes it accelerate, decelerate, then accelerate again each lap. The
    global reduced-motion rule above neutralises the animation, leaving a calm static ring. */
 .fellow-loader{display:inline-flex;line-height:0}
-.fellow-loader .fl-track{fill:var(--brand);opacity:.24}
+.fellow-loader .fl-track{fill:var(--brand);opacity:.16}
+/* Whizzy & airy: a fast, constant-speed orbit (linear, no accelerate/decelerate weight) over
+   a fainter ring, so searching feels quick and light rather than laborious. */
 .fellow-loader .fl-orbit{transform-box:view-box;transform-origin:50px 50px;
-  animation:fellow-orbit 1.25s cubic-bezier(.72,0,.28,1) infinite}
+  animation:fellow-orbit .72s linear infinite}
 @keyframes fellow-orbit{to{transform:rotate(360deg)}}
 .map-wrap--loading{display:grid;place-items:center}
 .brand h1{font-size:28px;margin:0;font-weight:850;letter-spacing:-.02em}
@@ -341,13 +343,11 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .chat-intro{color:var(--ink-soft)}
 .chat-intro p{margin:0 0 10px}
 /* Time-aware welcome: Fellow's avatar centered against a greeting bubble. */
-.chat-greet{display:flex;gap:10px;align-items:center}
-.chat-ava{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;color:#fff;flex:0 0 auto;
-  box-shadow:0 4px 10px rgba(14,140,128,.24);
-  background:
-    linear-gradient(180deg, rgba(255,255,255,.20) 0%, rgba(255,255,255,.02) 45%, rgba(255,255,255,0) 62%),
-    linear-gradient(145deg,#12a394,var(--brand-ink))}
-.chat-greet-bubble{background:var(--surface-2);color:var(--ink);border-bottom-left-radius:5px;font-size:15.5px;margin:0}
+.chat-greet{display:flex;gap:12px;align-items:center}
+/* Avatar E: the teal "ring of people" on its own — no tile — sized up to hold presence while
+   staying open and airy. Inherits --brand so it's teal in light and bright teal in dark. */
+.chat-ava{display:grid;place-items:center;color:var(--brand);flex:0 0 auto}
+.chat-greet-bubble{background:var(--surface-2);color:var(--ink);border-bottom-left-radius:5px;font-size:17.5px;line-height:1.5;margin:0}
 /* A friendly sentence, not a label: sentence case, and plenty of air below the greeting.
    Higher specificity than `.chat-intro p` so the spacing actually applies. */
 .chat-intro .chat-try{font-size:14px;font-weight:700;color:var(--ink-soft);margin:36px 0 14px}

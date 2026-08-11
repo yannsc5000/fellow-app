@@ -1,7 +1,7 @@
 // Fellow's loading spinner, built from the brand mark: a faint ring of "people" with one
-// warm accent dot whipping around it — accelerating, decelerating, then accelerating again
-// each lap (a cubic-bezier ease-in-out on an endless rotation). Respects reduced-motion
-// globally (the CSS animation is neutralised in globals.css), leaving a calm static ring.
+// warm accent dot whizzing around it at a light, constant speed (a fast linear rotation, so
+// searching feels quick and airy). Respects reduced-motion globally (the CSS animation is
+// neutralised in globals.css), leaving a calm static ring.
 export function Loader({ size = 40, className, label = "Loading" }:
   { size?: number; className?: string; label?: string }) {
   return (

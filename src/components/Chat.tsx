@@ -117,7 +117,7 @@ function LocationBar({ place, onSet }: { place: Place | null; onSet: (p: Place) 
 const SUGGESTIONS: { text: string; code: string }[] = [
   { text: "AA meeting tonight near me", code: "AA" },
   { text: "My partner's drinking is a problem", code: "Al-Anon" },
-  { text: "Online NA meeting this morning", code: "NA" },
+  { text: "Online NA meeting tomorrow morning", code: "NA" },
   { text: "A meditation-based recovery meeting", code: "RD" },
 ];
 
@@ -284,7 +284,7 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
         {msgs.length === 0 && (
           <div className="chat-intro">
             <div className="chat-greet">
-              <span className="chat-ava" aria-hidden><Mark size={22} /></span>
+              <span className="chat-ava" aria-hidden><Mark size={54} /></span>
               <div className="bubble chat-greet-bubble">{greeting}</div>
             </div>
             <p className="chat-try">Try one of these</p>
