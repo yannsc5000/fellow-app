@@ -13,7 +13,7 @@ export async function GET(req: Request) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     return Response.json({ count: null });
   }
-  const p: { near_lat: number; near_lng: number; radius_miles: number; day?: number } = {
+  const p: { near_lat: number; near_lng: number; radius_miles: number; day?: number; lo?: number; hi?: number } = {
     near_lat: lat, near_lng: lng, radius_miles: 40,
   };
   const dayRaw = searchParams.get("day");
@@ -21,6 +21,12 @@ export async function GET(req: Request) {
     const d = Number(dayRaw);
     if (Number.isInteger(d) && d >= 0 && d <= 6) p.day = d;
   }
+  // Time-of-day window (minutes since midnight) so the welcome can say "tonight" specifically.
+  const WINDOWS: Record<string, [number, number]> = {
+    morning: [300, 719], afternoon: [720, 1019], tonight: [1020, 1439],
+  };
+  const w = WINDOWS[searchParams.get("window") || ""];
+  if (w) { p.lo = w[0]; p.hi = w[1]; }
   const count = await countMeetings(p);
   return Response.json({ count }, { headers: { "Cache-Control": "public, max-age=300" } });
 }

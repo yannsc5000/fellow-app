@@ -76,22 +76,38 @@ export async function searchMeetings(p: SearchParams): Promise<MeetingResult[]> 
   }));
 }
 
-// Just the total match count (Typesense `found`) for a filter — no documents fetched.
-// Used by the chat welcome to show how many meetings are near the user today. Returns 0 on error.
-export async function countMeetings(p: SearchParams): Promise<number> {
+// How many meetings are near the user in a given time-of-day window (used by the chat welcome:
+// "N meetings near you tonight"). Without lo/hi it's a pure Typesense `found` count (no docs).
+// With a window, it pulls the nearest matches (time field only — a tiny payload) and counts
+// those inside [lo,hi] minutes, so the number is specific to "this morning" / "tonight". 0 on error.
+export async function countMeetings(
+  p: SearchParams & { lo?: number; hi?: number },
+): Promise<number> {
   const filters: string[] = [];
   if (Number.isInteger(p.day)) filters.push(`day:=${p.day}`);
   if (typeof p.online === "boolean") filters.push(`online:=${p.online}`);
   if (p.fellowship) filters.push(`fellowship:=${p.fellowship}`);
-  if (p.near_lat != null && p.near_lng != null) {
+  const geo = p.near_lat != null && p.near_lng != null;
+  if (geo) {
     const km = ((p.radius_miles ?? 40) * 1.60934).toFixed(1);
     filters.push(`_geoloc:(${p.near_lat}, ${p.near_lng}, ${km} km)`);
   }
+  const hasWindow = typeof p.lo === "number" && typeof p.hi === "number";
   try {
     const res: any = await client.collections(COLLECTION).documents().search({
-      q: "*", query_by: "name", filter_by: filters.join(" && "), per_page: 1,
+      q: "*", query_by: "name", filter_by: filters.join(" && "),
+      per_page: hasWindow ? 250 : 1,
+      ...(hasWindow ? { include_fields: "time", sort_by: geo ? `_geoloc(${p.near_lat}, ${p.near_lng}):asc` : "time:asc" } : {}),
     });
-    return Number(res.found || 0);
+    if (!hasWindow) return Number(res.found || 0);
+    let n = 0;
+    for (const h of res.hits || []) {
+      const [hh, mm] = String(h.document?.time || "").split(":").map(Number);
+      if (!Number.isFinite(hh) || !Number.isFinite(mm)) continue;
+      const mins = hh * 60 + mm;
+      if (mins >= p.lo! && mins <= p.hi!) n++;
+    }
+    return n;
   } catch {
     return 0;
   }

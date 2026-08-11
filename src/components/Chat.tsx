@@ -222,12 +222,19 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
   }, []);
   useEffect(() => { threadRef.current?.scrollTo({ top: threadRef.current.scrollHeight, behavior: "smooth" }); }, [msgs, busy]);
 
-  // Once we know the user's area, count today's meetings near them for the welcome greeting.
+  // Time-of-day framing, shared by the greeting salute, the count window, and its wording, so
+  // "Good evening" always lines up with "tonight" and a count of tonight's meetings.
+  const hour = new Date().getHours();
+  const salute = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const win = hour < 12 ? "morning" : hour < 17 ? "afternoon" : "tonight";
+  const winWord = win === "morning" ? "this morning" : win === "afternoon" ? "this afternoon" : "tonight";
+
+  // Once we know the user's area, count meetings near them in the current window for the welcome.
   // Keyed on coordinates so the label-refinement re-render doesn't re-fetch.
   useEffect(() => {
     if (!place) { setNearbyCount(null); return; }
     let cancelled = false;
-    fetch(`/api/nearby-count?lat=${place.lat}&lng=${place.lng}&day=${new Date().getDay()}`)
+    fetch(`/api/nearby-count?lat=${place.lat}&lng=${place.lng}&day=${new Date().getDay()}&window=${win}`)
       .then((r) => r.json())
       .then((d) => { if (!cancelled) setNearbyCount(typeof d.count === "number" ? d.count : null); })
       .catch(() => {});
@@ -235,16 +242,14 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [place?.lat, place?.lng]);
 
-  // Time-of-day greeting. When we have a location and a live count, lead with it; otherwise a
-  // warm, still-personal fallback. Never shows a "0" — falls back to the support line instead.
-  const hour = new Date().getHours();
-  const salute = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  // When we have a location and a live count, lead with it (specific to the time of day);
+  // otherwise a warm, still-personal fallback. Never shows a "0" — uses the support line instead.
   const near = place?.label && place.label !== "your area" ? place.label : "you";
   const greeting = place && nearbyCount != null && nearbyCount > 0
-    ? `${salute} 👋 There are ${nearbyCount.toLocaleString()} meetings near ${near} today — here are a few ways to start.`
+    ? `${salute}! 👋 There ${nearbyCount === 1 ? "is" : "are"} ${nearbyCount.toLocaleString()} meeting${nearbyCount === 1 ? "" : "s"} near ${near} ${winWord} — here are a few ways to start.`
     : place
-      ? `${salute} 👋 I can help you find a meeting near ${near} or the right kind of support — here are a few ways to start.`
-      : `${salute} 👋 I can help you find a meeting or the right kind of support — what are you looking for?`;
+      ? `${salute}! 👋 I can help you find a meeting near ${near} or the right kind of support — here are a few ways to start.`
+      : `${salute}! 👋 I can help you find a meeting or the right kind of support — what are you looking for?`;
 
   async function send(text: string) {
     const q = text.trim();
@@ -340,7 +345,7 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
         <textarea id="chatq" ref={inputRef} rows={1} value={input}
           onChange={(e) => setInput(e.currentTarget.value)}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input); } }}
-          placeholder={listening ? "Listening…" : "Ask for a meeting…"} autoComplete="off" />
+          placeholder={listening ? "Listening…" : "Tell me what you need…"} autoComplete="off" />
         {speechSupported && (
           <button type="button" className={`btn btn-soft chat-mic${listening ? " mic-on" : ""}`}
             onClick={toggleVoice} aria-pressed={listening} aria-label={listening ? "Stop voice input" : "Speak your request"}>
