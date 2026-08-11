@@ -76,7 +76,7 @@ export default async function CoveragePage() {
 
       <div className="cov-stats">
         <div className="cov-stat"><div className="n">{fmt(c.total)}</div><div className="l">meetings indexed</div></div>
-        <div className="cov-stat"><div className="n">{fmt(c.placed)}</div><div className="l">in-person, mapped</div></div>
+        <div className="cov-stat"><div className="n">{fmt(c.placed)}</div><div className="l">in person</div></div>
         <div className="cov-stat"><div className="n">{fmt(c.online)}</div><div className="l">online (nationwide)</div></div>
         <div className="cov-stat"><div className="n n-accent">{c.statesCovered}/51</div><div className="l">states + DC covered</div></div>
       </div>
