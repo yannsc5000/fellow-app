@@ -29,7 +29,7 @@ export function DetailMap({
       : <div className="sv-fallback">
           <a className="btn btn-soft" target="_blank" rel="noopener"
              href={`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${lat},${lng}`}>
-            Open Street View ↗
+            Open Street View <Icon name="external" size={16} />
           </a>
         </div>;
   } else {

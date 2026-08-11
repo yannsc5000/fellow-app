@@ -1,13 +1,7 @@
-"use client";
-import { useState } from "react";
-import dynamic from "next/dynamic";
-import { Icon } from "@/components/Icon";
-import { Mark } from "@/components/Mark";
+import HomeExperience from "@/components/HomeExperience";
+import { CoveragePromo } from "@/components/CoveragePromo";
 import { SiteFooter } from "@/components/SiteFooter";
-
-// Finder pulls in InstantSearch + MapLibre; Chat calls the /api/chat route — client-only.
-const Finder = dynamic(() => import("@/components/Finder"), { ssr: false });
-const Chat = dynamic(() => import("@/components/Chat"), { ssr: false });
+import { getCoverage } from "@/lib/coverage";
 
 // Biggest metros by meeting count — visible entry points to the /meetings/[city] pages.
 // (Curated from the data; every slug has a live page. Full list lives at /meetings.)
@@ -24,45 +18,13 @@ const POPULAR_CITIES = [
   { name: "Tucson, AZ", slug: "tucson-az" }, { name: "Raleigh, NC", slug: "raleigh-nc" },
 ];
 
-export default function Page() {
-  // Land on Search (not the chat default) when arriving with a ?q= query — powers shareable
-  // search links and Google's sitelinks search box.
-  const [mode, setMode] = useState<"search" | "chat">(
-    () => (typeof window !== "undefined" && new URLSearchParams(window.location.search).has("q") ? "search" : "chat"),
-  );
-  const [resetKey, setResetKey] = useState(0);
-  // Clicking the logo resets to the default home screen (default tab + fresh state).
-  const goHome = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setMode("chat");
-    setResetKey((k) => k + 1);
-    if (typeof window !== "undefined") window.scrollTo({ top: 0 });
-  };
+export default async function Page() {
+  const coverage = await getCoverage();
   return (
     <main className="app" id="main-content" tabIndex={-1}>
-      <header className="brand">
-        <a href="/" className="brand-link" onClick={goHome} aria-label="Fellow — back to home">
-          <div className="mark" aria-hidden><Mark size={50} /></div>
-          <div>
-            <h1>Fellow</h1>
-            <div className="tagline">Find your people</div>
-          </div>
-        </a>
-      </header>
+      <HomeExperience />
 
-      <div className="experience">
-        <div className="exp-tabs" role="tablist" aria-label="Find meetings by">
-          <button role="tab" aria-selected={mode === "chat"} className="exp-tab" onClick={() => setMode("chat")}>
-            <Icon name="chat" size={18} /> Ask Fellow
-          </button>
-          <button role="tab" aria-selected={mode === "search"} className="exp-tab" onClick={() => setMode("search")}>
-            <Icon name="search" size={18} /> Search
-          </button>
-        </div>
-        <div className={`exp-body ${mode === "search" ? "is-search" : "is-chat"}`}>
-          {mode === "search" ? <Finder key={resetKey} /> : <Chat key={resetKey} onSwitchToSearch={() => setMode("search")} />}
-        </div>
-      </div>
+      <CoveragePromo data={coverage} />
 
       <section className="city-browse" aria-labelledby="city-browse-h">
         <h2 id="city-browse-h">Browse meetings by city</h2>

@@ -16,6 +16,9 @@
 }}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:18px;-webkit-font-smoothing:antialiased}
+/* Form controls don't inherit font-family by default — make sure every button, chip and input
+   (the whole chatbot included) uses Nunito Sans, not the browser's system font. */
+button,input,textarea,select{font-family:inherit}
 /* Mint Air — an airy, minty page wash: a soft teal glow blooming from the top, over a light
    mint base, with a whisper of warmth on the right so it never feels cold. */
 body{background:
@@ -191,10 +194,21 @@ body::before{
 
 /* Detail sheet */
 .sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:grid;place-items:end center;z-index:100}
-.sheet-panel{background:var(--surface);width:100%;max-width:860px;border-radius:28px 28px 0 0;padding:20px;max-height:90vh;overflow:auto;box-shadow:var(--shadow-md)}
+.sheet-panel{background:var(--surface);width:100%;max-width:860px;border-radius:28px 28px 0 0;padding:0;max-height:90vh;overflow:auto;box-shadow:var(--shadow-md)}
 @media(min-width:760px){.sheet-overlay{place-items:center;padding:24px}.sheet-panel{border-radius:24px;max-height:86vh}}
-.sheet-panel h2{margin-top:4px;font-size:25px;font-weight:850;letter-spacing:-.02em}
-.sheet-top{display:flex;justify-content:space-between;align-items:center;margin:0 0 2px;min-height:44px}
+/* Fellowship-color header band. --fc is set on the panel per meeting; a soft top sheen adds depth. */
+.sheet-hero{padding:15px 20px 20px;color:#fff;
+  background:linear-gradient(180deg, rgba(255,255,255,.14) 0%, rgba(255,255,255,0) 42%), var(--fc, var(--brand))}
+.sheet-title{margin:0;font-size:28px;font-weight:850;letter-spacing:-.025em;line-height:1.1;color:#fff}
+.sheet-fellowship{margin:5px 0 0;color:rgba(255,255,255,.85);font-size:14.5px;font-weight:700}
+/* Share + close: one flat button family, grouped at the top-right, clear of the title. */
+.sheet-top{display:flex;justify-content:flex-end;gap:8px;align-items:center;margin:0 0 16px;min-height:44px}
+.hero-btn{display:inline-flex;align-items:center;gap:7px;height:44px;padding:0 15px;border:0;border-radius:12px;
+  background:rgba(255,255,255,.20);color:#fff;font-family:inherit;font-weight:800;font-size:14px;cursor:pointer;transition:background .12s}
+.hero-btn:hover{background:rgba(255,255,255,.30)}
+.hero-btn.hero-btn-icon{width:44px;padding:0;justify-content:center}
+/* Body: a whisper of Mint Air glow under the header, fading to white for the content. */
+.sheet-body{padding:20px;background:linear-gradient(180deg, color-mix(in srgb, var(--panel-glow) 60%, var(--surface)) 0%, var(--surface) 150px)}
 .close-x{border:0;background:var(--surface-2);color:var(--ink-soft);width:44px;height:44px;border-radius:12px;display:grid;place-items:center;cursor:pointer;flex:0 0 auto}
 .close-x:hover{background:var(--line);color:var(--ink)}
 .share-btn{display:inline-flex;align-items:center;gap:7px;border:2px solid var(--line);background:var(--surface);
@@ -203,7 +217,30 @@ body::before{
 /* Clean structured "when / where" block. Fellowship color is used only as a small badge
    in the tags row — not painted across the time chip / address — so the header reads calm
    and consistent with the rest of the sheet. */
-.sheet-facts{display:flex;flex-direction:column;margin:12px 0 0;border-bottom:1px solid var(--line)}
+.sheet-facts{display:flex;flex-direction:column;margin:2px 0 0;border-bottom:1px solid var(--line)}
+/* Links & actions as cards — full-width, ≥60px tap targets, clear separation (was cramped inline links). */
+.lx-cards{display:flex;flex-direction:column;gap:10px;margin:2px 0}
+.lx-card{display:flex;align-items:center;gap:13px;width:100%;min-height:60px;padding:12px 14px;background:var(--surface);
+  border:1px solid var(--line);border-radius:14px;font-family:inherit;color:var(--ink);text-align:left;text-decoration:none;cursor:pointer;transition:border-color .12s,box-shadow .12s}
+.lx-card:hover{border-color:color-mix(in srgb, var(--fc) 45%, var(--line));box-shadow:var(--shadow-sm)}
+.lx-cico{width:38px;height:38px;flex:0 0 auto;border-radius:11px;display:grid;place-items:center;background:var(--surface-2);color:var(--brand-ink)}
+.lx-ctext{min-width:0;display:flex;flex-direction:column;gap:1px}
+.lx-ctext b{font-weight:800;font-size:15px;color:var(--ink)}
+.lx-ctext small{color:var(--ink-soft);font-size:12.5px}
+.lx-card .lx-chev,.lx-card .lx-ext{margin-left:auto;color:var(--ink-soft);flex:0 0 auto}
+/* Small trailing/inline "opens externally" marker on external links (address, prose citations). */
+.fl-ext,.link-ext{color:var(--ink-soft);vertical-align:-1px}
+/* Whole-sheet fellowship theming: icons, links, the map toggle and the secondary button all
+   inherit --fc so the sheet matches its header band. Scoped to .sheet-body so the rest of the
+   app keeps the brand teal. */
+.sheet-body .fact-ico,.sheet-body .lx-cico{background:color-mix(in srgb, var(--fc) 12%, var(--surface-2));color:var(--fc)}
+.sheet-body .fact-link{color:var(--fc)}
+.sheet-body .fact-when:hover .fact-ico{background:color-mix(in srgb, var(--fc) 22%, var(--surface-2))}
+.sheet-body .fact-when:hover .fact-add{color:var(--fc)}
+.sheet-body .expect summary{color:var(--fc)}
+.sheet-body .map-toggle button[aria-pressed="true"]{color:var(--fc)}
+.sheet-body .btn-soft{background:color-mix(in srgb, var(--fc) 13%, var(--surface));color:var(--fc)}
+.sheet-body .btn-soft:hover{background:color-mix(in srgb, var(--fc) 22%, var(--surface))}
 .fact{display:flex;align-items:center;gap:12px;padding:11px 2px;text-decoration:none;color:inherit}
 .fact + .fact{border-top:1px solid var(--line)}
 .fact-ico{flex:0 0 auto;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
@@ -236,9 +273,10 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .park-item .pt{font-weight:750;font-size:15px;display:block}
 .park-item .pd{color:var(--ink-soft);font-size:13px;display:block}
 .park-item .chev{margin-left:auto;color:var(--ink-soft)}
-.sheet-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
-.sheet-actions .btn{flex:1 1 132px;white-space:nowrap;padding:0 14px;gap:6px}
-.report-link{display:inline-flex;align-items:center;gap:6px;margin-top:14px;color:var(--ink-soft);font-size:14px;font-weight:650;text-decoration:none}
+/* Footer: divider ties the actions to the sheet; primary uses the fellowship color to bookend the header. */
+.sheet-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px;padding-top:18px;border-top:1px solid var(--line)}
+.sheet-actions .btn{flex:1 1 132px;min-height:56px;white-space:nowrap;padding:0 14px;gap:6px}
+.report-link{display:inline-flex;align-items:center;gap:6px;margin-top:6px;min-height:44px;color:var(--ink-soft);font-size:14px;font-weight:650;text-decoration:none}
 .report-link:hover{color:var(--fc,var(--brand-ink));text-decoration:underline;text-underline-offset:3px}
 
 /* detail "see all sessions" links */
@@ -271,19 +309,27 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
    reads as a real tab folder: pick Ask Fellow or Search and the whole panel below IS that
    experience. Inactive tabs sit recessed (darker + nudged down). */
 .experience{margin:4px 0 2px}
-.exp-tabs{display:flex;gap:6px;padding-left:2px}
-.exp-tab{cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:9px;
-  font-weight:800;font-size:16px;min-height:52px;padding:13px 24px;color:var(--ink-soft);
-  background:color-mix(in srgb, var(--surface) 55%, transparent);border:1px solid var(--panel-line);border-bottom:0;
+.exp-tabs{display:flex;gap:6px;padding-left:0}
+/* Each tab is the doorway to a distinct experience, so it should feel substantial in both
+   states: a tucked icon sitting close to a strong label. */
+.exp-tab{cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:8px;
+  font-weight:800;font-size:16.5px;min-height:54px;padding:13px 22px;color:var(--ink-soft);
+  background:color-mix(in srgb, var(--surface) 72%, transparent);border:1px solid var(--panel-line);border-bottom:0;
   border-radius:16px 16px 0 0;margin-bottom:-1px;transition:background .15s,color .15s}
-.exp-tab:hover{color:var(--ink)}
-.exp-tab[aria-selected="false"]{margin-top:5px;min-height:47px}
+.exp-tab svg{color:var(--ink-soft);transition:color .15s}
+.exp-tab:hover{color:var(--ink);background:color-mix(in srgb, var(--surface) 88%, transparent)}
+.exp-tab:hover svg{color:var(--brand-ink)}
+.exp-tab[aria-selected="false"]{margin-top:5px;min-height:49px}
 /* Active tab shares the panel's minty top so the glow reads as flowing down from the tab.
+   The icon lights up in brand teal and the label bolds, so the selected doorway clearly wins.
    A soft upward shadow lifts the whole tab+panel off the deeper page. */
-.exp-tab[aria-selected="true"]{background:var(--panel-glow);color:var(--ink);position:relative;z-index:2;
+.exp-tab[aria-selected="true"]{background:var(--panel-glow);color:var(--ink);font-weight:850;position:relative;z-index:2;
   box-shadow:0 -6px 18px rgba(16,70,60,.10)}
+.exp-tab[aria-selected="true"] svg{color:var(--brand)}
 .exp-body{position:relative;border:1px solid var(--panel-line);
-  background:linear-gradient(180deg, var(--panel-glow) 0%, var(--surface) 48%);
+  /* Hold the tab's flat panel-glow solid across the seam, then let the gradient begin inside
+     the panel — so the active tab reads as one seamless piece with the top of the chat box. */
+  background:linear-gradient(180deg, var(--panel-glow) 0, var(--panel-glow) 46px, var(--surface) 240px);
   border-radius:0 var(--radius) var(--radius) var(--radius);box-shadow:var(--shadow-panel);overflow:hidden}
 .exp-body.is-search{padding:16px 16px 20px}
 .exp-body.is-chat .chat-wrap{border:0;border-radius:0;background:transparent;box-shadow:none;margin:0}
@@ -302,7 +348,9 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
     linear-gradient(180deg, rgba(255,255,255,.20) 0%, rgba(255,255,255,.02) 45%, rgba(255,255,255,0) 62%),
     linear-gradient(145deg,#12a394,var(--brand-ink))}
 .chat-greet-bubble{background:var(--surface-2);color:var(--ink);border-bottom-left-radius:5px;font-size:15.5px;margin:0}
-.chat-try{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:28px 0 16px}
+/* A friendly sentence, not a label: sentence case, and plenty of air below the greeting.
+   Higher specificity than `.chat-intro p` so the spacing actually applies. */
+.chat-intro .chat-try{font-size:14px;font-weight:700;color:var(--ink-soft);margin:36px 0 14px}
 .chat-suggest{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:6px}
 .sug-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
 .chat-fine{font-size:12.5px;margin-top:14px}
@@ -350,14 +398,36 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .detail-contact-row{gap:8px 18px}
 .detail-contact{display:inline-flex;align-items:center;gap:6px;color:var(--brand-ink);font-weight:600;font-size:14.5px;text-decoration:none}
 .detail-contact:hover{text-decoration:underline}
-.expect{margin:12px 0;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
-.expect summary{cursor:pointer;padding:11px 14px;font-weight:600;font-size:15px;color:var(--brand-ink);list-style:none}
+.expect{margin:16px 0;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.expect summary{cursor:pointer;padding:13px 16px;font-weight:700;font-size:15px;color:var(--brand-ink);list-style:none;min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:12px}
 .expect summary::-webkit-details-marker{display:none}
-.expect summary::after{content:"＋";float:right;color:var(--ink-soft);font-weight:700}
+.expect summary::after{content:"＋";color:var(--ink-soft);font-weight:700;flex:0 0 auto}
 .expect[open] summary::after{content:"－"}
 .expect p{margin:0;padding:0 14px 13px;color:var(--ink-soft);font-size:14.5px;line-height:1.5}
 .btn-disabled{opacity:.55;cursor:default;pointer-events:none}
-.city-browse{margin:28px 0 8px;padding-top:20px;border-top:1px solid var(--line)}
+.city-browse{margin:24px 0 8px}
+/* Coverage map promo — a compact live choropleth teaser linking to /coverage. */
+.cov-promo{display:flex;align-items:center;gap:22px;margin:26px 0 4px;padding:18px 22px;
+  border:1px solid var(--panel-line);border-radius:20px;
+  background:linear-gradient(180deg, var(--panel-glow) 0%, var(--surface) 65%);
+  box-shadow:var(--shadow-sm);text-decoration:none;color:inherit;transition:box-shadow .15s ease,transform .12s ease}
+.cov-promo:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.cov-promo-map{display:grid;grid-template-columns:repeat(11,1fr);grid-template-rows:repeat(8,1fr);
+  gap:3px;width:208px;flex:0 0 auto}
+.cov-promo-cell{aspect-ratio:1;border-radius:3px;background:var(--surface-2)}
+.cov-promo-cell[data-lvl="0"]{background:color-mix(in srgb, var(--line) 55%, var(--surface))}
+.cov-promo-cell[data-lvl="1"]{background:color-mix(in srgb, var(--brand) 24%, var(--surface))}
+.cov-promo-cell[data-lvl="2"]{background:color-mix(in srgb, var(--brand) 45%, var(--surface))}
+.cov-promo-cell[data-lvl="3"]{background:color-mix(in srgb, var(--brand) 68%, var(--surface))}
+.cov-promo-cell[data-lvl="4"]{background:var(--brand)}
+.cov-promo-text{display:flex;flex-direction:column;gap:3px;min-width:0}
+.cov-promo-kicker{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--brand-ink)}
+.cov-promo-title{font-size:19px;font-weight:850;letter-spacing:-.01em;color:var(--ink);line-height:1.2}
+.cov-promo-cta{font-size:14.5px;font-weight:800;color:var(--brand-ink);margin-top:3px}
+@media(max-width:560px){
+  .cov-promo{flex-direction:column;align-items:flex-start;gap:16px}
+  .cov-promo-map{width:100%;max-width:300px}
+}
 .city-browse h2{font-size:17px;font-weight:850;margin:0 0 12px}
 .city-chips{display:flex;flex-wrap:wrap;gap:8px}
 .city-chip{display:inline-flex;align-items:center;min-height:44px;background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:8px 14px;font-size:14.5px;font-weight:700;color:var(--ink);text-decoration:none}

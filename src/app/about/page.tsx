@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { FELLOWSHIPS } from "@/lib/fellowships";
 import { CONTACT_EMAIL } from "@/lib/config";
 import { SiteFooter } from "@/components/SiteFooter";
+import { Icon } from "@/components/Icon";
 
 export const metadata: Metadata = {
   title: "About & sources — Fellow",
@@ -43,12 +44,12 @@ export default function AboutPage() {
       <ul>
         <li>
           <strong>Meeting Guide / TSML</strong> — the “12 Step Meeting List” standard maintained by{" "}
-          <a href="https://code4recovery.org/" target="_blank" rel="noopener">Code for Recovery</a>,
+          <a href="https://code4recovery.org/" target="_blank" rel="noopener">Code for Recovery <Icon name="external" size={13} className="link-ext" /></a>,
           used by A.A. and many other fellowships.
         </li>
         <li>
           <strong>BMLT</strong> — the{" "}
-          <a href="https://bmlt.app/" target="_blank" rel="noopener">Basic Meeting List Toolbox</a>,
+          <a href="https://bmlt.app/" target="_blank" rel="noopener">Basic Meeting List Toolbox <Icon name="external" size={13} className="link-ext" /></a>,
           used by Narcotics Anonymous and others.
         </li>
       </ul>
@@ -91,7 +92,7 @@ export default function AboutPage() {
         <li>
           <strong>Ask Fellow (the chat assistant).</strong> To answer you, the messages you type —
           plus your approximate location, if you’ve shared it — are sent to our AI provider
-          (<a href="https://www.anthropic.com/" target="_blank" rel="noopener">Anthropic</a>) to
+          (<a href="https://www.anthropic.com/" target="_blank" rel="noopener">Anthropic <Icon name="external" size={13} className="link-ext" /></a>) to
           generate a reply and search for meetings. Fellow doesn’t store your conversations or link
           them to you, and the assistant only shows real meetings from the index — it can’t invent
           one. Please don’t include identifying details; messages are processed under Anthropic’s

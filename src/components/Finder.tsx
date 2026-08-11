@@ -114,7 +114,7 @@ function AccessItem({ p, m, iconName }: { p: any; m: any; iconName: string }) {
     <a className="park-item" href={href} target="_blank" rel="noopener" aria-label={`Directions from ${p.t} to ${m.place || m.address}`}>
       <span className="pico" style={picoStyle(p)}><Icon name={iconName} size={20} /></span>
       <span><span className="pt">{p.t}</span><span className="pd">{accessSubtitle(p, m)}</span></span>
-      <Icon name="chevron" size={20} className="chev" />
+      <Icon name="external" size={18} className="chev" />
     </a>
   );
 }
@@ -533,6 +533,7 @@ export default function Finder() {
         <button className="chip" aria-pressed={dayToggles.includes((TODAY + 1) % 7)} onClick={() => toggleDay((TODAY + 1) % 7)}>Tomorrow</button>
         <Toggle attribute="types" value="Open" label="Open" />
         <Toggle attribute="types" value="Wheelchair" label="Accessible" />
+        <Toggle attribute="online" value="false" label="In person" />
         <Toggle attribute="online" value="true" label="Online" />
       </div>
 
@@ -595,134 +596,148 @@ export function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => 
   const finder = officialFinder(m.fellowship);
   const webSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(`${m.name} ${fellowshipName(m.fellowship)} meeting`)}`;
   const learnMoreUrl = m.website || finder?.url || webSearchUrl;
+  const showTags = (m.types || []).length > 0 || !!fmtUpdated(m.updated);
+  const hasLinks = m.conference_phone || m.website || finder || onSeeAll;
   return (
     <div role="dialog" aria-modal aria-label={m.name} className="sheet-overlay"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="sheet-panel" ref={panelRef} tabIndex={-1} style={{ ["--fc" as any]: fellowshipColor(m.fellowship), outline: "none" }}>
-        <div className="sheet-top">
-          <button className="share-btn" onClick={share} aria-label={`Share ${m.name}`}>
-            <Icon name="share" size={18} /> {copied ? "Copied!" : "Share"}
-          </button>
-          <button className="close-x" aria-label="Close" onClick={onClose}><Icon name="close" size={20} /></button>
-        </div>
-        <h2>{m.name}</h2>
-
-        <div className="sheet-facts">
-          <a className="fact fact-when" href={calendarUrl(m)} target="_blank" rel="noopener" aria-label={`Add ${m.name} to your calendar`}>
-            <span className="fact-ico"><Icon name="calmonth" size={18} /></span>
-            <span className="fact-body">
-              <span className="fact-main">{FULL_DAYS[m.day]}, {t.hh} {t.ap}</span>
-              <span className="fact-sub">Add to calendar</span>
-            </span>
-            <Icon name="add" size={16} className="fact-add" />
-          </a>
-          <div className="fact">
-            <span className="fact-ico"><Icon name={m.online ? "video" : "pin"} size={18} /></span>
-            <span className="fact-body">
-              {m.online
-                ? <span className="fact-main">Online meeting</span>
-                : m.place
-                  ? <>
-                      <span className="fact-main">{m.place}</span>
-                      <a className="fact-sub fact-link" href={mapsAddr} target="_blank" rel="noopener">{m.address}</a>
-                    </>
-                  : <a className="fact-main fact-link" href={mapsAddr} target="_blank" rel="noopener">{m.address}</a>}
-            </span>
+        {/* Fellowship-color header band — the color identifies the program at a glance. */}
+        <div className="sheet-hero">
+          <div className="sheet-top">
+            <button className="hero-btn" onClick={share} aria-label={`Share ${m.name}`}>
+              <Icon name="share" size={17} /> {copied ? "Copied!" : "Share"}
+            </button>
+            <button className="hero-btn hero-btn-icon" aria-label="Close" onClick={onClose}><Icon name="close" size={20} /></button>
           </div>
+          <h2 className="sheet-title">{m.name}</h2>
+          <p className="sheet-fellowship">{fellowshipName(m.fellowship)}</p>
         </div>
 
-        <div className="sheet-tags">
-          <span className="tag tag-fellow" title={fellowshipName(m.fellowship)}>{m.fellowship}</span>
-          {(m.types || []).map((x: string) => <span key={x} className="tag">{x}</span>)}
-          {fmtUpdated(m.updated) && <span className="freshness" title="When the source last updated this listing">Updated {fmtUpdated(m.updated)}</span>}
-        </div>
-        {m.notes && (
-          <>
-            <hr className="sheet-divider" />
-            <div className="sheet-notes">
-              <p className="notes-label">Meeting notes</p>
-              <p className="notes-text">{m.notes}</p>
+        <div className="sheet-body">
+          <div className="sheet-facts">
+            <a className="fact fact-when" href={calendarUrl(m)} target="_blank" rel="noopener" aria-label={`Add ${m.name} to your calendar`}>
+              <span className="fact-ico"><Icon name="calmonth" size={18} /></span>
+              <span className="fact-body">
+                <span className="fact-main">{FULL_DAYS[m.day]}, {t.hh} {t.ap}</span>
+                <span className="fact-sub">Add to calendar</span>
+              </span>
+              <Icon name="add" size={16} className="fact-add" />
+            </a>
+            <div className="fact">
+              <span className="fact-ico"><Icon name={m.online ? "video" : "pin"} size={18} /></span>
+              <span className="fact-body">
+                {m.online
+                  ? <span className="fact-main">Online meeting</span>
+                  : m.place
+                    ? <>
+                        <span className="fact-main">{m.place}</span>
+                        <a className="fact-sub fact-link" href={mapsAddr} target="_blank" rel="noopener">{m.address} <Icon name="external" size={12} className="fl-ext" /></a>
+                      </>
+                    : <a className="fact-main fact-link" href={mapsAddr} target="_blank" rel="noopener">{m.address} <Icon name="external" size={13} className="fl-ext" /></a>}
+              </span>
             </div>
-          </>
-        )}
+          </div>
 
-        {(m.conference_phone || m.website || finder || onSeeAll) && (
-          <>
-            <hr className="sheet-divider" />
-            {(m.conference_phone || m.website || finder) && (
-              <div className="detail-contact-row">
-                {m.conference_phone && (
-                  <a className="detail-contact" href={`tel:${String(m.conference_phone).replace(/[^+\d,;]/g, "")}`}>
-                    Call in: {m.conference_phone}
-                  </a>
+          {showTags && (
+            <div className="sheet-tags">
+              {(m.types || []).map((x: string) => <span key={x} className="tag">{x}</span>)}
+              {fmtUpdated(m.updated) && <span className="freshness" title="When the source last updated this listing">Updated {fmtUpdated(m.updated)}</span>}
+            </div>
+          )}
+          {m.notes && (
+            <>
+              <hr className="sheet-divider" />
+              <div className="sheet-notes">
+                <p className="notes-label">Meeting notes</p>
+                <p className="notes-text">{m.notes}</p>
+              </div>
+            </>
+          )}
+
+          {hasLinks && (
+            <>
+              <hr className="sheet-divider" />
+              <div className="lx-cards">
+                {onSeeAll && (
+                  <button className="lx-card" onClick={() => seeAll(m.name)}>
+                    <span className="lx-cico"><Icon name="calmonth" size={17} /></span>
+                    <span className="lx-ctext"><b>All sessions of this group</b><small>Other days &amp; times</small></span>
+                    <Icon name="chevron" size={18} className="lx-chev" />
+                  </button>
+                )}
+                {onSeeAll && !m.online && m.place && (
+                  <button className="lx-card" onClick={() => seeAll(m.place)}>
+                    <span className="lx-cico"><Icon name="pin" size={17} /></span>
+                    <span className="lx-ctext"><b>All sessions at this location</b><small>Everything at this venue</small></span>
+                    <Icon name="chevron" size={18} className="lx-chev" />
+                  </button>
                 )}
                 {m.website && (
-                  <a className="detail-contact" href={m.website} target="_blank" rel="noopener">
-                    <Icon name="external" size={15} /> Group website
+                  <a className="lx-card" href={m.website} target="_blank" rel="noopener">
+                    <span className="lx-cico"><Icon name="globe" size={17} /></span>
+                    <span className="lx-ctext"><b>Group website</b><small>Opens in a new tab</small></span>
+                    <Icon name="external" size={16} className="lx-ext" />
                   </a>
                 )}
                 {finder && (
-                  <a className="detail-contact" href={finder.url} target="_blank" rel="noopener">
-                    <Icon name="external" size={15} /> {finder.label}
+                  <a className="lx-card" href={finder.url} target="_blank" rel="noopener">
+                    <span className="lx-cico"><Icon name="list" size={17} /></span>
+                    <span className="lx-ctext"><b>{finder.label}</b><small>Official meeting directory</small></span>
+                    <Icon name="external" size={16} className="lx-ext" />
+                  </a>
+                )}
+                {m.conference_phone && (
+                  <a className="lx-card" href={`tel:${String(m.conference_phone).replace(/[^+\d,;]/g, "")}`}>
+                    <span className="lx-cico"><Icon name="phone" size={17} /></span>
+                    <span className="lx-ctext"><b>Call in</b><small>{m.conference_phone}</small></span>
                   </a>
                 )}
               </div>
-            )}
-            {onSeeAll && (
-              <div className="detail-links">
-                <button className="tlink" onClick={() => seeAll(m.name)}>
-                  <Icon name="calmonth" size={16} /> All sessions of this group
-                </button>
-                {!m.online && m.place && (
-                  <button className="tlink" onClick={() => seeAll(m.place)}>
-                    <Icon name="pin" size={16} /> All sessions at this location
-                  </button>
-                )}
-              </div>
-            )}
-          </>
-        )}
-        <details className="expect">
-          <summary>New here? What to expect</summary>
-          <p>
-            Most meetings are free and anonymous — first names only. You can simply listen;
-            you’re never required to speak or share. “Open” meetings welcome anyone (including
-            visitors and family), while “Closed” meetings are for people who identify with the
-            fellowship. Arriving a few minutes early is a nice way to be welcomed.
-          </p>
-        </details>
-        {!m.online && <DetailMap m={m} defaultMode="map" />}
-        {!m.online && (transit.length > 0 || parking.length > 0) && (
-          <div className="access-grid">
-            {transit.length > 0 && (
-              <div className="access-col">
-                <h4><Icon name="subway" size={18} /> Public transportation</h4>
-                <div className="park-list">{transit.map((p: any, i: number) => (
-                  <AccessItem key={i} p={p} m={m} iconName={T_ICON[p.k] || "pin"} />
-                ))}</div>
-              </div>
-            )}
-            {parking.length > 0 && (
-              <div className="access-col">
-                <h4><Icon name="parking" size={18} /> Parking</h4>
-                <div className="park-list">{parking.map((p: any, i: number) => (
-                  <AccessItem key={i} p={p} m={m} iconName={P_ICON[p.k] || "parking"} />
-                ))}</div>
-              </div>
-            )}
+            </>
+          )}
+          <details className="expect">
+            <summary>New here? What to expect</summary>
+            <p>
+              Most meetings are free and anonymous — first names only. You can simply listen;
+              you’re never required to speak or share. “Open” meetings welcome anyone (including
+              visitors and family), while “Closed” meetings are for people who identify with the
+              fellowship. Arriving a few minutes early is a nice way to be welcomed.
+            </p>
+          </details>
+          {!m.online && <DetailMap m={m} defaultMode="map" />}
+          {!m.online && (transit.length > 0 || parking.length > 0) && (
+            <div className="access-grid">
+              {transit.length > 0 && (
+                <div className="access-col">
+                  <h4><Icon name="subway" size={18} /> Public transportation</h4>
+                  <div className="park-list">{transit.map((p: any, i: number) => (
+                    <AccessItem key={i} p={p} m={m} iconName={T_ICON[p.k] || "pin"} />
+                  ))}</div>
+                </div>
+              )}
+              {parking.length > 0 && (
+                <div className="access-col">
+                  <h4><Icon name="parking" size={18} /> Parking</h4>
+                  <div className="park-list">{parking.map((p: any, i: number) => (
+                    <AccessItem key={i} p={p} m={m} iconName={P_ICON[p.k] || "parking"} />
+                  ))}</div>
+                </div>
+              )}
+            </div>
+          )}
+          <div className="sheet-actions">
+            {m.online
+              ? (m.conference_url
+                  ? <a className="btn btn-fc" href={m.conference_url} target="_blank" rel="noopener"><Icon name="video" size={18} /> Join online</a>
+                  : <a className="btn btn-fc" href={learnMoreUrl} target="_blank" rel="noopener"><Icon name="search" size={18} /> Find this meeting online</a>)
+              : <a className="btn btn-fc" href={mapsAddr} target="_blank" rel="noopener"><Icon name="route" size={18} /> Directions</a>}
+            <button className="btn btn-soft" onClick={onClose}><Icon name="close" size={18} /> Close</button>
           </div>
-        )}
-        <div className="sheet-actions">
-          {m.online
-            ? (m.conference_url
-                ? <a className="btn btn-fc" href={m.conference_url} target="_blank" rel="noopener"><Icon name="video" size={18} /> Join online</a>
-                : <a className="btn btn-fc" href={learnMoreUrl} target="_blank" rel="noopener"><Icon name="search" size={18} /> Find this meeting online</a>)
-            : <a className="btn btn-fc" href={mapsAddr} target="_blank" rel="noopener"><Icon name="route" size={18} /> Directions</a>}
-          <button className="btn btn-soft" onClick={onClose}><Icon name="close" size={18} /> Close</button>
+          <a className="report-link" href={correctionHref}>
+            <Icon name="signpost" size={15} /> Something look wrong? Suggest a correction
+          </a>
         </div>
-        <a className="report-link" href={correctionHref}>
-          <Icon name="signpost" size={15} /> Something look wrong? Suggest a correction
-        </a>
       </div>
     </div>
   );
