@@ -13,6 +13,16 @@ import { SiteFooter } from "@/components/SiteFooter";
 
 const fmt = (n: number) => n.toLocaleString("en-US");
 
+// Short, accurate focus phrase per fellowship family — for the "At a glance" facts block.
+const GLANCE_FOCUS: Record<string, string> = {
+  "Alcohol & drugs": "Recovery from alcohol or drugs",
+  "Food & eating": "Recovery around food & eating",
+  "Sex & relationships": "Recovery around sex, love & relationships",
+  "Money & work": "Recovery around money, work & behavior",
+  "Emotional & behavioral": "Emotional & behavioral recovery",
+  "Family & friends": "Support for families & friends of someone affected",
+};
+
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
@@ -65,6 +75,13 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
   const cities = hub[code] || [];
   const liveSearch = `/?q=${encodeURIComponent(name)}`;
   const submitHref = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`Submit a ${code} group or meeting`)}&body=${encodeURIComponent(`I'd like to submit a ${name} (${code}) group or meeting to Fellow.\n\nMeeting name:\nDay & time:\nLocation or online link:\nWebsite or contact (optional):\n`)}`;
+
+  // "At a glance" facts (entity clarity for humans + AI). Derived from real data — no fabricated dates.
+  const focus = GLANCE_FOCUS[group || ""] || "Peer-support recovery";
+  const program = code === "RD" ? "Buddhist-inspired peer recovery" : "Twelve Step peer support";
+  const onFellow = hasMeetings ? `${fmt(inPerson)} in person · ${fmt(online)} online` : "Not yet indexed — see official finder";
+  let finderDomain = "";
+  try { finderDomain = finder ? new URL(finder.url).hostname.replace(/^www\./, "") : ""; } catch { finderDomain = ""; }
 
   // group this fellowship's city pages by state
   const byState: Record<string, { slug: string; city: string; count: number }[]> = {};
@@ -166,8 +183,8 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
       ) : (
         <>
           <p className="fell-apology">
-            Sorry, Fellow doesn’t currently have access to {name} ({code}) meetings. We continue to build our
-            coverage — below are related activities.
+            We don’t have {name} ({code}) meetings on Fellow just yet — we’re still growing our coverage, and
+            more is on the way. In the meantime, here are a few related ways to find support and connection.
           </p>
           <p style={{ margin: "12px 0 8px", display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
             <a href={submitHref} className="btn-secondary"><Icon name="add" size={16} /> Submit a group or meeting</a>
@@ -192,6 +209,24 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
           </span>
         </p>
       ) : null}
+
+      <p className="glance-cap">At a glance</p>
+      <div className="glance" aria-label={`${name} at a glance`}>
+        <div className="glance-row"><span className="glance-k">Fellowship</span><span className="glance-v">{name} ({code})</span></div>
+        <div className="glance-row"><span className="glance-k">Focus</span><span className="glance-v">{focus}</span></div>
+        <div className="glance-row"><span className="glance-k">Program</span><span className="glance-v">{program}</span></div>
+        <div className="glance-row"><span className="glance-k">On Fellow</span><span className="glance-v">{onFellow}</span></div>
+        {finder ? (
+          <div className="glance-row">
+            <span className="glance-k">Official source</span>
+            <span className="glance-v"><a href={finder.url} target="_blank" rel="noopener nofollow">{finderDomain} <Icon name="external" size={13} /></a></span>
+          </div>
+        ) : null}
+        <div className="glance-row">
+          <span className="glance-k">Listings</span>
+          <span className="glance-v">Public intergroup feeds · <Link href="/about">how we source</Link></span>
+        </div>
+      </div>
 
       {hasMeetings && states.length > 0 ? (
         <>
