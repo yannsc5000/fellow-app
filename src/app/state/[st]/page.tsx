@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ st: strin
   if (!s) return {};
   const fell = s.fellowships.map(fellowshipName).slice(0, 3).join(", ");
   const title = `Recovery meetings in ${s.stateName} — AA, NA & more | Fellow`;
-  const description = `${fmt(s.count)} in-person recovery meetings across ${s.cities.length} ${s.stateName} cities: ${fell}${s.fellowships.length > 3 ? " and more" : ""}. Find AA, NA and other meetings near you, free on Fellow.`;
+  const description = `${fmt(s.count)} free recovery meetings across ${s.cities.length} ${s.stateName} cities: ${fell}${s.fellowships.length > 3 ? " and more" : ""}. Find AA, NA and other meetings near you — in person and online — plus sober social events across ${s.stateName}, on Fellow.`;
   return {
     title, description,
     alternates: { canonical: `/state/${st.toLowerCase()}` },

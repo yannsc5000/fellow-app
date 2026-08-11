@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!c) return {};
   const fell = c.fellowships.map(fellowshipLabel).slice(0, 3).join(", ");
   const title = `Recovery Meetings in ${c.city}, ${c.state} — AA, NA & more | Fellow`;
-  const description = `${c.count} recovery meetings in ${c.city}, ${c.state}: ${fell}${c.fellowships.length > 3 ? " and more" : ""}. Find AA, NA and other 12-step and peer-support meetings near you, free on Fellow.`;
+  const description = `${c.count} free recovery meetings in ${c.city}, ${c.state}: ${fell}${c.fellowships.length > 3 ? " and more" : ""}. Find AA, NA and other 12-step and peer-support meetings near you — in person and online — plus sober social events in ${c.city}, on Fellow.`;
   return {
     title,
     description,

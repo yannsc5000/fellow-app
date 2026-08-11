@@ -5,7 +5,7 @@ import "server-only";
 import { readFile } from "node:fs/promises";
 import { gunzipSync } from "node:zlib";
 import path from "node:path";
-import { fellowshipName } from "./fellowships";
+import { fellowshipName, FELLOWSHIPS } from "./fellowships";
 
 const US_STATES = new Set(
   "AL AK AZ AR CA CO CT DE FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY DC".split(" "),
@@ -264,4 +264,12 @@ export async function getFellowshipAll(fslug: string): Promise<FellowshipAll | n
   const code = _fellowCode?.get(fslug) || fslug;
   const online = meetings.filter((m) => m.online).length;
   return { code, name: fellowshipName(code), fslug, total: meetings.length, inPerson: meetings.length - online, online, meetings };
+}
+
+// We publish a landing page for EVERY fellowship in the taxonomy — even ones Fellow doesn't
+// index meetings for yet — so each starts accruing SEO equity now. Thinness is avoided by
+// giving every page unique, fellowship-specific content (description, related fellowships, and
+// the official finder where one exists) rather than boilerplate.
+export async function getSeededFellowships(): Promise<string[]> {
+  return FELLOWSHIPS.map((f) => f.code);
 }

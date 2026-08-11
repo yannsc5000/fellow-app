@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getCoverage } from "@/lib/coverage";
-import { getFellowshipHub, fellowshipSlug, stateSlug, STATE_NAMES } from "@/lib/cities";
-import { fellowshipName, BY_CODE, fellowshipColor } from "@/lib/fellowships";
+import { getFellowshipHub, getFellowshipAll, getSeededFellowships, fellowshipSlug, stateSlug, STATE_NAMES } from "@/lib/cities";
+import { fellowshipName, fellowshipColor, fellowshipDesc, CODE_BY_SLUG, BY_CODE, FELLOWSHIPS } from "@/lib/fellowships";
+import { officialFinder } from "@/lib/finders";
 import { SoberActivities } from "@/components/SoberActivities";
+import { FellowshipBeyond } from "@/components/FellowshipBeyond";
+import { Icon } from "@/components/Icon";
 import { SiteFooter } from "@/components/SiteFooter";
 
 const fmt = (n: number) => n.toLocaleString("en-US");
@@ -12,14 +14,16 @@ const fmt = (n: number) => n.toLocaleString("en-US");
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
-  const c = await getCoverage();
-  return c.fellowships.map((code) => ({ fellowship: fellowshipSlug(code) }));
+  const seeded = await getSeededFellowships();
+  return seeded.map((code) => ({ fellowship: fellowshipSlug(code) }));
 }
 
 async function resolve(fellowship: string) {
-  const c = await getCoverage();
-  const code = c.fellowships.find((f) => fellowshipSlug(f) === fellowship);
-  return code ? { c, code } : null;
+  const code = CODE_BY_SLUG[fellowship];
+  if (!code) return null;
+  const fa = await getFellowshipAll(fellowship); // meeting counts + existence (null if none indexed)
+  const finder = officialFinder(code);
+  return { code, fa, finder };
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ fellowship: string }> }): Promise<Metadata> {
@@ -27,9 +31,15 @@ export async function generateMetadata({ params }: { params: Promise<{ fellowshi
   const r = await resolve(fellowship);
   if (!r) return {};
   const name = fellowshipName(r.code);
-  const total = r.c.inPerson[r.code] || 0;
-  const title = `${name} (${r.code}) meetings | Fellow`;
-  const description = `Find ${name} (${r.code}) meetings across the US — ${fmt(total)} in-person, plus online. Browse by city or search live, free and anonymous on Fellow.`;
+  const desc = fellowshipDesc(r.code);
+  // Long-tail, intent-rich title/description (see SEO principles doc) — "online & near you",
+  // "free and anonymous", "secular", the fellowship name — phrased naturally, not stuffed.
+  const title = `${name} (${r.code}) Meetings — Online & Near You | Fellow`;
+  const description = r.fa
+    ? `Find free, anonymous ${name} (${r.code}) meetings near you — ${fmt(r.fa.inPerson)} in person plus online. Browse by city, filter by day and time, and find secular and young people's groups on Fellow.`
+    : (desc
+        ? `${desc} Find ${r.code} meetings online and near you, plus the official ${r.code} directory — free and anonymous, on Fellow.`
+        : `${name} (${r.code}) meetings online and near you — free and anonymous, on Fellow.`);
   return {
     title, description,
     alternates: { canonical: `/${fellowship}` },
@@ -41,10 +51,14 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
   const { fellowship } = await params;
   const r = await resolve(fellowship);
   if (!r) notFound();
-  const { c, code } = r;
+  const { code, fa, finder } = r;
   const name = fellowshipName(code);
-  const total = c.inPerson[code] || 0;
   const group = BY_CODE[code]?.group;
+  const desc = fellowshipDesc(code);
+  const hasMeetings = !!fa;
+  const inPerson = fa?.inPerson || 0;
+  const online = fa?.online || 0;
+
   const hub = await getFellowshipHub();
   const cities = hub[code] || [];
   const liveSearch = `/?q=${encodeURIComponent(name)}`;
@@ -54,12 +68,41 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
   for (const ct of cities) (byState[ct.state] ||= []).push({ slug: ct.slug, city: ct.city, count: ct.count });
   const states = Object.keys(byState).sort((a, b) => (STATE_NAMES[a] || a).localeCompare(STATE_NAMES[b] || b));
 
+  // Related fellowships in the same family (internal links — relevant + good for SEO).
+  const related = FELLOWSHIPS.filter((f) => f.code !== code && f.group === group).map((f) => f.code);
+
+  // Fellowship-specific FAQ — answers the real long-tail questions people search (free? online?
+  // non-religious? young people's meetings?). Rendered visibly AND as FAQPage structured data.
+  const faqs: { q: string; a: string }[] = [
+    {
+      q: `Are ${code} meetings free and anonymous?`,
+      a: `Yes. ${code} meetings are free to attend — no dues, fees, referral, or insurance needed — and anonymity is a core principle, so you can come as you are. Anyone who wants help is welcome.`,
+    },
+    {
+      q: `Can I attend ${code} meetings online?`,
+      a: hasMeetings && online
+        ? `Yes. Fellow lists ${fmt(online)} online ${code} meetings you can join from anywhere, alongside in-person groups near you.`
+        : `Many ${code} groups meet online as well as in person. ${finder ? `The official ${code} finder lists current online meetings` : `Each group's own website lists current online meetings`}.`,
+    },
+    {
+      q: `Do I have to be religious to join ${code}?`,
+      a: `No. ${code} welcomes people of any religion or none. The program is usually described as spiritual rather than religious, and many areas offer secular, agnostic, or non-religious meetings.`,
+    },
+  ];
+  if (hasMeetings) {
+    faqs.push({
+      q: `Are there ${code} meetings for specific groups, like women's or young people's?`,
+      a: `Often, yes. Larger areas hold meetings for specific communities — women's, men's, young people's, LGBTQ+, and newcomers' groups among them. Use Fellow's live search to filter for the meeting that fits.`,
+    });
+  }
+
   const jsonld = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "CollectionPage",
         name: `${name} (${code}) meetings`,
+        description: desc || undefined,
         url: `https://fellow.space/${fellowship}`,
         isPartOf: { "@type": "WebSite", name: "Fellow", url: "https://fellow.space" },
       },
@@ -70,6 +113,14 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
           { "@type": "ListItem", position: 2, name: "Fellowships", item: "https://fellow.space/fellowships" },
           { "@type": "ListItem", position: 3, name: `${code}`, item: `https://fellow.space/${fellowship}` },
         ],
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
       },
     ],
   };
@@ -84,19 +135,37 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
         <span className="fh-dot" style={{ background: fellowshipColor(code), display: "inline-block", width: 14, height: 14, borderRadius: "50%", marginRight: 10, verticalAlign: "middle" }} aria-hidden />
         {name} ({code}) meetings
       </h1>
-      <p>
-        Fellow lists <strong>{fmt(total)}</strong> in-person {name} ({code}) meetings across the US{group ? `, plus online meetings` : ""}.
-        {" "}Details change often — confirm with the group before you go. For online {code} meetings and live day/time
-        filters, <Link href={liveSearch}>search {code} meetings →</Link>
+
+      {desc ? <p>{desc}</p> : null}
+
+      {hasMeetings ? (
+        <p>
+          Fellow lists <strong>{fmt(inPerson)}</strong> in-person {name} ({code}) meetings across the US
+          {online ? <>, plus <strong>{fmt(online)}</strong> online</> : <>, plus online meetings</>}.
+          {" "}Details change often — confirm with the group before you go. For live day/time filters and maps,{" "}
+          <Link href={liveSearch}>search {code} meetings →</Link>
+        </p>
+      ) : (
+        <p>
+          Fellow doesn’t index {code} meetings in its own directory yet.
+          {finder ? <> The official {code} meeting finder below is the most complete place to look right now.</> : <> Most {code} groups publish their schedule on their own websites; check back as Fellow’s coverage grows.</>}
+        </p>
+      )}
+
+      <p style={{ margin: "12px 0 6px", display: "flex", flexWrap: "wrap", gap: 8 }}>
+        {hasMeetings ? (
+          <Link href={`/${fellowship}/all`} className="city-chip city-chip-all">
+            See all {code} meetings — in-person &amp; online, by day →
+          </Link>
+        ) : null}
+        {finder ? (
+          <a href={finder.url} className="city-chip city-chip-all" target="_blank" rel="noopener nofollow">
+            {finder.label} <Icon name="external" size={14} />
+          </a>
+        ) : null}
       </p>
 
-      <p style={{ margin: "4px 0 8px" }}>
-        <Link href={`/${fellowship}/all`} className="city-chip city-chip-all">
-          See all {code} meetings — in-person &amp; online, by day →
-        </Link>
-      </p>
-
-      {states.length > 0 ? (
+      {hasMeetings && states.length > 0 ? (
         <>
           <h2 style={{ fontSize: 20, marginTop: 24 }}>{code} meetings by city</h2>
           {states.map((abbr) => {
@@ -117,17 +186,40 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
             );
           })}
         </>
-      ) : (
-        <p style={{ marginTop: 16 }}>
-          {name} meetings are available across the US, including online. <Link href={liveSearch}>Search {code} meetings live →</Link>
-        </p>
-      )}
+      ) : null}
 
-      <SoberActivities />
+      {related.length > 0 ? (
+        <>
+          <h2 style={{ fontSize: 20, marginTop: 24 }}>Related fellowships</h2>
+          <p style={{ margin: "0 0 8px", color: "var(--ink-soft)", fontSize: 14.5 }}>
+            Other {group?.toLowerCase()} fellowships on Fellow:
+          </p>
+          <div className="city-chips">
+            {related.map((rc) => (
+              <Link key={rc} href={`/${fellowshipSlug(rc)}`} className="city-chip">
+                <span className="fh-dot" style={{ background: fellowshipColor(rc), display: "inline-block", width: 9, height: 9, borderRadius: "50%", marginRight: 6, verticalAlign: "middle" }} aria-hidden />
+                {rc} <span style={{ color: "var(--ink-soft)", fontSize: 13 }}>— {fellowshipName(rc)}</span>
+              </Link>
+            ))}
+          </div>
+        </>
+      ) : null}
+
+      <hr style={{ border: 0, borderTop: "1px solid var(--panel-line)", margin: "28px 0 0" }} />
+      <h2 style={{ fontSize: 20, marginTop: 20 }}>Common questions about {code}</h2>
+      {faqs.map((f) => (
+        <div key={f.q} style={{ margin: "12px 0" }}>
+          <h3 style={{ fontSize: 16, margin: "0 0 4px" }}>{f.q}</h3>
+          <p style={{ margin: 0 }}>{f.a}</p>
+        </div>
+      ))}
+
+      <SoberActivities fellowship={code} />
+      <FellowshipBeyond code={code} />
 
       <p style={{ margin: "28px 0", color: "var(--ink-soft)", fontSize: 15 }}>
         Fellow is a free, independent meeting finder — not affiliated with {name} or any fellowship.
-        Listings come from public intergroup feeds. <Link href="/about">About &amp; sources</Link>
+        Meeting listings come from public intergroup feeds. <Link href="/about">About &amp; sources</Link>
       </p>
       <SiteFooter />
     </main>

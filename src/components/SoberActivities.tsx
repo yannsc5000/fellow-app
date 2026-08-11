@@ -1,11 +1,17 @@
 import { Icon } from "@/components/Icon";
 import { soberLinks } from "@/lib/sober";
+import { BY_CODE } from "@/lib/fellowships";
 
-// The "Beyond the meetings" section — a quiet block at the foot of city / state / fellowship
-// pages that points people toward sober meetups, alcohol-free nightlife and sober-community
-// events. Fellow lists none of these directly (see lib/sober.ts for the safety rationale); it
-// hands off to trusted directories and, on city pages, pre-filled platform searches.
-export function SoberActivities({ city, state, stateName }: { city?: string; state?: string; stateName?: string }) {
+// The "Beyond the meetings" section — a quiet block that points people toward sober meetups,
+// alcohol-free nightlife and sober-community events. This content is specific to the
+// substance-recovery family (alcohol & drugs), so on a fellowship page it renders ONLY for that
+// group — never on ACA, OA, GA, etc., which need their own fellowship-appropriate adjacent
+// content. On cross-fellowship city/state pages (no `fellowship` given) it always renders, since
+// those places have AA/NA meetings. Fellow lists none of these events directly (see lib/sober.ts).
+export function SoberActivities({ city, state, stateName, fellowship }:
+  { city?: string; state?: string; stateName?: string; fellowship?: string }) {
+  // Gate: on a fellowship page, only the alcohol & drugs family gets the sober section.
+  if (fellowship && BY_CODE[fellowship]?.group !== "Alcohol & drugs") return null;
   const { place, directories, platforms } = soberLinks({ city, state, stateName });
   const hasPlatforms = platforms.length > 0;
 
@@ -26,7 +32,7 @@ export function SoberActivities({ city, state, stateName }: { city?: string; sta
       <h2 id="sober-h" className="sober-h">Sober activities{place ? ` in ${place}` : ""}</h2>
       <p className="sober-lede">
         Recovery is bigger than the meeting room. These communities and searches surface sober
-        meetups, alcohol-free nightlife and sober-community events{place ? ` near ${place}` : ""} —
+        social events{place ? ` in ${place}` : ""}, alcohol-free nightlife and sober meetups —
         across every fellowship, not just 12-step.
       </p>
 
