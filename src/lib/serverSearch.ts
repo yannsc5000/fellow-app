@@ -46,40 +46,35 @@ export async function searchMeetings(p: SearchParams): Promise<MeetingResult[]> 
   // an exact match never sits below a weak one. Then nearest (for "near me") or time-of-day. We
   // deliberately avoid absolute day:asc as the lead key — it buries today's meetings behind
   // Sunday's; the client regroups by day-from-today over the fuller set we return here.
-  const hasQuery = !!(p.query && p.query.trim());
+  // Strip generic location qualifiers ("downtown", "greater", "near", …) BEFORE searching. These
+  // words appear in place names all over the country, so for a place we don't index (e.g. Boston)
+  // they'd otherwise match the wrong city — "downtown Boston" surfacing "Downtown Fernandina Beach"
+  // in Florida. We keep the real place tokens and require them all to match (drop_tokens_threshold:0),
+  // so "San Francisco" can't drift to "San Antonio", and a place we don't cover returns nothing —
+  // which lets the caller widen to online / hand off to the official finder instead of a wrong match.
+  const QUALIFIERS = /\b(downtown|uptown|midtown|greater|metropolitan|metro|nearby|near|around|area)\b/gi;
+  const cleanedQuery = (p.query || "").replace(QUALIFIERS, " ").replace(/\s+/g, " ").trim();
+  const hasQuery = !!cleanedQuery;
   const geoSort = `_geoloc(${p.near_lat}, ${p.near_lng}):asc`;
   const sort_by = hasQuery
     ? (geo ? `_text_match:desc,${geoSort}` : "_text_match:desc,time:asc")
     : (geo ? geoSort : "day:asc,time:asc");
   const searchParams: any = {
-    q: p.query?.trim() || "*",
+    q: cleanedQuery || "*",
     query_by: "name,place,address,notes,fellowship,fellowship_name,fellowship_terms,types",
     filter_by: filters.join(" && "),
     sort_by,
     // Fetch a fuller set than we display so the client's day-from-today grouping has every day to
     // work with (a small page sorted by day would truncate today's meetings away server-side).
     per_page: Math.min(Math.max(p.limit ?? 10, 20), 40),
-    // Require all query tokens to match — never drop a token. Otherwise "San Francisco"
-    // with thin SF coverage would drop "Francisco" and return "San Antonio"/"San Diego".
     drop_tokens_threshold: 0,
   };
-  const run = async (params: any): Promise<any[]> => {
-    try {
-      const res: any = await client.collections(COLLECTION).documents().search(params);
-      return (res.hits || []).map((h: any) => h.document);
-    } catch {
-      return [];
-    }
-  };
-  let hits = await run(searchParams);
-  // Token-relaxation fallback: the strict pass above requires every query token to match (so
-  // "San Francisco" never drifts to "San Antonio"). But a descriptive or misspelled word the data
-  // doesn't contain — "downtown", a typo like "dowtown" — would otherwise zero out the whole
-  // search. If a multi-word query finds nothing, retry allowing Typesense to drop the weakest
-  // tokens and tolerate typos, so the real place ("DC", "Washington") still lands results.
-  const tokenCount = (p.query?.trim().split(/\s+/).filter(Boolean).length) || 0;
-  if (!hits.length && tokenCount > 1) {
-    hits = await run({ ...searchParams, drop_tokens_threshold: 10, num_typos: 2 });
+  let hits: any[];
+  try {
+    const res: any = await client.collections(COLLECTION).documents().search(searchParams);
+    hits = (res.hits || []).map((h: any) => h.document);
+  } catch {
+    return [];
   }
   const win = p.time_of_day ? TIME_WINDOWS[p.time_of_day.toLowerCase()] : null;
   if (win) {
