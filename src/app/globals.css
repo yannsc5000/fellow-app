@@ -219,7 +219,9 @@ body::before{
 /* Clean structured "when / where" block. Fellowship color is used only as a small badge
    in the tags row — not painted across the time chip / address — so the header reads calm
    and consistent with the rest of the sheet. */
-.sheet-facts{display:flex;flex-direction:column;margin:2px 0 0;border-bottom:1px solid var(--line)}
+/* No dividers around the facts — the icon chips give enough structure; a little row gap keeps
+   them from feeling floaty. */
+.sheet-facts{display:flex;flex-direction:column;gap:2px;margin:2px 0 8px}
 /* Links & actions as cards — full-width, ≥60px tap targets, clear separation (was cramped inline links). */
 .lx-cards{display:flex;flex-direction:column;gap:10px;margin:2px 0}
 .lx-card{display:flex;align-items:center;gap:13px;width:100%;min-height:60px;padding:12px 14px;background:var(--surface);
@@ -243,8 +245,7 @@ body::before{
 .sheet-body .map-toggle button[aria-pressed="true"]{color:var(--fc)}
 .sheet-body .btn-soft{background:color-mix(in srgb, var(--fc) 13%, var(--surface));color:var(--fc)}
 .sheet-body .btn-soft:hover{background:color-mix(in srgb, var(--fc) 22%, var(--surface))}
-.fact{display:flex;align-items:center;gap:12px;padding:11px 2px;text-decoration:none;color:inherit}
-.fact + .fact{border-top:1px solid var(--line)}
+.fact{display:flex;align-items:center;gap:12px;padding:9px 2px;text-decoration:none;color:inherit}
 .fact-ico{flex:0 0 auto;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
   background:var(--surface-2);color:var(--brand-ink)}
 .fact-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
@@ -499,8 +500,9 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .nf-actions{display:flex;flex-wrap:wrap;gap:12px;justify-content:center}
 .nf-cta{font-size:17px;padding:0 24px}
 
-.site-footer{margin-top:40px;padding:22px 0 8px;border-top:1px solid var(--line);color:var(--ink-soft);font-size:14px;line-height:1.6}
+.site-footer{margin-top:40px;padding:20px 0 8px;color:var(--ink-soft);font-size:14px;line-height:1.6}
 .site-footer p{margin:6px 0}
+.site-footer .foot-blurb{margin-top:12px;font-size:13px;opacity:.85}
 .site-footer a{color:var(--brand-ink);font-weight:700;text-decoration:none}
 .site-footer a:hover{text-decoration:underline;text-underline-offset:3px}
 

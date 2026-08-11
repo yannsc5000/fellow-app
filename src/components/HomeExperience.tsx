@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { Icon } from "@/components/Icon";
 import { Mark } from "@/components/Mark";
@@ -12,12 +12,17 @@ const Chat = dynamic(() => import("@/components/Chat"), { ssr: false });
 // page. Kept as its own client component so the page itself can be a server component (and
 // fetch coverage data for the promo below).
 export default function HomeExperience() {
-  // Land on Search (not the chat default) when arriving with a ?q= query — powers shareable
-  // search links and Google's sitelinks search box.
-  const [mode, setMode] = useState<"search" | "chat">(
-    () => (typeof window !== "undefined" && new URLSearchParams(window.location.search).has("q") ? "search" : "chat"),
-  );
+  // Default to chat deterministically (same on server + client — no hydration mismatch); the
+  // effect below flips to Search when there's a ?q=.
+  const [mode, setMode] = useState<"search" | "chat">("chat");
   const [resetKey, setResetKey] = useState(0);
+  // The page is server-rendered, so the initializer above can't see the URL — land on Search
+  // whenever there's a ?q= (a shared search link or the sitelinks box) once we're on the client.
+  useEffect(() => {
+    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).has("q")) {
+      setMode("search");
+    }
+  }, []);
   // Clicking the logo resets to the default home screen (default tab + fresh state).
   const goHome = (e: React.MouseEvent) => {
     e.preventDefault();
