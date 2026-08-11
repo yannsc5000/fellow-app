@@ -65,7 +65,7 @@ export default function HomeExperience() {
             role="tab" id="tab-search" aria-controls="exp-panel" aria-selected={mode === "search"}
             tabIndex={mode === "search" ? 0 : -1} className="exp-tab" onClick={() => setMode("search")}
           >
-            <Icon name="searchtab" size={22} /> Search
+            <Icon name="searchtab" size={22} /> Find
           </button>
         </div>
         <div

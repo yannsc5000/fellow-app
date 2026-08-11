@@ -1,0 +1,50 @@
+import type { MetadataRoute } from "next";
+import { getCities, getFellowshipCityParams, getStateParams, getSeededFellowships, getFellowshipAllParams, fellowshipSlug } from "@/lib/cities";
+import { PROBLEMS } from "@/lib/problems";
+
+// Generates /sitemap.xml — the map search engines follow to discover pages. Includes the
+// home + about pages, every fellowship landing page (/[fellowship], including seeded ones),
+// every city landing page (/meetings/[slug]) and every fellowship×city page (/[fellowship]/[slug]).
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const base = "https://fellow.space";
+  const now = new Date();
+  const [cities, fc, states, seeded, allParams] = await Promise.all([
+    getCities(), getFellowshipCityParams(), getStateParams(), getSeededFellowships(), getFellowshipAllParams(),
+  ]);
+  return [
+    { url: `${base}/`, lastModified: now, changeFrequency: "daily", priority: 1 },
+    { url: `${base}/meetings`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${base}/fellowships`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${base}/coverage`, lastModified: now, changeFrequency: "weekly", priority: 0.6 },
+    { url: `${base}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${base}/support-groups`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    ...PROBLEMS.map((p) => ({
+      url: `${base}/support-groups/${p.slug}`,
+      lastModified: now, changeFrequency: "weekly" as const, priority: 0.7,
+    })),
+    ...seeded.map((code) => ({
+      url: `${base}/${fellowshipSlug(code)}`,
+      lastModified: now, changeFrequency: "weekly" as const, priority: 0.7,
+    })),
+    ...allParams.map((p) => ({
+      url: `${base}/${p.fellowship}/all`,
+      lastModified: now, changeFrequency: "weekly" as const, priority: 0.6,
+    })),
+    ...states.map((s) => ({
+      url: `${base}/state/${s.st}`,
+      lastModified: now, changeFrequency: "weekly" as const, priority: 0.7,
+    })),
+    ...cities.map((c) => ({
+      url: `${base}/meetings/${c.slug}`,
+      lastModified: now, changeFrequency: "weekly" as const, priority: 0.7,
+    })),
+    ...cities.map((c) => ({
+      url: `${base}/meetings/${c.slug}/all`,
+      lastModified: now, changeFrequency: "weekly" as const, priority: 0.6,
+    })),
+    ...fc.map((x) => ({
+      url: `${base}/${x.fellowship}/${x.slug}`,
+      lastModified: now, changeFrequency: "weekly" as const, priority: 0.6,
+    })),
+  ];
+}

@@ -1,0 +1,8 @@
+{
+  "connected": false,
+  "generatedAt": null,
+  "range": null,
+  "days": [],
+  "byFellowship": {},
+  "totals": { "conversations": 0, "foundMeeting": 0, "empty": 0, "online": 0 }
+}
