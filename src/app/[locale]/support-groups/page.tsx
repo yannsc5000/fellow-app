@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { setRequestLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { PROBLEMS } from "@/lib/problems";
 import { Icon } from "@/components/Icon";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -16,7 +17,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function SupportGroupsIndex() {
+export default async function SupportGroupsIndex({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("supportGroups");
   const jsonld = {
     "@context": "https://schema.org",
     "@graph": [
@@ -41,14 +45,10 @@ export default function SupportGroupsIndex() {
     <main className="app prose" id="main-content">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonld) }} />
       <p style={{ margin: "20px 0 8px" }}>
-        <Link href="/" className="back">← Fellow home</Link> · <Link href="/fellowships" className="back">All fellowships</Link>
+        <Link href="/" className="back">{t("back")}</Link> · <Link href="/fellowships" className="back">{t("allFellowships")}</Link>
       </p>
-      <h1>Which support group is right for me?</h1>
-      <p>
-        Many people know what they're struggling with but not the name of the group that can help. Start from what
-        you're facing and Fellow will point you to the right fellowship — and to real meetings you can attend. If a
-        loved one is the one struggling, there's support for you too.
-      </p>
+      <h1>{t("h1")}</h1>
+      <p>{t("lede")}</p>
 
       <div className="route-cards" style={{ marginTop: 18 }}>
         {PROBLEMS.map((p) => (
@@ -63,11 +63,11 @@ export default function SupportGroupsIndex() {
       </div>
 
       <p style={{ margin: "26px 0 6px" }}>
-        <Link href="/" className="city-chip city-chip-all">Search recovery meetings near you →</Link>
+        <Link href="/" className="city-chip city-chip-all">{t("searchNearYou")}</Link>
       </p>
 
       <p style={{ margin: "24px 0", color: "var(--ink-soft)", fontSize: 15 }}>
-        Fellow is a free, independent meeting finder — not affiliated with any fellowship. <Link href="/about">About &amp; sources</Link>
+        {t("independentNote")} <Link href="/about">{t("aboutSources")}</Link>
       </p>
       <SiteFooter />
     </main>

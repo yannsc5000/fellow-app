@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import { setRequestLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { getState, getStateParams, fellowshipSlug } from "@/lib/cities";
 import { fellowshipName, fellowshipColor } from "@/lib/fellowships";
 import { SoberActivities } from "@/components/SoberActivities";
@@ -28,10 +29,12 @@ export async function generateMetadata({ params }: { params: Promise<{ st: strin
   };
 }
 
-export default async function StatePage({ params }: { params: Promise<{ st: string }> }) {
-  const { st } = await params;
+export default async function StatePage({ params }: { params: Promise<{ locale: string; st: string }> }) {
+  const { locale, st } = await params;
+  setRequestLocale(locale);
   const s = await getState(st);
   if (!s) notFound();
+  const t = await getTranslations("state");
   const liveSearch = `/?q=${encodeURIComponent(s.stateName)}`;
 
   const jsonld = {
@@ -58,19 +61,20 @@ export default async function StatePage({ params }: { params: Promise<{ st: stri
     <main className="app prose" id="main-content">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonld) }} />
       <p style={{ margin: "20px 0 8px" }}>
-        <Link href="/" className="back">← Fellow home</Link> · <Link href="/coverage" className="back">Coverage map</Link> ·{" "}
-        <Link href="/meetings" className="back">All cities</Link>
+        <Link href="/" className="back">{t("backHome")}</Link> · <Link href="/coverage" className="back">{t("coverageMap")}</Link> ·{" "}
+        <Link href="/meetings" className="back">{t("allCities")}</Link>
       </p>
-      <h1>Recovery meetings in {s.stateName}</h1>
+      <h1>{t("h1", { stateName: s.stateName })}</h1>
       <p>
-        Fellow lists <strong>{fmt(s.count)}</strong> in-person recovery meetings across {s.stateName}
-        {s.cities.length ? <> — in {s.cities.length} cit{s.cities.length === 1 ? "y" : "ies"}</> : null}.
-        For online meetings, maps and live day/time filters, <Link href={liveSearch}>search {s.stateName} on Fellow →</Link>
+        {s.cities.length
+          ? t.rich("leadWithCities", { count: fmt(s.count), stateName: s.stateName, n: s.cities.length, b: (ch) => <strong>{ch}</strong> })
+          : t.rich("leadNoCities", { count: fmt(s.count), stateName: s.stateName, b: (ch) => <strong>{ch}</strong> })}
+        <Link href={liveSearch}>{t("searchOnFellow", { stateName: s.stateName })}</Link>
       </p>
 
       {s.fellowships.length > 0 && (
         <p style={{ margin: "8px 0 4px" }}>
-          <strong>Fellowships here:</strong>{" "}
+          <strong>{t("fellowshipsHere")}</strong>{" "}
           {s.fellowships.map((code, i) => (
             <span key={code}>
               {i > 0 ? " · " : ""}
@@ -85,7 +89,7 @@ export default async function StatePage({ params }: { params: Promise<{ st: stri
 
       {s.cities.length > 0 ? (
         <>
-          <h2 style={{ fontSize: 20, marginTop: 22 }}>Cities in {s.stateName}</h2>
+          <h2 style={{ fontSize: 20, marginTop: 22 }}>{t("citiesIn", { stateName: s.stateName })}</h2>
           <div className="city-chips">
             {[...s.cities].sort((a, b) => a.city.localeCompare(b.city)).map((ct) => (
               <Link key={ct.slug} href={`/meetings/${ct.slug}`} className="city-chip">
@@ -96,15 +100,14 @@ export default async function StatePage({ params }: { params: Promise<{ st: stri
         </>
       ) : (
         <p style={{ marginTop: 16 }}>
-          Meetings in {s.stateName} are best found by live search right now. <Link href={liveSearch}>Search {s.stateName} →</Link>
+          {t("noCities", { stateName: s.stateName })}<Link href={liveSearch}>{t("searchState", { stateName: s.stateName })}</Link>
         </p>
       )}
 
       <SoberActivities stateName={s.stateName} />
 
       <p style={{ margin: "28px 0", color: "var(--ink-soft)", fontSize: 15 }}>
-        Fellow is a free, independent, non-commercial meeting finder — not affiliated with any fellowship.
-        Listings come from public intergroup feeds. <Link href="/about">About &amp; sources</Link>
+        {t("independentNote")}<Link href="/about">{t("aboutSources")}</Link>
       </p>
       <SiteFooter />
     </main>

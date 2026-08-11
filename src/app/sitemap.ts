@@ -11,7 +11,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [cities, fc, states, seeded, allParams] = await Promise.all([
     getCities(), getFellowshipCityParams(), getStateParams(), getSeededFellowships(), getFellowshipAllParams(),
   ]);
-  return [
+  // Each URL also advertises its Spanish counterpart via hreflang alternates (/es/…), so search
+  // engines index and serve the right language. (next-intl's middleware adds Link-header alternates
+  // too; declaring them in the sitemap is the belt-and-suspenders SEO signal.)
+  const esUrl = (url: string) => (url === `${base}/` ? `${base}/es` : url.replace(base, `${base}/es`));
+  const entries: MetadataRoute.Sitemap = [
     { url: `${base}/`, lastModified: now, changeFrequency: "daily", priority: 1 },
     { url: `${base}/meetings`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${base}/fellowships`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
@@ -47,4 +51,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now, changeFrequency: "weekly" as const, priority: 0.6,
     })),
   ];
+  return entries.map((e) => ({ ...e, alternates: { languages: { es: esUrl(e.url) } } }));
 }

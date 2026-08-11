@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import { setRequestLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { getFellowshipAll, getFellowshipAllParams, FELLOWSHIP_ALL_MAX_PER_DAY } from "@/lib/cities";
 import { fellowshipColor } from "@/lib/fellowships";
 import { MeetingDayList, type DayRow } from "@/components/MeetingDayList";
@@ -30,16 +31,18 @@ export async function generateMetadata({ params }: { params: Promise<{ fellowshi
   };
 }
 
-export default async function FellowshipAllPage({ params }: { params: Promise<{ fellowship: string }> }) {
-  const { fellowship } = await params;
+export default async function FellowshipAllPage({ params }: { params: Promise<{ locale: string; fellowship: string }> }) {
+  const { locale, fellowship } = await params;
+  setRequestLocale(locale);
   const fa = await getFellowshipAll(fellowship);
   if (!fa) notFound();
+  const t = await getTranslations("fellowshipAll");
 
   const dot = fellowshipColor(fa.code);
   const rows: DayRow[] = fa.meetings.map((m) => ({
     id: m.id, name: m.name, day: m.day, time: m.time, online: m.online, dot,
     href: `/?q=${encodeURIComponent(m.name)}`,
-    meta: m.online ? (m.loc || "Online meeting") : m.loc,
+    meta: m.online ? (m.loc || t("onlineMeeting")) : m.loc,
   }));
   const liveSearch = `/?q=${encodeURIComponent(fa.name)}`;
 
@@ -69,25 +72,24 @@ export default async function FellowshipAllPage({ params }: { params: Promise<{ 
     <main className="app prose" id="main-content">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonld) }} />
       <p style={{ margin: "20px 0 8px" }}>
-        <Link href={`/${fellowship}`} className="back">← {fa.code} overview</Link> ·{" "}
-        <Link href="/fellowships" className="back">All fellowships</Link>
+        <Link href={`/${fellowship}`} className="back">{t("backOverview", { code: fa.code })}</Link> ·{" "}
+        <Link href="/fellowships" className="back">{t("allFellowships")}</Link>
       </p>
       <h1>
         <span className="fh-dot" style={{ background: fellowshipColor(fa.code), display: "inline-block", width: 14, height: 14, borderRadius: "50%", marginRight: 10, verticalAlign: "middle" }} aria-hidden />
-        All {fa.name} ({fa.code}) meetings
+        {t("h1", { name: fa.name, code: fa.code })}
       </h1>
       <p>
-        Every {fa.code} meeting Fellow lists, organized by day — <strong>{fmt(fa.inPerson)}</strong> in-person
-        {fa.online ? <> and <strong>{fmt(fa.online)}</strong> online</> : null}. Details change often, so please
-        confirm with the group before you go. For maps, directions and live filters,{" "}
-        <Link href={liveSearch}>search {fa.code} on Fellow →</Link>
+        {fa.online
+          ? t.rich("leadWithOnline", { code: fa.code, inPerson: fmt(fa.inPerson), online: fmt(fa.online), b: (ch) => <strong>{ch}</strong> })
+          : t.rich("leadNoOnline", { code: fa.code, inPerson: fmt(fa.inPerson), b: (ch) => <strong>{ch}</strong> })}
+        <Link href={liveSearch}>{t("searchOnFellow", { code: fa.code })}</Link>
       </p>
 
-      <MeetingDayList rows={rows} maxPerDay={FELLOWSHIP_ALL_MAX_PER_DAY} liveHref={liveSearch} liveLabel={`see all ${fa.code} live →`} />
+      <MeetingDayList rows={rows} maxPerDay={FELLOWSHIP_ALL_MAX_PER_DAY} liveHref={liveSearch} liveLabel={t("liveLabel", { code: fa.code })} />
 
       <p style={{ margin: "28px 0", color: "var(--ink-soft)", fontSize: 15 }}>
-        Fellow is a free, independent, non-commercial meeting finder — not affiliated with {fa.name} or any
-        fellowship. Listings come from public intergroup feeds. <Link href="/about">About &amp; sources</Link>
+        {t("independentNote", { name: fa.name })}<Link href="/about">{t("aboutSources")}</Link>
       </p>
       <SiteFooter />
     </main>

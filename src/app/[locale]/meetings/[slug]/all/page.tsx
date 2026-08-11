@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import { setRequestLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { getCities, getCity, fellowshipLabel, CITY_MAX_PER_DAY } from "@/lib/cities";
 import { fellowshipColor } from "@/lib/fellowships";
 import { MeetingDayList, type DayRow } from "@/components/MeetingDayList";
@@ -29,10 +30,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default async function CityAllPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
+export default async function CityAllPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+  const { locale, slug } = await params;
+  setRequestLocale(locale);
   const c = await getCity(slug);
   if (!c) notFound();
+  const t = await getTranslations("city");
 
   const rows: DayRow[] = c.meetings.map((m) => ({
     id: m.id, name: m.name, day: m.day, time: m.time, dot: fellowshipColor(m.fellowship),
@@ -67,21 +70,19 @@ export default async function CityAllPage({ params }: { params: Promise<{ slug: 
     <main className="app prose" id="main-content">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonld) }} />
       <p style={{ margin: "20px 0 8px" }}>
-        <Link href={`/meetings/${c.slug}`} className="back">← {c.city} meetings</Link> ·{" "}
-        <Link href="/meetings" className="back">All cities</Link>
+        <Link href={`/meetings/${c.slug}`} className="back">{t("backCityMeetings", { city: c.city })}</Link> ·{" "}
+        <Link href="/meetings" className="back">{t("allCities")}</Link>
       </p>
-      <h1>All recovery meetings in {c.city}, {c.stateName}</h1>
+      <h1>{t("allH1", { city: c.city, stateName: c.stateName })}</h1>
       <p>
-        Every meeting Fellow lists in {c.city}, organized by day — <strong>{c.count.toLocaleString()}</strong> in all.
-        Details change often, so please confirm with the group before you go. For online meetings, live day/time
-        filters, maps and directions, <Link href={liveSearch}>search {c.city} on Fellow →</Link>
+        {t.rich("allLead", { city: c.city, count: c.count.toLocaleString(), b: (ch) => <strong>{ch}</strong> })}
+        <Link href={liveSearch}>{t("searchCity", { city: c.city })}</Link>
       </p>
 
-      <MeetingDayList rows={rows} maxPerDay={CITY_MAX_PER_DAY} liveHref={liveSearch} liveLabel={`see all in ${c.city} →`} />
+      <MeetingDayList rows={rows} maxPerDay={CITY_MAX_PER_DAY} liveHref={liveSearch} liveLabel={t("liveLabel", { city: c.city })} />
 
       <p style={{ margin: "28px 0", color: "var(--ink-soft)", fontSize: 15 }}>
-        Fellow is a free, independent, non-commercial meeting finder — not affiliated with any fellowship.
-        Listings come from public intergroup feeds. <Link href="/about">About &amp; sources</Link>
+        {t("independentNote")}<Link href="/about">{t("aboutSources")}</Link>
       </p>
       <SiteFooter />
     </main>

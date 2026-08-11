@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Icon } from "@/components/Icon";
 import { beyondFor } from "@/lib/beyond";
 
@@ -5,13 +6,14 @@ import { beyondFor } from "@/lib/beyond";
 // family, money/work, emotional & behavioral). Substance fellowships use SoberActivities instead,
 // and Sex & relationships intentionally has no section — so this returns null for both. Reuses the
 // sober section's styling (.sober*) for a consistent quiet, colored-chip list.
-export function FellowshipBeyond({ code }: { code: string }) {
+export async function FellowshipBeyond({ code }: { code: string }) {
   const section = beyondFor(code);
   if (!section) return null;
+  const t = await getTranslations("sober");
 
   return (
     <section className="sober" aria-labelledby="beyond-h">
-      <span className="sober-eyebrow">Beyond the meetings</span>
+      <span className="sober-eyebrow">{t("eyebrow")}</span>
       <h2 id="beyond-h" className="sober-h">{section.heading}</h2>
       <p className="sober-lede">{section.lede}</p>
 

@@ -1,4 +1,6 @@
-import Link from "next/link";
+"use client";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import type { Coverage } from "@/lib/coverage";
 
 // Compact, non-interactive teaser of the live coverage choropleth — a smaller version of the
@@ -14,14 +16,16 @@ const GRID: Record<string, [number, number]> = {
 };
 
 export function CoveragePromo({ data }: { data: Coverage }) {
+  const t = useTranslations("coveragePromo");
   const totals = Object.keys(GRID).map((st) => data.byState[st]?.__all || 0);
   const max = Math.max(1, ...totals);
   const lvl = (n: number) => (n <= 0 ? 0 : n < max * 0.15 ? 1 : n < max * 0.4 ? 2 : n < max * 0.7 ? 3 : 4);
+  const total = data.total.toLocaleString();
   return (
     <Link
       href="/coverage"
       className="cov-promo"
-      aria-label={`Coverage map — ${data.total.toLocaleString()} meetings across ${data.statesCovered} states. Open the full map.`}
+      aria-label={t("aria", { total, states: data.statesCovered })}
     >
       <div className="cov-promo-map" aria-hidden>
         {Object.entries(GRID).map(([st, [r, c]]) => (
@@ -30,9 +34,9 @@ export function CoveragePromo({ data }: { data: Coverage }) {
         ))}
       </div>
       <div className="cov-promo-text">
-        <span className="cov-promo-kicker">Coverage map</span>
-        <span className="cov-promo-title">{data.total.toLocaleString()} meetings across {data.statesCovered} states</span>
-        <span className="cov-promo-cta">Explore the map →</span>
+        <span className="cov-promo-kicker">{t("kicker")}</span>
+        <span className="cov-promo-title">{t("meetingsAcross", { total, states: data.statesCovered })}</span>
+        <span className="cov-promo-cta">{t("explore")}</span>
       </div>
     </Link>
   );

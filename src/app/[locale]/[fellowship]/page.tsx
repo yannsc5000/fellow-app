@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import { setRequestLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { getFellowshipHub, getFellowshipAll, getSeededFellowships, fellowshipSlug, stateSlug, STATE_NAMES, HUB_CITIES_PER_STATE } from "@/lib/cities";
 import { fellowshipName, fellowshipColor, fellowshipDesc, CODE_BY_SLUG, BY_CODE, FELLOWSHIPS } from "@/lib/fellowships";
 import { officialFinder } from "@/lib/finders";
@@ -13,14 +14,14 @@ import { SiteFooter } from "@/components/SiteFooter";
 
 const fmt = (n: number) => n.toLocaleString("en-US");
 
-// Short, accurate focus phrase per fellowship family — for the "At a glance" facts block.
-const GLANCE_FOCUS: Record<string, string> = {
-  "Alcohol & drugs": "Recovery from alcohol or drugs",
-  "Food & eating": "Recovery around food & eating",
-  "Sex & relationships": "Recovery around sex, love & relationships",
-  "Money & work": "Recovery around money, work & behavior",
-  "Emotional & behavioral": "Emotional & behavioral recovery",
-  "Family & friends": "Support for families & friends of someone affected",
+// Fellowship family → the message key for its "At a glance" focus phrase (localized).
+const FOCUS_KEY: Record<string, string> = {
+  "Alcohol & drugs": "focusAlcoholDrugs",
+  "Food & eating": "focusFood",
+  "Sex & relationships": "focusSex",
+  "Money & work": "focusMoney",
+  "Emotional & behavioral": "focusEmotional",
+  "Family & friends": "focusFamily",
 };
 
 export const dynamicParams = false;
@@ -59,8 +60,10 @@ export async function generateMetadata({ params }: { params: Promise<{ fellowshi
   };
 }
 
-export default async function FellowshipPage({ params }: { params: Promise<{ fellowship: string }> }) {
-  const { fellowship } = await params;
+export default async function FellowshipPage({ params }: { params: Promise<{ locale: string; fellowship: string }> }) {
+  const { locale, fellowship } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("fellowship");
   const r = await resolve(fellowship);
   if (!r) notFound();
   const { code, fa, finder } = r;
@@ -77,9 +80,9 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
   const submitHref = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`Submit a ${code} group or meeting`)}&body=${encodeURIComponent(`I'd like to submit a ${name} (${code}) group or meeting to Fellow.\n\nMeeting name:\nDay & time:\nLocation or online link:\nWebsite or contact (optional):\n`)}`;
 
   // "At a glance" facts (entity clarity for humans + AI). Derived from real data — no fabricated dates.
-  const focus = GLANCE_FOCUS[group || ""] || "Peer-support recovery";
-  const program = code === "RD" ? "Buddhist-inspired peer recovery" : "Twelve Step peer support";
-  const onFellow = hasMeetings ? `${fmt(inPerson)} in person · ${fmt(online)} online` : "Not on Fellow yet — see the official finder";
+  const focus = group && FOCUS_KEY[group] ? t(FOCUS_KEY[group]) : t("focusDefault");
+  const program = code === "RD" ? t("programRD") : t("programTS");
+  const onFellow = hasMeetings ? t("onFellowStats", { inPerson: fmt(inPerson), online: fmt(online) }) : t("onFellowNone");
   let finderDomain = "";
   try { finderDomain = finder ? new URL(finder.url).hostname.replace(/^www\./, "") : ""; } catch { finderDomain = ""; }
 
@@ -97,27 +100,18 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
   // routing). Rendered as an accordion AND as FAQPage structured data.
   const extra = EXTRA_FAQS[code] || [];
   const faqs: { q: string; a: string }[] = [
+    { q: t("faqFreeQ", { code }), a: t("faqFreeA", { code }) },
     {
-      q: `Are ${code} meetings free and anonymous?`,
-      a: `Yes. ${code} meetings are free to attend — no dues, fees, referral, or insurance needed — and anonymity is a core principle, so you can come as you are. Anyone who wants help is welcome.`,
-    },
-    {
-      q: `Can I attend ${code} meetings online?`,
+      q: t("faqOnlineQ", { code }),
       a: hasMeetings && online
-        ? `Yes. Fellow lists ${fmt(online)} online ${code} meetings you can join from anywhere, alongside in-person groups near you.`
-        : `Many ${code} groups meet online as well as in person. ${finder ? `The official ${code} finder lists current online meetings` : `Each group's own website lists current online meetings`}.`,
+        ? t("faqOnlineAHas", { code, online: fmt(online) })
+        : (finder ? t("faqOnlineAFinder", { code }) : t("faqOnlineANoFinder", { code })),
     },
     ...extra,
-    {
-      q: `Do I have to be religious to join ${code}?`,
-      a: `No. ${code} welcomes people of any religion or none. The program is usually described as spiritual rather than religious, and many areas offer secular, agnostic, or non-religious meetings.`,
-    },
+    { q: t("faqReligiousQ", { code }), a: t("faqReligiousA", { code }) },
   ];
   if (hasMeetings) {
-    faqs.push({
-      q: `Are there ${code} meetings for specific groups, like women's or young people's?`,
-      a: `Often, yes. Larger areas hold meetings for specific communities — women's, men's, young people's, LGBTQ+, and newcomers' groups among them. Use Fellow's live search to filter for the meeting that fits.`,
-    });
+    faqs.push({ q: t("faqSpecificQ", { code }), a: t("faqSpecificA", { code }) });
   }
 
   const jsonld = {
@@ -153,25 +147,23 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
     <main className="app prose" id="main-content">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonld) }} />
       <p style={{ margin: "20px 0 8px" }}>
-        <Link href="/" className="back">← Fellow home</Link> · <Link href="/fellowships" className="back">All fellowships</Link>
+        <Link href="/" className="back">{t("back")}</Link> · <Link href="/fellowships" className="back">{t("allFellowships")}</Link>
       </p>
       <h1>
         <span className="fh-dot" style={{ background: fellowshipColor(code), display: "inline-block", width: 14, height: 14, borderRadius: "50%", marginRight: 10, verticalAlign: "middle" }} aria-hidden />
-        {name} ({code}) meetings
+        {t("h1", { name, code })}
       </h1>
 
       {hasMeetings ? (
         <>
           {desc ? <p>{desc}</p> : null}
           <p>
-            Fellow lists <strong>{fmt(inPerson)}</strong> in-person {name} ({code}) meetings across the US
-            {online ? <>, plus <strong>{fmt(online)}</strong> online</> : <>, plus online meetings</>}.
-            {" "}Details change often — confirm with the group before you go. For live day/time filters and maps,{" "}
-            <Link href={liveSearch}>search {code} meetings →</Link>
+            {t.rich(online ? "listsWithOnline" : "listsNoOnline", { inPerson: fmt(inPerson), online: fmt(online), name, code, b: (ch) => <strong>{ch}</strong> })}
+            <Link href={liveSearch}>{t("searchMeetings", { code })}</Link>
           </p>
           <p style={{ margin: "12px 0 6px", display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
             <Link href={`/${fellowship}/all`} className="city-chip city-chip-all">
-              See all {code} meetings — in-person &amp; online, by day →
+              {t("seeAll", { code })}
             </Link>
             {finder ? (
               <a href={finder.url} className="city-chip city-chip-all" target="_blank" rel="noopener nofollow">
@@ -182,12 +174,9 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
         </>
       ) : (
         <>
-          <p className="fell-apology">
-            We don’t have {name} ({code}) meetings on Fellow just yet — we’re still growing our coverage, and
-            more is on the way. In the meantime, here are a few related ways to find support and connection.
-          </p>
+          <p className="fell-apology">{t("apology", { name, code })}</p>
           <p style={{ margin: "12px 0 8px", display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center" }}>
-            <a href={submitHref} className="btn-secondary"><Icon name="add" size={16} /> Submit a group or meeting</a>
+            <a href={submitHref} className="btn-secondary"><Icon name="add" size={16} /> {t("submit")}</a>
             {finder ? (
               <a href={finder.url} className="city-chip city-chip-all" target="_blank" rel="noopener nofollow">
                 {finder.label} <Icon name="external" size={14} />
@@ -201,36 +190,31 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
       {group === "Alcohol & drugs" ? (
         <p className="safety-note">
           <span className="sn-i"><Icon name="info" size={17} /></span>
-          <span>
-            A meeting is peer support, not medical care. If you’ve been drinking or using heavily for a
-            long time, stopping suddenly can be risky — some withdrawal needs medical attention, and
-            alcohol withdrawal in particular can be dangerous. If you feel unwell or unsafe, contact a
-            doctor or your local emergency number.
-          </span>
+          <span>{t("safetyNote")}</span>
         </p>
       ) : null}
 
-      <p className="glance-cap">At a glance</p>
-      <div className="glance" aria-label={`${name} at a glance`}>
-        <div className="glance-row"><span className="glance-k">Fellowship</span><span className="glance-v">{name} ({code})</span></div>
-        <div className="glance-row"><span className="glance-k">Focus</span><span className="glance-v">{focus}</span></div>
-        <div className="glance-row"><span className="glance-k">Program</span><span className="glance-v">{program}</span></div>
-        <div className="glance-row"><span className="glance-k">On Fellow</span><span className="glance-v">{onFellow}</span></div>
+      <p className="glance-cap">{t("atAGlance")}</p>
+      <div className="glance" aria-label={t("glanceAria", { name })}>
+        <div className="glance-row"><span className="glance-k">{t("kFellowship")}</span><span className="glance-v">{name} ({code})</span></div>
+        <div className="glance-row"><span className="glance-k">{t("kFocus")}</span><span className="glance-v">{focus}</span></div>
+        <div className="glance-row"><span className="glance-k">{t("kProgram")}</span><span className="glance-v">{program}</span></div>
+        <div className="glance-row"><span className="glance-k">{t("kOnFellow")}</span><span className="glance-v">{onFellow}</span></div>
         {finder ? (
           <div className="glance-row">
-            <span className="glance-k">Official source</span>
+            <span className="glance-k">{t("kOfficialSource")}</span>
             <span className="glance-v"><a href={finder.url} target="_blank" rel="noopener nofollow">{finderDomain} <Icon name="external" size={13} /></a></span>
           </div>
         ) : null}
         <div className="glance-row">
-          <span className="glance-k">Listings</span>
-          <span className="glance-v">Public intergroup feeds · <Link href="/about">how we source</Link></span>
+          <span className="glance-k">{t("kListings")}</span>
+          <span className="glance-v">{t("listingsSource")} · <Link href="/about">{t("howWeSource")}</Link></span>
         </div>
       </div>
 
       {hasMeetings && states.length > 0 ? (
         <>
-          <h2 style={{ fontSize: 20, marginTop: 24 }}>{code} meetings by city</h2>
+          <h2 style={{ fontSize: 20, marginTop: 24 }}>{t("byCity", { code })}</h2>
           {states.map((abbr) => {
             // Take the 8 biggest cities in the state, then show them alphabetically.
             const full = byState[abbr].sort((a, b) => b.count - a.count);
@@ -248,7 +232,7 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
                   ))}
                   {full.length > list.length ? (
                     <Link href={`/state/${stateSlug(abbr)}`} className="city-chip city-chip-all">
-                      +{full.length - list.length} more in {STATE_NAMES[abbr] || abbr} →
+                      {t("moreIn", { n: full.length - list.length, state: STATE_NAMES[abbr] || abbr })}
                     </Link>
                   ) : null}
                 </div>
@@ -260,9 +244,9 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
 
       {related.length > 0 ? (
         <>
-          <h2 style={{ fontSize: 20, marginTop: 24 }}>Related fellowships</h2>
+          <h2 style={{ fontSize: 20, marginTop: 24 }}>{t("relatedFellowships")}</h2>
           <p style={{ margin: "0 0 8px", color: "var(--ink-soft)", fontSize: 14.5 }}>
-            Other {group?.toLowerCase()} fellowships on Fellow:
+            {t("otherInFamily")}
           </p>
           <div className="city-chips">
             {related.map((rc) => (
@@ -279,7 +263,7 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
       <FellowshipBeyond code={code} />
 
       <hr style={{ border: 0, borderTop: "1px solid var(--panel-line)", margin: "28px 0 0" }} />
-      <h2 style={{ fontSize: 20, marginTop: 20 }}>Common questions about {code}</h2>
+      <h2 style={{ fontSize: 20, marginTop: 20 }}>{t("commonQuestions", { code })}</h2>
       <div className="faq-accordion">
         {faqs.map((f, i) => (
           <details key={f.q} className="faq-item" open={i === 0}>
@@ -293,8 +277,7 @@ export default async function FellowshipPage({ params }: { params: Promise<{ fel
       </div>
 
       <p style={{ margin: "28px 0", color: "var(--ink-soft)", fontSize: 15 }}>
-        Fellow is a free, independent meeting finder — not affiliated with {name} or any fellowship.
-        Meeting listings come from public intergroup feeds. <Link href="/about">About &amp; sources</Link>
+        {t("footNote", { name })} <Link href="/about">{t("aboutSources")}</Link>
       </p>
       <SiteFooter />
     </main>

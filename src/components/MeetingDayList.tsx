@@ -1,10 +1,10 @@
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { Icon } from "@/components/Icon";
 
 // Shared full-listing renderer for the "view all" pages (/meetings/[slug]/all and
 // /[fellowship]/all): groups meetings by day of the week, chronologically within each day.
 // Rows are precomputed by the caller (href + meta), so this component stays presentational.
-const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 function to12(t: string) {
   const [h, m] = String(t).split(":").map(Number);
@@ -15,9 +15,11 @@ function to12(t: string) {
 
 export type DayRow = { id: string; name: string; day: number; time: string; href: string; meta?: string; online?: boolean; dot?: string };
 
-export function MeetingDayList({
+export async function MeetingDayList({
   rows, maxPerDay = 0, liveHref, liveLabel,
 }: { rows: DayRow[]; maxPerDay?: number; liveHref: string; liveLabel?: string }) {
+  const t = await getTranslations("meetingDayList");
+  const DAYS = t("days").split(",");
   const byDay: Record<number, DayRow[]> = {};
   for (const r of rows) (byDay[r.day] ||= []).push(r);
 
@@ -30,7 +32,7 @@ export function MeetingDayList({
         return (
           <section key={d} className="va-day">
             <h2 className="va-dayhead">
-              {dayName} <span className="va-count">— {all.length} meeting{all.length === 1 ? "" : "s"}</span>
+              {dayName} <span className="va-count">— {t("count", { n: all.length })}</span>
             </h2>
             <ul className="va-list">
               {shown.map((r) => (
@@ -39,7 +41,7 @@ export function MeetingDayList({
                     {r.dot ? <span className="mtg-dot" style={{ background: r.dot }} aria-hidden /> : null}
                     <span className="mtg-body">
                       <strong>{to12(r.time)}</strong> — {r.name}
-                      {r.online ? <span className="va-badge">Online</span> : null}
+                      {r.online ? <span className="va-badge">{t("online")}</span> : null}
                       {r.meta ? <span className="mtg-meta"> · {r.meta}</span> : null}
                     </span>
                     <Icon name="chevron" size={20} className="mtg-chev" />
@@ -49,8 +51,8 @@ export function MeetingDayList({
             </ul>
             {all.length > shown.length && (
               <p className="va-more">
-                +{(all.length - shown.length).toLocaleString()} more on {dayName} —{" "}
-                <Link href={liveHref}>{liveLabel || "see all live →"}</Link>
+                {t("moreOn", { n: (all.length - shown.length).toLocaleString(), day: dayName })}
+                <Link href={liveHref}>{liveLabel || t("seeAllLive")}</Link>
               </p>
             )}
           </section>

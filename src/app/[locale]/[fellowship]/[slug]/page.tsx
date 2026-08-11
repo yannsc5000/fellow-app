@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import { setRequestLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { getFellowshipCityParams, getFellowshipCity, CITY_MAX_PER_DAY } from "@/lib/cities";
 import { Icon } from "@/components/Icon";
 import { SiteFooter } from "@/components/SiteFooter";
 
-const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 function to12(t: string) {
   const [h, m] = String(t).split(":").map(Number);
   const ap = (h || 0) < 12 ? "AM" : "PM";
@@ -33,10 +33,14 @@ export async function generateMetadata({ params }: { params: Promise<{ fellowshi
   };
 }
 
-export default async function FellowshipCityPage({ params }: { params: Promise<{ fellowship: string; slug: string }> }) {
-  const { fellowship, slug } = await params;
+export default async function FellowshipCityPage({ params }: { params: Promise<{ locale: string; fellowship: string; slug: string }> }) {
+  const { locale, fellowship, slug } = await params;
+  setRequestLocale(locale);
   const fc = await getFellowshipCity(fellowship, slug);
   if (!fc) notFound();
+  const t = await getTranslations("fellowshipCity");
+  const td = await getTranslations("meetingDayList");
+  const DAYS = td("days").split(",");
 
   const byDay: Record<number, typeof fc.meetings> = {};
   for (const m of fc.meetings) (byDay[m.day] ||= []).push(m);
@@ -69,14 +73,13 @@ export default async function FellowshipCityPage({ params }: { params: Promise<{
     <main className="app prose" id="main-content">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonld) }} />
       <p style={{ margin: "20px 0 8px" }}>
-        <Link href="/" className="back">← Fellow home</Link> ·{" "}
-        <Link href={`/meetings/${fc.citySlug}`} className="back">All meetings in {fc.city}</Link>
+        <Link href="/" className="back">{t("backHome")}</Link> ·{" "}
+        <Link href={`/meetings/${fc.citySlug}`} className="back">{t("allInCity", { city: fc.city })}</Link>
       </p>
-      <h1>{fc.name} ({fc.code}) meetings in {fc.city}, {fc.stateName}</h1>
+      <h1>{t("h1", { name: fc.name, code: fc.code, city: fc.city, stateName: fc.stateName })}</h1>
       <p>
-        Fellow lists <strong>{fc.count.toLocaleString()}</strong> {fc.name} ({fc.code}) meetings in {fc.city}.
-        Details change often — please confirm with the group before you go. For online {fc.code} meetings and
-        live day/time filters, <Link href={liveSearch}>search {fc.code} in {fc.city} →</Link>
+        {t.rich("lead", { count: fc.count.toLocaleString(), name: fc.name, code: fc.code, city: fc.city, b: (ch) => <strong>{ch}</strong> })}
+        <Link href={liveSearch}>{t("searchInCity", { code: fc.code, city: fc.city })}</Link>
       </p>
 
       {DAYS.map((dayName, d) => {
@@ -85,7 +88,7 @@ export default async function FellowshipCityPage({ params }: { params: Promise<{
         const rows = all.slice(0, CITY_MAX_PER_DAY);
         return (
           <section key={d} style={{ margin: "18px 0" }}>
-            <h2 style={{ fontSize: 20 }}>{dayName} — {all.length} meeting{all.length === 1 ? "" : "s"}</h2>
+            <h2 style={{ fontSize: 20 }}>{dayName} — {td("count", { n: all.length })}</h2>
             <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
               {rows.map((m) => (
                 <li key={m.id}>
@@ -101,7 +104,7 @@ export default async function FellowshipCityPage({ params }: { params: Promise<{
             </ul>
             {all.length > rows.length && (
               <p style={{ margin: "8px 0 0", color: "var(--ink-soft)", fontSize: 14 }}>
-                +{all.length - rows.length} more on {dayName} — <Link href={liveSearch}>see all live →</Link>
+                {td("moreOn", { n: all.length - rows.length, day: dayName })}<Link href={liveSearch}>{td("seeAllLive")}</Link>
               </p>
             )}
           </section>
@@ -110,16 +113,15 @@ export default async function FellowshipCityPage({ params }: { params: Promise<{
 
       {fc.count > shown && (
         <p style={{ marginTop: 16 }}>
-          Showing {shown} of {fc.count.toLocaleString()} {fc.code} meetings in {fc.city}.{" "}
-          <Link href={liveSearch}>See them all with live filters →</Link>
+          {t("showing", { shown, count: fc.count.toLocaleString(), code: fc.code, city: fc.city })}
+          <Link href={liveSearch}>{t("seeAllFilters")}</Link>
         </p>
       )}
 
       <p style={{ margin: "28px 0", color: "var(--ink-soft)", fontSize: 15 }}>
-        Fellow is a free, independent meeting finder — not affiliated with {fc.name} or any fellowship.
-        Listings come from public intergroup feeds. <Link href="/about">About &amp; sources</Link>
+        {t("independentNote", { name: fc.name })}<Link href="/about">{t("aboutSources")}</Link>
       </p>
-      <p style={{ margin: "20px 0" }}><Link href={`/meetings/${fc.citySlug}`} className="back">← All meetings in {fc.city}</Link></p>
+      <p style={{ margin: "20px 0" }}><Link href={`/meetings/${fc.citySlug}`} className="back">{t("backAllInCity", { city: fc.city })}</Link></p>
       <SiteFooter />
     </main>
   );

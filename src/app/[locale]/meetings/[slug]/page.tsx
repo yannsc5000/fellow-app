@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import { setRequestLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { getCities, getCity, fellowshipLabel, cityFellowshipLinks, CITY_PREVIEW } from "@/lib/cities";
 import { fellowshipColor } from "@/lib/fellowships";
 import { Icon } from "@/components/Icon";
 import { SoberActivities } from "@/components/SoberActivities";
 import { SiteFooter } from "@/components/SiteFooter";
 
-const DAY_ABBR = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 function to12(t: string) {
   const [h, m] = String(t).split(":").map(Number);
   const ap = (h || 0) < 12 ? "AM" : "PM";
@@ -38,10 +38,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export default async function CityPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
+export default async function CityPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+  const { locale, slug } = await params;
+  setRequestLocale(locale);
   const c = await getCity(slug);
   if (!c) notFound();
+  const t = await getTranslations("city");
+  const dayAbbr = t("dayAbbr").split(",");
 
   // Short preview on the city page itself (meetings are pre-sorted by day then time); the full
   // day-by-day listing lives on /meetings/[slug]/all.
@@ -75,36 +78,39 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
     <main className="app prose" id="main-content">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonld) }} />
       <p style={{ margin: "20px 0 8px" }}>
-        <Link href="/" className="back">← Fellow home</Link> · <Link href="/meetings" className="back">All cities</Link>
+        <Link href="/" className="back">{t("backHome")}</Link> · <Link href="/meetings" className="back">{t("allCities")}</Link>
       </p>
-      <h1>Recovery meetings in {c.city}, {c.stateName}</h1>
+      <h1>{t("h1", { city: c.city, stateName: c.stateName })}</h1>
       <p>
-        Fellow lists <strong>{c.count.toLocaleString()}</strong> in-person recovery meetings in {c.city} —{" "}
-        {fellNames.join(", ")}. Meeting details change often, so please confirm with the group before you go.
-        For online meetings, live day/time filters, maps and directions,{" "}
-        <Link href={liveSearch}>search {c.city} on Fellow →</Link>
+        {t.rich("lead", {
+          city: c.city,
+          count: c.count.toLocaleString(),
+          fells: fellNames.join(", "),
+          b: (ch) => <strong>{ch}</strong>,
+        })}
+        <Link href={liveSearch}>{t("searchCity", { city: c.city })}</Link>
       </p>
 
       {fellowshipLinks.length > 1 && (
         <p style={{ margin: "4px 0 8px" }}>
-          <strong>By fellowship:</strong>{" "}
+          <strong>{t("byFellowship")}</strong>{" "}
           {fellowshipLinks.map((f, i) => (
             <span key={f.fslug}>
               {i > 0 ? " · " : ""}
-              <Link href={`/${f.fslug}/${c.slug}`}>{f.code} in {c.city}</Link>
+              <Link href={`/${f.fslug}/${c.slug}`}>{t("inCity", { code: f.code, city: c.city })}</Link>
             </span>
           ))}
         </p>
       )}
 
-      <h2 style={{ fontSize: 20, marginTop: 22 }}>A few of this week’s meetings</h2>
+      <h2 style={{ fontSize: 20, marginTop: 22 }}>{t("weekPreview")}</h2>
       <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
         {preview.map((m) => (
           <li key={m.id}>
             <a className="mtg-row" href={`/?q=${encodeURIComponent(`${m.name} in ${c.city}`)}`}>
               <span className="mtg-dot" style={{ background: fellowshipColor(m.fellowship) }} aria-hidden />
               <span className="mtg-body">
-                <strong>{DAY_ABBR[m.day]} · {to12(m.time)}</strong> — {m.name}
+                <strong>{dayAbbr[m.day]} · {to12(m.time)}</strong> — {m.name}
                 <span className="mtg-meta">
                   {" "}· {fellowshipLabel(m.fellowship)}{m.place ? ` · ${m.place}` : ""}
                 </span>
@@ -116,17 +122,16 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
       </ul>
       <p style={{ margin: "14px 0 0" }}>
         <Link href={`/meetings/${c.slug}/all`} className="city-chip city-chip-all">
-          View all {c.count.toLocaleString()} meetings in {c.city}, by day →
+          {t("viewAll", { count: c.count.toLocaleString(), city: c.city })}
         </Link>
       </p>
 
       <SoberActivities city={c.city} state={c.state} />
 
       <p style={{ margin: "28px 0", color: "var(--ink-soft)", fontSize: 15 }}>
-        Fellow is a free, independent, non-commercial meeting finder — not affiliated with any fellowship.
-        Listings come from public intergroup feeds. <Link href="/about">About &amp; sources</Link>
+        {t("independentNote")}<Link href="/about">{t("aboutSources")}</Link>
       </p>
-      <p style={{ margin: "20px 0" }}><Link href="/" className="back">← Back to Fellow</Link></p>
+      <p style={{ margin: "20px 0" }}><Link href="/" className="back">{t("backToFellow")}</Link></p>
       <SiteFooter />
     </main>
   );

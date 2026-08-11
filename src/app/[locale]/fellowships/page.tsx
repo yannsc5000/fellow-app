@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { setRequestLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { getCoverage } from "@/lib/coverage";
 import { getFellowshipHub, fellowshipSlug } from "@/lib/cities";
 import { fellowshipName, BY_CODE, fellowshipColor, FELLOWSHIPS } from "@/lib/fellowships";
@@ -22,7 +23,11 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function FellowshipsPage() {
+export default async function FellowshipsPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("fellowshipsHub");
+  const tc = await getTranslations("common");
   const [c, hub] = await Promise.all([getCoverage(), getFellowshipHub()]);
   // List EVERY fellowship: the ones we index (biggest in-person first), then the rest of the
   // taxonomy (seeded pages, "coverage coming"), so the hub covers the whole family.
@@ -54,24 +59,22 @@ export default async function FellowshipsPage() {
     <main className="app" id="main-content">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonld) }} />
       <header className="brand">
-        <Link href="/" className="brand-link" aria-label="Fellow — back to home">
+        <Link href="/" className="brand-link" aria-label={t("backAria")}>
           <div className="mark" aria-hidden><Mark size={52} logo /></div>
           <div>
             <h1>Fellow</h1>
-            <div className="tagline">Find your people</div>
+            <div className="tagline">{tc("tagline")}</div>
           </div>
         </Link>
       </header>
 
       <section className="cov-head">
-        <h2>Recovery fellowships</h2>
+        <h2>{t("h2")}</h2>
         <p>
-          Fellow covers <strong>{list.length}</strong> recovery fellowships — 12-step programs and related
-          peer-support paths — with live meetings indexed for <strong>{indexed.length}</strong> of them and an
-          overview page for every one. Pick a fellowship to see where it meets, or search any by name.
+          {t.rich("lead", { list: list.length, indexed: indexed.length, b: (ch) => <strong>{ch}</strong> })}
         </p>
         <p style={{ margin: "10px 0 0" }}>
-          <Link href="/support-groups" className="city-chip city-chip-all">Not sure which fits? Find support by what you're facing →</Link>
+          <Link href="/support-groups" className="city-chip city-chip-all">{t("notSureCta")}</Link>
         </p>
       </section>
 
@@ -88,15 +91,15 @@ export default async function FellowshipsPage() {
                 <span className="fh-dot" style={{ background: fellowshipColor(code) }} aria-hidden />
                 <h3 className="fh-name">{name} <span className="fh-code">{code}</span></h3>
                 {isSeeded
-                  ? <span className="fh-count fh-count-soon">Coverage coming</span>
-                  : <span className="fh-count">{fmt(total)}<span className="fh-count-l"> meetings</span></span>}
+                  ? <span className="fh-count fh-count-soon">{t("coverageComing")}</span>
+                  : <span className="fh-count">{fmt(total)}<span className="fh-count-l">{t("meetingsLabel")}</span></span>}
               </Link>
               {group && <p className="fh-group">{group}</p>}
               {isSeeded ? (
-                <p className="fh-cities"><span className="fh-cities-l">Not indexed yet</span> — the page has an overview and the official {code} finder.</p>
+                <p className="fh-cities"><span className="fh-cities-l">{t("notIndexedLabel")}</span>{t("notIndexedRest", { code })}</p>
               ) : cities.length > 0 ? (
                 <p className="fh-cities">
-                  <span className="fh-cities-l">Top cities:</span>{" "}
+                  <span className="fh-cities-l">{t("topCities")}</span>{" "}
                   {cities.map((ct, i) => (
                     <span key={ct.slug}>
                       {i > 0 ? " · " : ""}
@@ -105,12 +108,12 @@ export default async function FellowshipsPage() {
                   ))}
                 </p>
               ) : (
-                <p className="fh-cities"><span className="fh-cities-l">Nationwide</span> — including online meetings.</p>
+                <p className="fh-cities"><span className="fh-cities-l">{t("nationwideLabel")}</span>{t("nationwideRest")}</p>
               )}
               <p className="fh-actions">
                 {isSeeded
-                  ? <Link href={`/${fellowshipSlug(code)}`} className="fh-search">Open the {code} page →</Link>
-                  : <Link href={searchHref(code)} className="fh-search">Search {code} meetings →</Link>}
+                  ? <Link href={`/${fellowshipSlug(code)}`} className="fh-search">{t("openPage", { code })}</Link>
+                  : <Link href={searchHref(code)} className="fh-search">{t("searchMeetings", { code })}</Link>}
               </p>
             </section>
           );
@@ -119,11 +122,9 @@ export default async function FellowshipsPage() {
 
       <section className="cov-foot-note">
         <p>
-          Fellowships marked <em>coverage coming</em> aren&apos;t in an open, shareable meeting directory yet — their
-          page carries an overview and a link to the official finder, and we add live meetings as feeds become
-          available. Not sure which fellowship fits? <Link href="/support-groups">Find support by what you&apos;re facing →</Link>
+          {t.rich("footNote", { em: (ch) => <em>{ch}</em>, a: (ch) => <Link href="/support-groups">{ch}</Link> })}
         </p>
-        <p style={{ margin: "20px 0" }}><Link href="/" className="back">← Back to Fellow</Link></p>
+        <p style={{ margin: "20px 0" }}><Link href="/" className="back">{t("backToFellow")}</Link></p>
       </section>
 
       <SiteFooter />

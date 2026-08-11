@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { setRequestLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { getCities } from "@/lib/cities";
 import { SiteFooter } from "@/components/SiteFooter";
 
@@ -15,7 +16,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function MeetingsIndex() {
+export default async function MeetingsIndex({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("meetingsIndex");
   const cities = await getCities();
   // Group by state (getCities already sorts by stateName, then count).
   const byState: Record<string, typeof cities> = {};
@@ -46,12 +50,15 @@ export default async function MeetingsIndex() {
   return (
     <main className="app prose" id="main-content">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonld) }} />
-      <p style={{ margin: "20px 0 8px" }}><Link href="/" className="back">← Fellow home</Link></p>
-      <h1>Recovery meetings by city</h1>
+      <p style={{ margin: "20px 0 8px" }}><Link href="/" className="back">{t("backHome")}</Link></p>
+      <h1>{t("h1")}</h1>
       <p>
-        Browse in-person recovery meetings across {states.length} states and{" "}
-        {cities.length.toLocaleString()} cities — {total.toLocaleString()} meetings in all. Pick your city,
-        or <Link href="/">search live on Fellow</Link> for online meetings, day/time filters and directions.
+        {t.rich("lead", {
+          states: states.length,
+          cities: cities.length.toLocaleString(),
+          total: total.toLocaleString(),
+          s: (ch) => <Link href="/">{ch}</Link>,
+        })}
       </p>
 
       {states.map((st) => (
@@ -71,7 +78,7 @@ export default async function MeetingsIndex() {
         </section>
       ))}
 
-      <p style={{ margin: "28px 0" }}><Link href="/" className="back">← Back to Fellow</Link></p>
+      <p style={{ margin: "28px 0" }}><Link href="/" className="back">{t("backToFellow")}</Link></p>
       <SiteFooter />
     </main>
   );

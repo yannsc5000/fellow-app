@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import { setRequestLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { PROBLEMS, PROBLEM_BY_SLUG, type Route } from "@/lib/problems";
 import { fellowshipName, fellowshipColor } from "@/lib/fellowships";
 import { fellowshipSlug } from "@/lib/cities";
@@ -45,10 +46,12 @@ function RouteCards({ routes }: { routes: Route[] }) {
   );
 }
 
-export default async function ProblemPage({ params }: { params: Promise<{ problem: string }> }) {
-  const { problem } = await params;
+export default async function ProblemPage({ params }: { params: Promise<{ locale: string; problem: string }> }) {
+  const { locale, problem } = await params;
+  setRequestLocale(locale);
   const p = PROBLEM_BY_SLUG[problem];
   if (!p) notFound();
+  const t = await getTranslations("problem");
 
   const others = PROBLEMS.filter((x) => x.slug !== p.slug);
   const jsonld = {
@@ -76,41 +79,38 @@ export default async function ProblemPage({ params }: { params: Promise<{ proble
     <main className="app prose" id="main-content">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonld) }} />
       <p style={{ margin: "20px 0 8px" }}>
-        <Link href="/" className="back">← Fellow home</Link> · <Link href="/support-groups" className="back">Support by what you're facing</Link>
+        <Link href="/" className="back">{t("backHome")}</Link> · <Link href="/support-groups" className="back">{t("supportByFacing")}</Link>
       </p>
       <h1>{p.h1}</h1>
       <p>{p.lede}</p>
 
       {p.self.length > 0 ? (
         <>
-          <h2 style={{ fontSize: 20, marginTop: 24 }}>{p.affected && p.affected.length ? "If this is about you" : "Where to start"}</h2>
+          <h2 style={{ fontSize: 20, marginTop: 24 }}>{p.affected && p.affected.length ? t("ifAboutYou") : t("whereToStart")}</h2>
           <RouteCards routes={p.self} />
         </>
       ) : null}
 
       {p.affected && p.affected.length ? (
         <>
-          <h2 style={{ fontSize: 20, marginTop: 24 }}>If it's about someone you love</h2>
+          <h2 style={{ fontSize: 20, marginTop: 24 }}>{t("ifAboutSomeone")}</h2>
           <p style={{ margin: "0 0 10px", color: "var(--ink-soft)", fontSize: 14.5 }}>
-            You can get support for yourself whether or not they're ready to get help.
+            {t("someoneSub")}
           </p>
           <RouteCards routes={p.affected} />
         </>
       ) : null}
 
       <p style={{ margin: "22px 0 6px" }}>
-        <Link href="/" className="city-chip city-chip-all">Search recovery meetings near you →</Link>
+        <Link href="/" className="city-chip city-chip-all">{t("searchNearYou")}</Link>
       </p>
 
       <p className="safety-note" style={{ marginTop: 18 }}>
         <span className="sn-i"><Icon name="info" size={17} /></span>
-        <span>
-          These are independent peer-support fellowships, not medical treatment or crisis care. If you or someone
-          else may be in immediate danger, contact your local emergency number.
-        </span>
+        <span>{t("safetyNote")}</span>
       </p>
 
-      <h2 style={{ fontSize: 20, marginTop: 28 }}>Explore support by what you're facing</h2>
+      <h2 style={{ fontSize: 20, marginTop: 28 }}>{t("exploreMore")}</h2>
       <div className="city-chips">
         {others.map((x) => (
           <Link key={x.slug} href={`/support-groups/${x.slug}`} className="city-chip">{x.h1.replace(/ support groups$/i, "")}</Link>
@@ -118,8 +118,7 @@ export default async function ProblemPage({ params }: { params: Promise<{ proble
       </div>
 
       <p style={{ margin: "28px 0", color: "var(--ink-soft)", fontSize: 15 }}>
-        Fellow is a free, independent meeting finder — not affiliated with any fellowship. We help you find the
-        right group and a real meeting; the fellowships themselves run the meetings. <Link href="/about">About &amp; sources</Link>
+        {t("independentNote")}<Link href="/about">{t("aboutSources")}</Link>
       </p>
       <SiteFooter />
     </main>

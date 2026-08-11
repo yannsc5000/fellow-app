@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { setRequestLocale, getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { fellowshipColor, fellowshipName } from "@/lib/fellowships";
 import { officialFinder } from "@/lib/finders";
 import { CONTACT_EMAIL } from "@/lib/config";
@@ -60,7 +61,13 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   };
 }
 
-export default async function SharedMeeting({ searchParams }: { searchParams: Promise<SP> }) {
+export default async function SharedMeeting({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<SP> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const t = await getTranslations("shared");
+  const tc = await getTranslations("common");
+  const td = await getTranslations("meetingDayList");
+  const LDAYS = td("days").split(",");
   const sp = await searchParams;
   const id = one(sp.id);
   // Prefer the live record (full detail: map, website, notes); fall back to the link's params.
@@ -68,7 +75,7 @@ export default async function SharedMeeting({ searchParams }: { searchParams: Pr
 
   const code = m.fellowship || "";
   const fc = code ? fellowshipColor(code) : "var(--brand)";
-  const when = Number.isInteger(m.day) && m.day >= 0 && m.day <= 6 ? `${DAYS[m.day]}, ${to12(m.time)}` : "";
+  const when = Number.isInteger(m.day) && m.day >= 0 && m.day <= 6 ? `${LDAYS[m.day]}, ${to12(m.time)}` : "";
   const mapsAddr = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((m.place ? m.place + ", " : "") + (m.address || ""))}`;
   const finder = officialFinder(code);
   const hasLinks = m.website || finder;
@@ -112,9 +119,9 @@ export default async function SharedMeeting({ searchParams }: { searchParams: Pr
     <main className="app" id="main-content" tabIndex={-1}>
       {eventLd ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(eventLd) }} /> : null}
       <header className="brand">
-        <Link href="/" className="brand-link" aria-label="Fellow — home">
+        <Link href="/" className="brand-link" aria-label={t("backAria")}>
           <div className="mark" aria-hidden><Mark size={52} logo /></div>
-          <div><h1>Fellow</h1><div className="tagline">Find your people</div></div>
+          <div><h1>Fellow</h1><div className="tagline">{tc("tagline")}</div></div>
         </Link>
       </header>
 
@@ -135,7 +142,7 @@ export default async function SharedMeeting({ searchParams }: { searchParams: Pr
               <span className="fact-ico"><Icon name={m.online ? "video" : "pin"} size={18} /></span>
               <span className="fact-body">
                 {m.online
-                  ? <span className="fact-main">Online meeting</span>
+                  ? <span className="fact-main">{t("onlineMeeting")}</span>
                   : m.place
                     ? <>
                         <span className="fact-main">{m.place}</span>
@@ -143,7 +150,7 @@ export default async function SharedMeeting({ searchParams }: { searchParams: Pr
                       </>
                     : m.address
                       ? <a className="fact-main fact-link" href={mapsAddr} target="_blank" rel="noopener">{m.address} <Icon name="external" size={13} className="fl-ext" /></a>
-                      : <span className="fact-main">See details below</span>}
+                      : <span className="fact-main">{t("seeDetails")}</span>}
               </span>
             </div>
           </div>
@@ -158,7 +165,7 @@ export default async function SharedMeeting({ searchParams }: { searchParams: Pr
             <>
               <hr className="sheet-divider" />
               <div className="sheet-notes">
-                <p className="notes-label">Meeting notes</p>
+                <p className="notes-label">{t("meetingNotes")}</p>
                 <p className="notes-text">{m.notes}</p>
               </div>
             </>
@@ -170,27 +177,27 @@ export default async function SharedMeeting({ searchParams }: { searchParams: Pr
               <div className="lx-cards">
                 <Link className="lx-card" href={`/?q=${encodeURIComponent(m.name)}`}>
                   <span className="lx-cico"><Icon name="calmonth" size={17} /></span>
-                  <span className="lx-ctext"><b>All sessions of this group</b><small>Other days &amp; times</small></span>
+                  <span className="lx-ctext"><b>{t("allSessionsGroup")}</b><small>{t("otherDaysTimes")}</small></span>
                   <Icon name="chevron" size={18} className="lx-chev" />
                 </Link>
                 {!m.online && m.place ? (
                   <Link className="lx-card" href={`/?q=${encodeURIComponent(m.place)}`}>
                     <span className="lx-cico"><Icon name="pin" size={17} /></span>
-                    <span className="lx-ctext"><b>All sessions at this location</b><small>Everything at this venue</small></span>
+                    <span className="lx-ctext"><b>{t("allSessionsLocation")}</b><small>{t("everythingVenue")}</small></span>
                     <Icon name="chevron" size={18} className="lx-chev" />
                   </Link>
                 ) : null}
                 {m.website ? (
                   <a className="lx-card" href={m.website} target="_blank" rel="noopener">
                     <span className="lx-cico"><Icon name="globe" size={17} /></span>
-                    <span className="lx-ctext"><b>Group website</b><small>Opens in a new tab</small></span>
+                    <span className="lx-ctext"><b>{t("groupWebsite")}</b><small>{t("opensNewTab")}</small></span>
                     <Icon name="external" size={16} className="lx-ext" />
                   </a>
                 ) : null}
                 {finder ? (
                   <a className="lx-card" href={finder.url} target="_blank" rel="noopener">
                     <span className="lx-cico"><Icon name="list" size={17} /></span>
-                    <span className="lx-ctext"><b>{finder.label}</b><small>Official meeting directory</small></span>
+                    <span className="lx-ctext"><b>{finder.label}</b><small>{t("officialDirectory")}</small></span>
                     <Icon name="external" size={16} className="lx-ext" />
                   </a>
                 ) : null}
@@ -203,19 +210,19 @@ export default async function SharedMeeting({ searchParams }: { searchParams: Pr
           <div className="sheet-actions">
             {m.online
               ? (m.conference_url
-                  ? <a className="btn btn-fc" href={m.conference_url} target="_blank" rel="noopener" style={{ ["--fc" as any]: fc }}><Icon name="video" size={18} /> Join online</a>
-                  : <Link className="btn btn-fc" href={`/?q=${encodeURIComponent(m.name)}`} style={{ ["--fc" as any]: fc }}><Icon name="search" size={18} /> Find this meeting</Link>)
-              : <a className="btn btn-fc" href={mapsAddr} target="_blank" rel="noopener" style={{ ["--fc" as any]: fc }}><Icon name="route" size={18} /> Directions</a>}
+                  ? <a className="btn btn-fc" href={m.conference_url} target="_blank" rel="noopener" style={{ ["--fc" as any]: fc }}><Icon name="video" size={18} /> {t("joinOnline")}</a>
+                  : <Link className="btn btn-fc" href={`/?q=${encodeURIComponent(m.name)}`} style={{ ["--fc" as any]: fc }}><Icon name="search" size={18} /> {t("findThisMeeting")}</Link>)
+              : <a className="btn btn-fc" href={mapsAddr} target="_blank" rel="noopener" style={{ ["--fc" as any]: fc }}><Icon name="route" size={18} /> {t("directions")}</a>}
           </div>
-          <p className="share-note">Shared via Fellow — independent and not affiliated with any fellowship. Please confirm details with the group, as meetings can change.</p>
+          <p className="share-note">{t("shareNote")}</p>
           <p className="share-note share-meta">
-            {updatedStr ? <>Listing last updated {updatedStr}. </> : null}
-            <a href={correctionHref} className="report-inline">Report a change →</a>
+            {updatedStr ? t("lastUpdated", { date: updatedStr }) : null}
+            <a href={correctionHref} className="report-inline">{t("reportChange")}</a>
           </p>
         </div>
       </div>
 
-      <p className="share-explore"><Link href="/">Find more meetings on Fellow →</Link></p>
+      <p className="share-explore"><Link href="/">{t("findMore")}</Link></p>
       <SiteFooter />
     </main>
   );
