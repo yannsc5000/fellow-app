@@ -74,10 +74,10 @@ function LocationBar({ place, onSet }: { place: Place | null; onSet: (p: Place) 
   const [err, setErr] = useState("");
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!/^\d{5}$/.test(zip)) { setErr("Enter a 5-digit ZIP"); return; }
+    if (!/^\d{5}$/.test(zip)) { setErr(IS_ES ? "Ingresa un código postal de 5 dígitos" : "Enter a 5-digit ZIP"); return; }
     setBusy(true); setErr("");
     const p = await zipToPlace(zip);
-    if (p) { onSet(p); setEditing(false); setZip(""); } else setErr("ZIP not found");
+    if (p) { onSet(p); setEditing(false); setZip(""); } else setErr(IS_ES ? "Código postal no encontrado" : "ZIP not found");
     setBusy(false);
   }
   function useMe() {
@@ -92,19 +92,19 @@ function LocationBar({ place, onSet }: { place: Place | null; onSet: (p: Place) 
   if (editing) {
     return (
       <form className="loc-form" onSubmit={submit}>
-        <input inputMode="numeric" maxLength={5} autoFocus aria-label="ZIP code" placeholder="ZIP code"
+        <input inputMode="numeric" maxLength={5} autoFocus aria-label={IS_ES ? "Código postal" : "ZIP code"} placeholder={IS_ES ? "Código postal" : "ZIP code"}
           value={zip} onChange={(e) => setZip(e.currentTarget.value.replace(/\D/g, ""))} />
-        <button className="btn btn-soft" type="submit" disabled={busy}>{busy ? <Loader size={18} label="Looking up ZIP" /> : "Go"}</button>
-        <button type="button" className="loc-link" onClick={useMe}><Icon name="nearme" size={14} /> Use my location</button>
+        <button className="btn btn-soft" type="submit" disabled={busy}>{busy ? <Loader size={18} label={IS_ES ? "Buscando código postal" : "Looking up ZIP"} /> : (IS_ES ? "Ir" : "Go")}</button>
+        <button type="button" className="loc-link" onClick={useMe}><Icon name="nearme" size={14} /> {IS_ES ? "Usar mi ubicación" : "Use my location"}</button>
         <button type="button" className="loc-link" onClick={() => { setEditing(false); setErr(""); }}>Cancel</button>
         {err && <span className="loc-err" role="alert">{err}</span>}
       </form>
     );
   }
   return (
-    <button className="loc-btn" onClick={() => setEditing(true)} aria-label={place ? `Location: ${place.label}. Tap to change.` : "Set your location"}>
+    <button className="loc-btn" onClick={() => setEditing(true)} aria-label={place ? `${IS_ES ? "Ubicación" : "Location"}: ${place.label}` : (IS_ES ? "Indica tu ubicación" : "Set your location")}>
       <Icon name="pin" size={16} />
-      {place ? <span>Near <b>{place.label}</b></span> : <span>Set your location</span>}
+      {place ? <span>{IS_ES ? "Cerca de" : "Near"} <b>{place.label}</b></span> : <span>{IS_ES ? "Indica tu ubicación" : "Set your location"}</span>}
       <Icon name="chevron" size={16} className="loc-caret" />
     </button>
   );
@@ -123,6 +123,18 @@ const SUGGESTIONS: { text: string; code: string }[] = [
 
 // Contextual one-tap refinements shown under the latest results.
 const REFINE = ["Only online", "Tomorrow instead", "Wider area", "In the morning"];
+
+// Spanish variants (Phase 0 Ask Fellow i18n) — shown when the browser language is Spanish. The
+// assistant itself replies in whatever language the person writes (see the route's system prompt).
+const SUGGESTIONS_ES: { text: string; code: string }[] = [
+  { text: "Reunión de AA esta noche cerca de mí", code: "AA" },
+  { text: "La bebida de mi pareja es un problema", code: "Al-Anon" },
+  { text: "Reunión de NA en línea mañana por la mañana", code: "NA" },
+  { text: "Una reunión de recuperación con meditación", code: "RD" },
+];
+const REFINE_ES = ["Solo en línea", "Mejor mañana", "Área más amplia", "Por la mañana"];
+// Detect Spanish once (client-only component, so navigator is always available — no SSR mismatch).
+const IS_ES = typeof navigator !== "undefined" && /^es/i.test(navigator.language || "");
 
 function ChatCard({ m, onOpen }: { m: Meeting; onOpen: (m: Meeting) => void }) {
   return (
@@ -225,9 +237,13 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
   // Time-of-day framing, shared by the greeting salute, the count window, and its wording, so
   // "Good evening" always lines up with "tonight" and a count of tonight's meetings.
   const hour = new Date().getHours();
-  const salute = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+  const salute = IS_ES
+    ? (hour < 12 ? "Buenos días" : hour < 17 ? "Buenas tardes" : "Buenas noches")
+    : (hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening");
   const win = hour < 12 ? "morning" : hour < 17 ? "afternoon" : "tonight";
-  const winWord = win === "morning" ? "this morning" : win === "afternoon" ? "this afternoon" : "tonight";
+  const winWord = IS_ES
+    ? (win === "morning" ? "esta mañana" : win === "afternoon" ? "esta tarde" : "esta noche")
+    : (win === "morning" ? "this morning" : win === "afternoon" ? "this afternoon" : "tonight");
 
   // Once we know the user's area, count meetings near them in the current window for the welcome.
   // Keyed on coordinates so the label-refinement re-render doesn't re-fetch.
@@ -244,12 +260,18 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
 
   // When we have a location and a live count, lead with it (specific to the time of day);
   // otherwise a warm, still-personal fallback. Never shows a "0" — uses the support line instead.
-  const near = place?.label && place.label !== "your area" ? place.label : "you";
-  const greeting = place && nearbyCount != null && nearbyCount > 0
-    ? `${salute}! 👋 There ${nearbyCount === 1 ? "is" : "are"} ${nearbyCount.toLocaleString()} meeting${nearbyCount === 1 ? "" : "s"} near ${near} ${winWord} — here are a few ways to start.`
-    : place
-      ? `${salute}! 👋 I can help you find a meeting near ${near} or the right kind of support — here are a few ways to start.`
-      : `${salute}! 👋 I can help you find a meeting or the right kind of support — what are you looking for?`;
+  const near = place?.label && place.label !== "your area" ? place.label : (IS_ES ? "ti" : "you");
+  const greeting = IS_ES
+    ? (place && nearbyCount != null && nearbyCount > 0
+        ? `${salute} 👋 Hay ${nearbyCount.toLocaleString()} reunion${nearbyCount === 1 ? "" : "es"} cerca de ${near} ${winWord} — aquí tienes algunas formas de empezar.`
+        : place
+          ? `${salute} 👋 Puedo ayudarte a encontrar una reunión cerca de ${near} o el tipo de apoyo adecuado — aquí tienes algunas formas de empezar.`
+          : `${salute} 👋 Puedo ayudarte a encontrar una reunión o el tipo de apoyo adecuado — ¿qué estás buscando?`)
+    : (place && nearbyCount != null && nearbyCount > 0
+        ? `${salute}! 👋 There ${nearbyCount === 1 ? "is" : "are"} ${nearbyCount.toLocaleString()} meeting${nearbyCount === 1 ? "" : "s"} near ${near} ${winWord} — here are a few ways to start.`
+        : place
+          ? `${salute}! 👋 I can help you find a meeting near ${near} or the right kind of support — here are a few ways to start.`
+          : `${salute}! 👋 I can help you find a meeting or the right kind of support — what are you looking for?`);
 
   async function send(text: string) {
     const q = text.trim();
@@ -266,10 +288,10 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
         body: JSON.stringify({ messages: next.map((m) => ({ role: m.role, content: m.content })), location: place }),
       });
       const d = await r.json();
-      if (!r.ok) { setErr(d?.error || "Sorry — something went wrong on my end. Mind trying that again?"); setBusy(false); return; }
+      if (!r.ok) { setErr(d?.error || (IS_ES ? "Perdona — algo falló de mi lado. ¿Lo intentas de nuevo?" : "Sorry — something went wrong on my end. Mind trying that again?")); setBusy(false); return; }
       setMsgs((cur) => [...cur, { role: "assistant", content: d.reply || "", meetings: d.meetings || [], webSearch: d.webSearch }]);
     } catch {
-      setErr("I couldn’t reach Fellow just now. Check your connection and try once more — or use classic Search below.");
+      setErr(IS_ES ? "No pude conectar con Fellow ahora mismo. Revisa tu conexión e inténtalo otra vez — o usa la búsqueda clásica abajo." : "I couldn’t reach Fellow just now. Check your connection and try once more — or use classic Search below.");
     } finally {
       setBusy(false);
     }
@@ -287,16 +309,16 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
               <span className="chat-ava" aria-hidden><Mark size={54} /></span>
               <div className="bubble chat-greet-bubble">{greeting}</div>
             </div>
-            <p className="chat-try">Try one of these</p>
+            <p className="chat-try">{IS_ES ? "Prueba una de estas" : "Try one of these"}</p>
             <div className="chat-suggest">
-              {SUGGESTIONS.map((s) => (
+              {(IS_ES ? SUGGESTIONS_ES : SUGGESTIONS).map((s) => (
                 <button key={s.text} className="chip" onClick={() => send(s.text)}>
                   <span className="sug-dot" style={{ background: fellowshipColor(s.code) }} aria-hidden />
                   {s.text}
                 </button>
               ))}
             </div>
-            <p className="chat-fine">Fellow is independent and not affiliated with any fellowship. It finds meetings — it isn’t a substitute for professional help.</p>
+            <p className="chat-fine">{IS_ES ? "Fellow es independiente y no está afiliado a ninguna comunidad. Encuentra reuniones — no sustituye la ayuda profesional." : "Fellow is independent and not affiliated with any fellowship. It finds meetings — it isn’t a substitute for professional help."}</p>
           </div>
         )}
         {msgs.map((m, i) => (
@@ -316,25 +338,25 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
                 )}
                 <a className="web-fallback" href={m.webSearch.url} target="_blank" rel="noopener noreferrer">
                   <Icon name="search" size={18} />
-                  <span>Search the web for “{m.webSearch.query}”</span>
+                  <span>{IS_ES ? "Buscar en la web" : "Search the web for"} “{m.webSearch.query}”</span>
                   <Icon name="external" size={15} className="wf-ext" />
                 </a>
               </div>
             )}
             {i === lastAssistantIdx && m.meetings && m.meetings.length > 0 && !busy && (
               <div className="chat-followups" aria-label="Refine these results">
-                {REFINE.map((s) => <button key={s} className="chip" onClick={() => send(s)}>{s}</button>)}
+                {(IS_ES ? REFINE_ES : REFINE).map((s) => <button key={s} className="chip" onClick={() => send(s)}>{s}</button>)}
               </div>
             )}
           </div>
         ))}
-        {busy && <div className="msg assistant"><div className="bubble bubble-thinking"><Loader size={30} label="Fellow is searching" /></div></div>}
+        {busy && <div className="msg assistant"><div className="bubble bubble-thinking"><Loader size={30} label={IS_ES ? "Fellow está buscando" : "Fellow is searching"} /></div></div>}
         {err && (
           <div className="chat-err" role="alert">
             {err}
             {onSwitchToSearch && (
               <button className="btn btn-soft chat-err-switch" onClick={onSwitchToSearch}>
-                <Icon name="search" size={16} /> Use classic Search
+                <Icon name="search" size={16} /> {IS_ES ? "Usar la búsqueda clásica" : "Use classic Search"}
               </button>
             )}
           </div>
@@ -345,7 +367,7 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
         <textarea id="chatq" ref={inputRef} rows={1} value={input}
           onChange={(e) => setInput(e.currentTarget.value)}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input); } }}
-          placeholder={listening ? "Listening…" : "Tell me what you need…"} autoComplete="off" />
+          placeholder={listening ? (IS_ES ? "Escuchando…" : "Listening…") : (IS_ES ? "Cuéntame qué necesitas…" : "Tell me what you need…")} autoComplete="off" />
         {speechSupported && (
           <button type="button" className={`btn btn-soft chat-mic${listening ? " mic-on" : ""}`}
             onClick={toggleVoice} aria-pressed={listening} aria-label={listening ? "Stop voice input" : "Speak your request"}>

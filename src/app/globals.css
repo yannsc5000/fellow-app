@@ -362,7 +362,7 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .msg.user{align-items:flex-end}
 .msg.assistant{align-items:flex-start}
 .bubble{padding:12px 15px;border-radius:16px;font-size:16px;line-height:1.5;max-width:85%;white-space:pre-wrap}
-.msg.user .bubble{background:var(--brand);color:#fff;border-bottom-right-radius:5px}
+.msg.user .bubble{background:var(--brand-ink);color:#fff;border-bottom-right-radius:5px}
 .msg.assistant .bubble{background:var(--surface-2);color:var(--ink);border-bottom-left-radius:5px}
 .bubble.bubble-thinking{display:inline-flex;align-items:center;padding:9px 12px}
 .bubble.typing{display:inline-flex;gap:4px}
@@ -946,4 +946,11 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
   .tag.fellow{color:color-mix(in srgb, var(--fc) 45%, #f5f2ea);background:color-mix(in srgb, var(--fc) 30%, var(--surface))}
   .sheet-body .fact-link,.sheet-body .expect summary,.sheet-body .fact-when:hover .fact-add,.share-btn:hover{color:color-mix(in srgb, var(--fc) 50%, #f5f2ea)}
   .sheet-body .fact-ico,.sheet-body .lx-cico{color:color-mix(in srgb, var(--fc) 55%, #f5f2ea)}
+}
+
+/* Chat "sent" bubble contrast: --brand flips to light mint in dark mode, so white text fails there
+   (~1.3:1). Keep the vibrant mint bubble but switch to dark ink text in dark mode (11.5:1). Light
+   mode uses deep teal + white (6.9:1) via the base rule above. */
+@media (prefers-color-scheme: dark){
+  .msg.user .bubble{background:var(--brand);color:#08201c}
 }
