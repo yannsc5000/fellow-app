@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { alts } from "@/lib/meta";
 import { getCoverage } from "@/lib/coverage";
 import { getFellowshipHub, fellowshipSlug } from "@/lib/cities";
 import { fellowshipName, BY_CODE, fellowshipColor, FELLOWSHIPS } from "@/lib/fellowships";
@@ -10,15 +11,17 @@ import { SiteFooter } from "@/components/SiteFooter";
 const fmt = (n: number) => n.toLocaleString("en-US");
 const searchHref = (code: string) => `/?q=${encodeURIComponent(fellowshipName(code))}`;
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
   const c = await getCoverage();
+  const t = await getTranslations({ locale, namespace: "meta" });
   const names = c.fellowships.slice(0, 4).map(fellowshipName).join(", ");
-  const title = "Recovery fellowships — AA, NA & more | Fellow";
-  const description = `Browse recovery meetings by fellowship: ${names} and more. ${fmt(c.placed)} in-person meetings across ${c.fellowships.length} fellowships — free, with no sign-up, on Fellow.`;
+  const title = t("fellowshipsTitle");
+  const description = t("fellowshipsDesc", { names, placed: c.placed, n: c.fellowships.length });
   return {
     title,
     description,
-    alternates: { canonical: "/fellowships" },
+    alternates: alts(locale, "/fellowships"),
     openGraph: { title, description, url: "/fellowships", type: "website" },
   };
 }

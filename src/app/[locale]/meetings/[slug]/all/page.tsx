@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { alts } from "@/lib/meta";
+import { meetingSheetHref } from "@/lib/meetingHref";
 import { getCities, getCity, fellowshipLabel, CITY_MAX_PER_DAY } from "@/lib/cities";
 import { fellowshipColor } from "@/lib/fellowships";
 import { MeetingDayList, type DayRow } from "@/components/MeetingDayList";
@@ -17,15 +19,16 @@ export async function generateStaticParams() {
   return cities.map((c) => ({ slug: c.slug }));
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params;
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }): Promise<Metadata> {
+  const { locale, slug } = await params;
   const c = await getCity(slug);
   if (!c) return {};
-  const title = `All recovery meetings in ${c.city}, ${c.state} — by day | Fellow`;
-  const description = `Every one of Fellow's ${c.count.toLocaleString()} in-person recovery meetings in ${c.city}, ${c.stateName}, organized by day of the week.`;
+  const t = await getTranslations({ locale, namespace: "meta" });
+  const title = t("cityAllTitle", { city: c.city, state: c.state });
+  const description = t("cityAllDesc", { count: c.count, city: c.city, stateName: c.stateName });
   return {
     title, description,
-    alternates: { canonical: `/meetings/${c.slug}/all` },
+    alternates: alts(locale, `/meetings/${c.slug}/all`),
     openGraph: { title, description, url: `/meetings/${c.slug}/all`, type: "website" },
   };
 }
@@ -39,7 +42,7 @@ export default async function CityAllPage({ params }: { params: Promise<{ locale
 
   const rows: DayRow[] = c.meetings.map((m) => ({
     id: m.id, name: m.name, day: m.day, time: m.time, dot: fellowshipColor(m.fellowship),
-    href: `/?q=${encodeURIComponent(`${m.name} in ${c.city}`)}`,
+    href: meetingSheetHref(m),
     meta: [fellowshipLabel(m.fellowship), m.place || m.address].filter(Boolean).join(" · "),
   }));
   const liveSearch = `/?q=${encodeURIComponent(c.city)}`;

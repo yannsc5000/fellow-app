@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { alts } from "@/lib/meta";
 import { getCoverage } from "@/lib/coverage";
 import { Mark } from "@/components/Mark";
 import CoverageMap from "@/components/CoverageMap";
@@ -15,14 +16,16 @@ function fmtStamp(iso: string): string {
   return m ? `${MON[Number(m[2]) - 1]} ${Number(m[3])}, ${m[1]}` : "";
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
   const c = await getCoverage();
-  const title = `U.S. meeting coverage — ${fmt(c.placed)} recovery meetings mapped | Fellow`;
-  const description = `Fellow indexes ${fmt(c.total)} AA, NA and other recovery meetings across all 50 states + DC — ${fmt(c.placed)} in-person meetings mapped and ${fmt(c.online)} online. See coverage by state and by fellowship.`;
+  const t = await getTranslations({ locale, namespace: "meta" });
+  const title = t("coverageTitle", { placed: c.placed });
+  const description = t("coverageDesc", { total: c.total, placed: c.placed, online: c.online });
   return {
     title,
     description,
-    alternates: { canonical: "/coverage" },
+    alternates: alts(locale, "/coverage"),
     openGraph: { title, description, url: "/coverage", type: "website" },
   };
 }

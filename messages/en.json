@@ -2,7 +2,7 @@
   "common": {
     "tagline": "Find your people",
     "askFellow": "Ask Fellow",
-    "find": "Find",
+    "find": "Browse",
     "backHome": "← Fellow home"
   },
   "footer": {
@@ -170,6 +170,35 @@
     "independentNote": "Fellow is a free, independent, non-commercial meeting finder — not affiliated with {name} or any fellowship. Listings come from public intergroup feeds. ",
     "aboutSources": "About & sources"
   },
+  "meta": {
+    "andMore": " and more",
+    "homeTitle": "Fellow — find a meeting, find your people",
+    "homeDesc": "Find AA, NA, and other recovery meetings near you — 12-step fellowships and related peer-support programs, all in one place.",
+    "coverageTitle": "U.S. meeting coverage — {placed, number} recovery meetings mapped | Fellow",
+    "coverageDesc": "Fellow indexes {total, number} AA, NA and other recovery meetings across all 50 states + DC — {placed, number} in-person meetings mapped and {online, number} online. See coverage by state and by fellowship.",
+    "meetingsTitle": "Recovery meetings by city — browse AA, NA & more | Fellow",
+    "meetingsDesc": "Browse recovery meetings by city across the US. Find AA, NA, and other 12-step and peer-support meetings near you, free on Fellow.",
+    "meetingsOgTitle": "Recovery meetings by city | Fellow",
+    "meetingsOgDesc": "Browse in-person recovery meetings by city across the US — AA, NA and more, free on Fellow.",
+    "cityTitle": "Recovery meetings in {city}, {state} — AA, NA & more | Fellow",
+    "cityDesc": "{count, number} free recovery meetings in {city}, {state}: {fells}{more}. Find AA, NA and other 12-step and peer-support meetings near you — in person and online — plus sober social events in {city}, on Fellow.",
+    "cityAllTitle": "All recovery meetings in {city}, {state} — by day | Fellow",
+    "cityAllDesc": "Every one of Fellow's {count, number} in-person recovery meetings in {city}, {stateName}, organized by day of the week.",
+    "fcTitle": "{code} Meetings in {city}, {state} — {name} | Fellow",
+    "fcDesc": "{count, number} {name} ({code}) meetings in {city}, {state}. Days, times and locations — find a meeting near you, free on Fellow.",
+    "stateTitle": "Recovery meetings in {stateName} — AA, NA & more | Fellow",
+    "stateDesc": "{count, number} free recovery meetings across {n} {stateName} cities: {fells}{more}. Find AA, NA and other meetings near you — in person and online — plus sober social events across {stateName}, on Fellow.",
+    "faTitle": "All {name} ({code}) meetings — in-person & online, by day | Fellow",
+    "faDesc": "Every {name} ({code}) meeting on Fellow: {inPerson, number} in-person and {online, number} online, organized by day of the week.",
+    "fellowshipsTitle": "Recovery fellowships — AA, NA & more | Fellow",
+    "fellowshipsDesc": "Browse recovery meetings by fellowship: {names} and more. {placed, number} in-person meetings across {n} fellowships — free, with no sign-up, on Fellow.",
+    "aboutTitle": "About & sources | Fellow",
+    "aboutDesc": "How Fellow works, where its meeting data comes from, how it handles privacy and anonymity (including the Ask Fellow chat), and how to report a correction.",
+    "aboutOgDesc": "How Fellow works, where its meeting data comes from, and how it handles privacy and anonymity.",
+    "sgTitle": "Which Support Group Is Right for Me? | Fellow",
+    "sgDesc": "Not sure which recovery group fits? Start from what you're facing — alcohol, drugs, gambling, food, relationships, family of someone struggling — and we'll point you to the right fellowship and real meetings.",
+    "sgOgDesc": "Start from what you're facing and find the right recovery fellowship and meetings."
+  },
   "shared": {
     "backAria": "Fellow — home",
     "onlineMeeting": "Online meeting",
@@ -244,7 +273,7 @@
     "back": "← Back to meetings",
     "h1": "About Fellow",
     "p1": "Fellow is a free, independent, non-commercial project that helps people find recovery meetings quickly — 12-step fellowships and related peer-support programs alike. It is not affiliated with, endorsed by, or a representative of Alcoholics Anonymous or any other fellowship, program, or service body. There are no accounts, no ads, and nothing to sign up for.",
-    "p2": "There are two ways to find a meeting. <b>Find</b> lets you type a place, ZIP, group, or a plain phrase like \"Sunday morning AA near me,\" and filter by day, time, fellowship, and location — including a \"Starts soon\" view for meetings beginning shortly. <b>Ask Fellow</b> is a chat assistant you can talk to in your own words (for example, \"my partner's drinking is a problem — is there something for me?\"). Either way, you can open a meeting's details to get directions, add it to your calendar, or share it.",
+    "p2": "There are two ways to find a meeting. <b>Browse</b> lets you type a place, ZIP, group, or a plain phrase like \"Sunday morning AA near me,\" and filter by day, time, fellowship, and location — including a \"Starts soon\" view for meetings beginning shortly. <b>Ask Fellow</b> is a chat assistant you can talk to in your own words (for example, \"my partner's drinking is a problem — is there something for me?\"). Either way, you can open a meeting's details to get directions, add it to your calendar, or share it.",
     "hSources": "Where the meeting data comes from",
     "sourcesLead": "Meeting listings are aggregated from public feeds published by local 12-step intergroups and service bodies. We read them through two open community data standards:",
     "tsmlName": "Meeting Guide / TSML",

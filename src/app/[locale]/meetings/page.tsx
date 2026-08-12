@@ -1,20 +1,25 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { alts } from "@/lib/meta";
 import { getCities } from "@/lib/cities";
 import { SiteFooter } from "@/components/SiteFooter";
 
-export const metadata: Metadata = {
-  title: "Recovery meetings by city — browse AA, NA & more | Fellow",
-  description: "Browse recovery meetings by city across the US. Find AA, NA, and other 12-step and peer-support meetings near you, free on Fellow.",
-  alternates: { canonical: "/meetings" },
-  openGraph: {
-    title: "Recovery meetings by city | Fellow",
-    description: "Browse in-person recovery meetings by city across the US — AA, NA and more, free on Fellow.",
-    url: "/meetings",
-    type: "website",
-  },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "meta" });
+  return {
+    title: t("meetingsTitle"),
+    description: t("meetingsDesc"),
+    alternates: alts(locale, "/meetings"),
+    openGraph: {
+      title: t("meetingsOgTitle"),
+      description: t("meetingsOgDesc"),
+      url: "/meetings",
+      type: "website",
+    },
+  };
+}
 
 export default async function MeetingsIndex({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

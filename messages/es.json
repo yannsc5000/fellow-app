@@ -2,7 +2,7 @@
   "common": {
     "tagline": "Encuentra a tu gente",
     "askFellow": "Pregunta a Fellow",
-    "find": "Buscar",
+    "find": "Explorar",
     "backHome": "← Inicio de Fellow"
   },
   "footer": {
@@ -170,6 +170,35 @@
     "independentNote": "Fellow es un buscador de reuniones gratuito, independiente y sin fines de lucro — no afiliado a {name} ni a ninguna comunidad. Los listados provienen de fuentes públicas de los intergrupos. ",
     "aboutSources": "Acerca de y fuentes"
   },
+  "meta": {
+    "andMore": " y más",
+    "homeTitle": "Fellow — encuentra una reunión, encuentra a tu gente",
+    "homeDesc": "Encuentra reuniones de AA, NA y otras de recuperación cerca de ti — comunidades de doce pasos y programas afines de apoyo entre pares, todo en un solo lugar.",
+    "coverageTitle": "Cobertura de reuniones en EE. UU. — {placed, number} reuniones de recuperación en el mapa | Fellow",
+    "coverageDesc": "Fellow indexa {total, number} reuniones de AA, NA y otras de recuperación en los 50 estados y DC — {placed, number} reuniones presenciales en el mapa y {online, number} en línea. Consulta la cobertura por estado y por comunidad.",
+    "meetingsTitle": "Reuniones de recuperación por ciudad — explora AA, NA y más | Fellow",
+    "meetingsDesc": "Explora reuniones de recuperación por ciudad en todo EE. UU. Encuentra reuniones de AA, NA y otras de doce pasos y de apoyo entre pares cerca de ti, gratis en Fellow.",
+    "meetingsOgTitle": "Reuniones de recuperación por ciudad | Fellow",
+    "meetingsOgDesc": "Explora reuniones de recuperación presenciales por ciudad en todo EE. UU. — AA, NA y más, gratis en Fellow.",
+    "cityTitle": "Reuniones de recuperación en {city}, {state} — AA, NA y más | Fellow",
+    "cityDesc": "{count, number} reuniones de recuperación gratuitas en {city}, {state}: {fells}{more}. Encuentra reuniones de AA, NA y otras de doce pasos y de apoyo entre pares cerca de ti — presenciales y en línea — además de eventos sociales sin alcohol en {city}, en Fellow.",
+    "cityAllTitle": "Todas las reuniones de recuperación en {city}, {state} — por día | Fellow",
+    "cityAllDesc": "Todas las {count, number} reuniones de recuperación presenciales de Fellow en {city}, {stateName}, organizadas por día de la semana.",
+    "fcTitle": "Reuniones de {code} en {city}, {state} — {name} | Fellow",
+    "fcDesc": "{count, number} reuniones de {name} ({code}) en {city}, {state}. Días, horarios y ubicaciones — encuentra una reunión cerca de ti, gratis en Fellow.",
+    "stateTitle": "Reuniones de recuperación en {stateName} — AA, NA y más | Fellow",
+    "stateDesc": "{count, number} reuniones de recuperación gratuitas en {n} ciudades de {stateName}: {fells}{more}. Encuentra reuniones de AA, NA y otras cerca de ti — presenciales y en línea — además de eventos sociales sin alcohol en {stateName}, en Fellow.",
+    "faTitle": "Todas las reuniones de {name} ({code}) — presenciales y en línea, por día | Fellow",
+    "faDesc": "Todas las reuniones de {name} ({code}) en Fellow: {inPerson, number} presenciales y {online, number} en línea, organizadas por día de la semana.",
+    "fellowshipsTitle": "Comunidades de recuperación — AA, NA y más | Fellow",
+    "fellowshipsDesc": "Explora reuniones de recuperación por comunidad: {names} y más. {placed, number} reuniones presenciales en {n} comunidades — gratis, sin registro, en Fellow.",
+    "aboutTitle": "Acerca de y fuentes | Fellow",
+    "aboutDesc": "Cómo funciona Fellow, de dónde provienen sus datos de reuniones, cómo maneja la privacidad y el anonimato (incluido el chat Pregunta a Fellow) y cómo reportar una corrección.",
+    "aboutOgDesc": "Cómo funciona Fellow, de dónde provienen sus datos de reuniones y cómo maneja la privacidad y el anonimato.",
+    "sgTitle": "¿Qué grupo de apoyo es adecuado para mí? | Fellow",
+    "sgDesc": "¿No sabes qué grupo de recuperación encaja? Empieza por lo que estás enfrentando — alcohol, drogas, juego, comida, relaciones, familia de alguien que sufre — y te guiaremos hacia la comunidad adecuada y reuniones reales.",
+    "sgOgDesc": "Empieza por lo que estás enfrentando y encuentra la comunidad de recuperación y las reuniones adecuadas."
+  },
   "shared": {
     "backAria": "Fellow — inicio",
     "onlineMeeting": "Reunión en línea",
@@ -244,7 +273,7 @@
     "back": "← Volver a las reuniones",
     "h1": "Acerca de Fellow",
     "p1": "Fellow es un proyecto gratuito, independiente y sin fines de lucro que ayuda a las personas a encontrar reuniones de recuperación rápidamente — tanto comunidades de doce pasos como programas relacionados de apoyo entre pares. No está afiliado a, respaldado por, ni es representante de Alcohólicos Anónimos ni de ninguna otra comunidad, programa u órgano de servicio. No hay cuentas, ni anuncios, ni nada para registrarse.",
-    "p2": "Hay dos formas de encontrar una reunión. <b>Buscar</b> te permite escribir un lugar, un código postal, un grupo o una frase sencilla como «AA el domingo por la mañana cerca de mí», y filtrar por día, hora, comunidad y ubicación — incluida una vista de «Empieza pronto» para reuniones que están por comenzar. <b>Pregunta a Fellow</b> es un asistente de chat con el que puedes hablar con tus propias palabras (por ejemplo, «el consumo de mi pareja es un problema — ¿hay algo para mí?»). En cualquier caso, puedes abrir los detalles de una reunión para obtener indicaciones, añadirla a tu calendario o compartirla.",
+    "p2": "Hay dos formas de encontrar una reunión. <b>Explorar</b> te permite escribir un lugar, un código postal, un grupo o una frase sencilla como «AA el domingo por la mañana cerca de mí», y filtrar por día, hora, comunidad y ubicación — incluida una vista de «Empieza pronto» para reuniones que están por comenzar. <b>Pregunta a Fellow</b> es un asistente de chat con el que puedes hablar con tus propias palabras (por ejemplo, «el consumo de mi pareja es un problema — ¿hay algo para mí?»). En cualquier caso, puedes abrir los detalles de una reunión para obtener indicaciones, añadirla a tu calendario o compartirla.",
     "hSources": "De dónde provienen los datos de las reuniones",
     "sourcesLead": "Los listados de reuniones se recopilan de fuentes públicas publicadas por intergrupos y órganos de servicio locales de doce pasos. Los leemos a través de dos estándares abiertos de datos comunitarios:",
     "tsmlName": "Meeting Guide / TSML",

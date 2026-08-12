@@ -37,7 +37,7 @@ export async function MeetingDayList({
             <ul className="va-list">
               {shown.map((r) => (
                 <li key={r.id}>
-                  <a className="mtg-row" href={r.href}>
+                  <Link className="mtg-row" href={r.href}>
                     {r.dot ? <span className="mtg-dot" style={{ background: r.dot }} aria-hidden /> : null}
                     <span className="mtg-body">
                       <strong>{to12(r.time)}</strong> — {r.name}
@@ -45,7 +45,7 @@ export async function MeetingDayList({
                       {r.meta ? <span className="mtg-meta"> · {r.meta}</span> : null}
                     </span>
                     <Icon name="chevron" size={20} className="mtg-chev" />
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

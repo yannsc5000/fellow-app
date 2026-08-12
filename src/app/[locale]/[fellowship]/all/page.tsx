@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { alts } from "@/lib/meta";
+import { meetingSheetHref } from "@/lib/meetingHref";
 import { getFellowshipAll, getFellowshipAllParams, FELLOWSHIP_ALL_MAX_PER_DAY } from "@/lib/cities";
 import { fellowshipColor } from "@/lib/fellowships";
 import { MeetingDayList, type DayRow } from "@/components/MeetingDayList";
@@ -18,15 +20,16 @@ export async function generateStaticParams() {
   return getFellowshipAllParams();
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ fellowship: string }> }): Promise<Metadata> {
-  const { fellowship } = await params;
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; fellowship: string }> }): Promise<Metadata> {
+  const { locale, fellowship } = await params;
   const fa = await getFellowshipAll(fellowship);
   if (!fa) return {};
-  const title = `All ${fa.name} (${fa.code}) meetings — in-person & online, by day | Fellow`;
-  const description = `Every ${fa.name} (${fa.code}) meeting on Fellow: ${fmt(fa.inPerson)} in-person and ${fmt(fa.online)} online, organized by day of the week.`;
+  const t = await getTranslations({ locale, namespace: "meta" });
+  const title = t("faTitle", { name: fa.name, code: fa.code });
+  const description = t("faDesc", { name: fa.name, code: fa.code, inPerson: fa.inPerson, online: fa.online });
   return {
     title, description,
-    alternates: { canonical: `/${fellowship}/all` },
+    alternates: alts(locale, `/${fellowship}/all`),
     openGraph: { title, description, url: `/${fellowship}/all`, type: "website" },
   };
 }
@@ -41,7 +44,7 @@ export default async function FellowshipAllPage({ params }: { params: Promise<{ 
   const dot = fellowshipColor(fa.code);
   const rows: DayRow[] = fa.meetings.map((m) => ({
     id: m.id, name: m.name, day: m.day, time: m.time, online: m.online, dot,
-    href: `/?q=${encodeURIComponent(m.name)}`,
+    href: meetingSheetHref({ ...m, fellowship: fa.code }),
     meta: m.online ? (m.loc || t("onlineMeeting")) : m.loc,
   }));
   const liveSearch = `/?q=${encodeURIComponent(fa.name)}`;

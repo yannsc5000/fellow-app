@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { alts } from "@/lib/meta";
 import { getFellowshipHub, getFellowshipAll, getSeededFellowships, fellowshipSlug, stateSlug, STATE_NAMES, HUB_CITIES_PER_STATE } from "@/lib/cities";
 import { fellowshipName, fellowshipColor, fellowshipDesc, CODE_BY_SLUG, BY_CODE, FELLOWSHIPS } from "@/lib/fellowships";
 import { officialFinder } from "@/lib/finders";
@@ -39,13 +40,15 @@ async function resolve(fellowship: string) {
   return { code, fa, finder };
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ fellowship: string }> }): Promise<Metadata> {
-  const { fellowship } = await params;
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; fellowship: string }> }): Promise<Metadata> {
+  const { locale, fellowship } = await params;
   const r = await resolve(fellowship);
   if (!r) return {};
   const name = fellowshipName(r.code);
   const desc = fellowshipDesc(r.code);
   // Prefer the tuned per-fellowship long-tail title/meta; fall back to a generated one.
+  // NOTE: the tuned SEO map + description prose are still English pending the deep-content
+  // translation pass — only the canonical/hreflang are locale-aware here for now.
   const seo = SEO[r.code];
   const title = seo?.title || `${name} (${r.code}) Meetings — Online & Near You | Fellow`;
   const description = seo?.description || (r.fa
@@ -55,7 +58,7 @@ export async function generateMetadata({ params }: { params: Promise<{ fellowshi
         : `${name} (${r.code}) meetings online and near you — free and anonymous, on Fellow.`));
   return {
     title, description,
-    alternates: { canonical: `/${fellowship}` },
+    alternates: alts(locale, `/${fellowship}`),
     openGraph: { title, description, url: `/${fellowship}`, type: "website" },
   };
 }

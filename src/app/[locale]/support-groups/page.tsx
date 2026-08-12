@@ -1,21 +1,26 @@
 import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { alts } from "@/lib/meta";
 import { PROBLEMS } from "@/lib/problems";
 import { Icon } from "@/components/Icon";
 import { SiteFooter } from "@/components/SiteFooter";
 
-export const metadata: Metadata = {
-  title: "Which Support Group Is Right for Me? | Fellow",
-  description: "Not sure which recovery group fits? Start from what you're facing — alcohol, drugs, gambling, food, relationships, family of someone struggling — and we'll point you to the right fellowship and real meetings.",
-  alternates: { canonical: "/support-groups" },
-  openGraph: {
-    title: "Which Support Group Is Right for Me? | Fellow",
-    description: "Start from what you're facing and find the right recovery fellowship and meetings.",
-    url: "/support-groups",
-    type: "website",
-  },
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "meta" });
+  return {
+    title: t("sgTitle"),
+    description: t("sgDesc"),
+    alternates: alts(locale, "/support-groups"),
+    openGraph: {
+      title: t("sgTitle"),
+      description: t("sgOgDesc"),
+      url: "/support-groups",
+      type: "website",
+    },
+  };
+}
 
 export default async function SupportGroupsIndex({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

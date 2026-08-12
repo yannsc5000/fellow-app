@@ -21,6 +21,7 @@ export function GET() {
 - [Coverage map](https://fellow.space/coverage) — meeting coverage by state and fellowship
 - [About and sources](https://fellow.space/about) — how it works, data sources, privacy and anonymity
 - [Sitemap](https://fellow.space/sitemap.xml) — all pages, including per-city and per-fellowship listings
+- [Spanish / Español](https://fellow.space/es/llms.txt) — Fellow is also available in Spanish under /es
 
 ## URL patterns
 - Per-city listings: https://fellow.space/meetings/<city>-<state>  (e.g. /meetings/phoenix-az)

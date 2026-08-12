@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { alts } from "@/lib/meta";
+import { meetingSheetHref } from "@/lib/meetingHref";
 import { getCities, getCity, fellowshipLabel, cityFellowshipLinks, CITY_PREVIEW } from "@/lib/cities";
 import { fellowshipColor } from "@/lib/fellowships";
 import { Icon } from "@/components/Icon";
@@ -23,17 +25,19 @@ export async function generateStaticParams() {
   return cities.map((c) => ({ slug: c.slug }));
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const { slug } = await params;
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; slug: string }> }): Promise<Metadata> {
+  const { locale, slug } = await params;
   const c = await getCity(slug);
   if (!c) return {};
-  const fell = c.fellowships.map(fellowshipLabel).slice(0, 3).join(", ");
-  const title = `Recovery Meetings in ${c.city}, ${c.state} — AA, NA & more | Fellow`;
-  const description = `${c.count} free recovery meetings in ${c.city}, ${c.state}: ${fell}${c.fellowships.length > 3 ? " and more" : ""}. Find AA, NA and other 12-step and peer-support meetings near you — in person and online — plus sober social events in ${c.city}, on Fellow.`;
+  const t = await getTranslations({ locale, namespace: "meta" });
+  const fells = c.fellowships.map(fellowshipLabel).slice(0, 3).join(", ");
+  const more = c.fellowships.length > 3 ? t("andMore") : "";
+  const title = t("cityTitle", { city: c.city, state: c.state });
+  const description = t("cityDesc", { count: c.count, city: c.city, state: c.state, fells, more });
   return {
     title,
     description,
-    alternates: { canonical: `/meetings/${c.slug}` },
+    alternates: alts(locale, `/meetings/${c.slug}`),
     openGraph: { title, description, url: `/meetings/${c.slug}`, type: "website" },
   };
 }
@@ -107,7 +111,7 @@ export default async function CityPage({ params }: { params: Promise<{ locale: s
       <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
         {preview.map((m) => (
           <li key={m.id}>
-            <a className="mtg-row" href={`/?q=${encodeURIComponent(`${m.name} in ${c.city}`)}`}>
+            <Link className="mtg-row" href={meetingSheetHref(m)}>
               <span className="mtg-dot" style={{ background: fellowshipColor(m.fellowship) }} aria-hidden />
               <span className="mtg-body">
                 <strong>{dayAbbr[m.day]} · {to12(m.time)}</strong> — {m.name}
@@ -116,7 +120,7 @@ export default async function CityPage({ params }: { params: Promise<{ locale: s
                 </span>
               </span>
               <Icon name="chevron" size={20} className="mtg-chev" />
-            </a>
+            </Link>
           </li>
         ))}
       </ul>

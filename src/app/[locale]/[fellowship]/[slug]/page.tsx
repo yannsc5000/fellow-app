@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { alts } from "@/lib/meta";
+import { meetingSheetHref } from "@/lib/meetingHref";
 import { getFellowshipCityParams, getFellowshipCity, CITY_MAX_PER_DAY } from "@/lib/cities";
 import { Icon } from "@/components/Icon";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -19,16 +21,17 @@ export async function generateStaticParams() {
   return getFellowshipCityParams();
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ fellowship: string; slug: string }> }): Promise<Metadata> {
-  const { fellowship, slug } = await params;
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; fellowship: string; slug: string }> }): Promise<Metadata> {
+  const { locale, fellowship, slug } = await params;
   const fc = await getFellowshipCity(fellowship, slug);
   if (!fc) return {};
-  const title = `${fc.code} Meetings in ${fc.city}, ${fc.state} — ${fc.name} | Fellow`;
-  const description = `${fc.count} ${fc.name} (${fc.code}) meetings in ${fc.city}, ${fc.state}. Days, times and locations — find a meeting near you, free on Fellow.`;
+  const t = await getTranslations({ locale, namespace: "meta" });
+  const title = t("fcTitle", { code: fc.code, city: fc.city, state: fc.state, name: fc.name });
+  const description = t("fcDesc", { count: fc.count, name: fc.name, code: fc.code, city: fc.city, state: fc.state });
   return {
     title,
     description,
-    alternates: { canonical: `/${fc.fslug}/${fc.citySlug}` },
+    alternates: alts(locale, `/${fc.fslug}/${fc.citySlug}`),
     openGraph: { title, description, url: `/${fc.fslug}/${fc.citySlug}`, type: "website" },
   };
 }
@@ -92,13 +95,13 @@ export default async function FellowshipCityPage({ params }: { params: Promise<{
             <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
               {rows.map((m) => (
                 <li key={m.id}>
-                  <a className="mtg-row" href={`/?q=${encodeURIComponent(`${m.name} in ${fc.city}`)}`}>
+                  <Link className="mtg-row" href={meetingSheetHref({ ...m, fellowship: fc.code })}>
                     <span className="mtg-body">
                       <strong>{to12(m.time)}</strong> — {m.name}
                       {m.place || m.address ? <span className="mtg-meta"> · {m.place || m.address}</span> : null}
                     </span>
                     <Icon name="chevron" size={20} className="mtg-chev" />
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

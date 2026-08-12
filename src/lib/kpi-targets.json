@@ -1,13 +1,13 @@
 {
   "_note": "MVP product KPIs for Fellow. Edit targets/warn here — the /studio scorecard and the kpi-alerts job both read this file. dir: 'up' = higher is better, 'down' = lower is better. warn = the bad-side pre-threshold (crossing it alerts). target = the goal (reaching it alerts). near = fraction of target that counts as 'approaching' (a good-side pre-threshold that also alerts). source: data = from the meeting dataset; gsc = Search Console; chatbot = chatbot analytics.",
   "kpis": [
-    { "id": "meetings",    "group": "Coverage",   "label": "Meetings indexed",            "unit": "count", "dir": "up",   "target": 75000,  "warn": 68000, "near": 0.95, "source": "data",
+    { "id": "meetings",    "group": "Coverage",   "label": "Meetings indexed",            "unit": "count", "dir": "up",   "target": 100000, "warn": 68000, "near": 0.95, "source": "data",
       "why": "Total reach — every listing is a door someone can walk through." },
     { "id": "states",      "group": "Coverage",   "label": "States + DC covered",         "unit": "count", "dir": "up",   "target": 51,     "warn": 45,    "near": 0.98, "source": "data",
       "why": "National reach — no one should hit a blank state." },
-    { "id": "fellowships", "group": "Coverage",   "label": "Fellowships with live meetings","unit": "count","dir": "up",  "target": 12,     "warn": 6,     "near": 0.9,  "source": "data",
-      "why": "Breadth beyond AA/NA — more paths of recovery served with real data." },
-    { "id": "thin_states", "group": "Coverage",   "label": "Thin-coverage states",        "unit": "count", "dir": "down", "target": 5,      "warn": 12,    "near": 1.2,  "source": "data",
+    { "id": "fellowships", "group": "Coverage",   "label": "Fellowships with live meetings","unit": "count","dir": "up",  "target": 34,     "warn": 6,     "near": 0.9,  "source": "data",
+      "why": "Breadth beyond AA/NA — the goal is live data for all 34 fellowships in Fellow's taxonomy." },
+    { "id": "thin_states", "group": "Coverage",   "label": "Thin-coverage states",        "unit": "count", "dir": "down", "target": 3,      "warn": 12,    "near": 1.2,  "source": "data",
       "why": "Depth — states with under 50 in-person meetings feel empty to a local." },
     { "id": "freshness",   "group": "Quality",    "label": "Listings refreshed < 12 mo",  "unit": "pct",   "dir": "up",   "target": 50,     "warn": 25,    "near": 0.9,  "source": "data",
       "why": "Trust — stale times and venues send people to a locked door." },

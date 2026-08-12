@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { alts } from "@/lib/meta";
 import { getState, getStateParams, fellowshipSlug } from "@/lib/cities";
 import { fellowshipName, fellowshipColor } from "@/lib/fellowships";
 import { SoberActivities } from "@/components/SoberActivities";
@@ -15,16 +16,18 @@ export async function generateStaticParams() {
   return getStateParams();
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ st: string }> }): Promise<Metadata> {
-  const { st } = await params;
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; st: string }> }): Promise<Metadata> {
+  const { locale, st } = await params;
   const s = await getState(st);
   if (!s) return {};
-  const fell = s.fellowships.map(fellowshipName).slice(0, 3).join(", ");
-  const title = `Recovery meetings in ${s.stateName} — AA, NA & more | Fellow`;
-  const description = `${fmt(s.count)} free recovery meetings across ${s.cities.length} ${s.stateName} cities: ${fell}${s.fellowships.length > 3 ? " and more" : ""}. Find AA, NA and other meetings near you — in person and online — plus sober social events across ${s.stateName}, on Fellow.`;
+  const t = await getTranslations({ locale, namespace: "meta" });
+  const fells = s.fellowships.map(fellowshipName).slice(0, 3).join(", ");
+  const more = s.fellowships.length > 3 ? t("andMore") : "";
+  const title = t("stateTitle", { stateName: s.stateName });
+  const description = t("stateDesc", { count: s.count, n: s.cities.length, stateName: s.stateName, fells, more });
   return {
     title, description,
-    alternates: { canonical: `/state/${st.toLowerCase()}` },
+    alternates: alts(locale, `/state/${st.toLowerCase()}`),
     openGraph: { title, description, url: `/state/${st.toLowerCase()}`, type: "website" },
   };
 }

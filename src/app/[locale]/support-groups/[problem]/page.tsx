@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { alts } from "@/lib/meta";
 import { PROBLEMS, PROBLEM_BY_SLUG, type Route } from "@/lib/problems";
 import { fellowshipName, fellowshipColor } from "@/lib/fellowships";
 import { fellowshipSlug } from "@/lib/cities";
@@ -14,14 +15,16 @@ export function generateStaticParams() {
   return PROBLEMS.map((p) => ({ problem: p.slug }));
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ problem: string }> }): Promise<Metadata> {
-  const { problem } = await params;
+export async function generateMetadata({ params }: { params: Promise<{ locale: string; problem: string }> }): Promise<Metadata> {
+  const { locale, problem } = await params;
   const p = PROBLEM_BY_SLUG[problem];
   if (!p) return {};
+  // p.title / p.description come from problems.ts and are still English pending the
+  // deep-content translation pass; the canonical/hreflang are locale-aware.
   return {
     title: p.title,
     description: p.description,
-    alternates: { canonical: `/support-groups/${p.slug}` },
+    alternates: alts(locale, `/support-groups/${p.slug}`),
     openGraph: { title: p.title, description: p.description, url: `/support-groups/${p.slug}`, type: "website" },
   };
 }

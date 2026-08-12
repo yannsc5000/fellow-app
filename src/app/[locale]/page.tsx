@@ -1,5 +1,7 @@
+import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { alts } from "@/lib/meta";
 import HomeExperience from "@/components/HomeExperience";
 import { CoveragePromo } from "@/components/CoveragePromo";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -22,6 +24,19 @@ const POPULAR_CITIES = [
   { name: "Jacksonville, FL", slug: "jacksonville-fl" }, { name: "Louisville, KY", slug: "louisville-ky" },
   { name: "Tucson, AZ", slug: "tucson-az" }, { name: "Raleigh, NC", slug: "raleigh-nc" },
 ];
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "meta" });
+  const title = t("homeTitle");
+  const description = t("homeDesc");
+  return {
+    title,
+    description,
+    alternates: alts(locale, "/"),
+    openGraph: { title, description, url: locale === "es" ? "/es" : "/", type: "website" },
+  };
+}
 
 export default async function Page({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
