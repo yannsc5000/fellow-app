@@ -12,8 +12,16 @@
 //      client_email as a user (Restricted is enough) on the fellow.space property.
 //   3. Point GSC_KEY_FILE at the JSON key (or set GOOGLE_APPLICATION_CREDENTIALS).
 //
+// Auth: two ways in, checked in this order.
+//   1. GSC_ACCESS_TOKEN — a ready OAuth access token (webmasters.readonly scope). CI supplies
+//      this via Workload Identity Federation (keyless), so no service-account key is downloaded
+//      or stored anywhere. Preferred, and required if your org blocks service-account keys.
+//   2. GSC_KEY_FILE / GOOGLE_APPLICATION_CREDENTIALS — path to a service-account JSON key. The
+//      script mints and signs its own JWT from it. Handy for local runs.
+//
 // Env:
-//   GSC_KEY_FILE / GOOGLE_APPLICATION_CREDENTIALS  path to the service-account JSON key (required)
+//   GSC_ACCESS_TOKEN  pre-issued OAuth access token (used in CI; skips the key path entirely)
+//   GSC_KEY_FILE / GOOGLE_APPLICATION_CREDENTIALS  path to the service-account JSON key (local fallback)
 //   GSC_SITE   property URL, default "https://fellow.space/"  (domain property: "sc-domain:fellow.space")
 //   GSC_DAYS   window length in days, default 28
 //   GSC_LAG    days to skip at the recent end for data settling, default 3
@@ -61,12 +69,17 @@ async function query(token, body) {
 }
 
 async function main() {
-  if (!KEY_FILE) {
-    console.error("✗ No service-account key. Set GSC_KEY_FILE (or GOOGLE_APPLICATION_CREDENTIALS) to the JSON key path.");
-    process.exit(1);
+  // Prefer a token handed in by CI (Workload Identity Federation — keyless). Fall back to
+  // minting one from a local service-account key.
+  let token = process.env.GSC_ACCESS_TOKEN;
+  if (!token) {
+    if (!KEY_FILE) {
+      console.error("✗ No credentials. Set GSC_ACCESS_TOKEN (keyless, via Workload Identity Federation in CI) or GSC_KEY_FILE / GOOGLE_APPLICATION_CREDENTIALS (a service-account JSON key, for local runs).");
+      process.exit(1);
+    }
+    const key = JSON.parse(await readFile(KEY_FILE, "utf8"));
+    token = await accessToken(key);
   }
-  const key = JSON.parse(await readFile(KEY_FILE, "utf8"));
-  const token = await accessToken(key);
 
   const end = new Date(Date.now() - LAG * 86_400_000);
   const start = new Date(end.getTime() - (DAYS - 1) * 86_400_000);
