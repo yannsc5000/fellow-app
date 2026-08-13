@@ -30,18 +30,28 @@ export async function SoberActivities({ city, state, stateName, fellowship }:
 
   return (
     <section className="sober" aria-labelledby="sober-h">
-      <span className="sober-eyebrow">{t("eyebrow")}</span>
-      <h2 id="sober-h" className="sober-h">{place ? t("hWithPlace", { place }) : t("h")}</h2>
+      <div className="sober-hd">
+        <span className="sober-motif" aria-hidden>
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="9" cy="8" r="3" /><circle cx="17" cy="10" r="2.4" />
+            <path d="M4 19c0-2.8 2.2-5 5-5s5 2.2 5 5" /><path d="M15.5 14.2c2 .4 3.5 2 3.5 4.3" />
+          </svg>
+        </span>
+        <div>
+          <span className="sober-eyebrow">{t("eyebrow")}</span>
+          <h2 id="sober-h" className="sober-h">{place ? t("hWithPlace", { place }) : t("h")}</h2>
+        </div>
+      </div>
       <p className="sober-lede">
         {place ? t("ledeWithPlace", { place }) : t("lede")}
       </p>
 
-      <div className="sober-grp">{t("grpCommunities")}</div>
+      <div className="sober-grp">{t("grpCommunities")}<span className="sober-grp-ln" /></div>
       <div className="sober-cards">{directories.map(Card)}</div>
 
       {hasPlatforms && (
         <>
-          <div className="sober-grp">{t("grpPlatforms")}</div>
+          <div className="sober-grp">{t("grpPlatforms")}<span className="sober-grp-ln" /></div>
           <div className="sober-cards">{platforms.map(Card)}</div>
         </>
       )}

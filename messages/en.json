@@ -264,12 +264,12 @@
   },
   "sober": {
     "eyebrow": "Beyond the meetings",
-    "h": "Sober activities",
-    "hWithPlace": "Sober activities in {place}",
-    "lede": "Recovery is bigger than the meeting room. These communities and searches surface sober social events, alcohol-free nightlife and sober meetups — across every fellowship, not just 12-step.",
-    "ledeWithPlace": "Recovery is bigger than the meeting room. These communities and searches surface sober social events in {place}, alcohol-free nightlife and sober meetups — across every fellowship, not just 12-step.",
+    "h": "Ways to come together",
+    "hWithPlace": "Ways to come together in {place}",
+    "lede": "Recovery is bigger than the meeting room. Sober socials, alcohol-free nightlife, and communities where it's easy to make friends who get it — because who you meet matters as much as the meeting.",
+    "ledeWithPlace": "Recovery is bigger than the meeting room. Sober socials, alcohol-free nightlife, and communities in {place} where it's easy to make friends who get it — because who you meet matters as much as the meeting.",
     "grpCommunities": "Sober communities & guides",
-    "grpPlatforms": "Search the big platforms",
+    "grpPlatforms": "Find local events",
     "notePlatforms": "These are independent listings — <b>Fellow doesn't vet them.</b> The big-platform searches can surface the occasional drinking event, so please confirm something is alcohol-free before you go.",
     "noteNoPlatforms": "These are independent, sober-focused communities — <b>Fellow doesn't vet them,</b> so confirm details before you go. Each one has its own tools for finding events near you."
   },

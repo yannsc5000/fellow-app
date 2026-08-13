@@ -13,11 +13,21 @@ export async function FellowshipBeyond({ code }: { code: string }) {
 
   return (
     <section className="sober" aria-labelledby="beyond-h">
-      <span className="sober-eyebrow">{t("eyebrow")}</span>
-      <h2 id="beyond-h" className="sober-h">{section.heading}</h2>
+      <div className="sober-hd">
+        <span className="sober-motif" aria-hidden>
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="9" cy="8" r="3" /><circle cx="17" cy="10" r="2.4" />
+            <path d="M4 19c0-2.8 2.2-5 5-5s5 2.2 5 5" /><path d="M15.5 14.2c2 .4 3.5 2 3.5 4.3" />
+          </svg>
+        </span>
+        <div>
+          <span className="sober-eyebrow">{t("eyebrow")}</span>
+          <h2 id="beyond-h" className="sober-h">{section.heading}</h2>
+        </div>
+      </div>
       <p className="sober-lede">{section.lede}</p>
 
-      <div className="sober-grp">{section.groupLabel}</div>
+      <div className="sober-grp">{section.groupLabel}<span className="sober-grp-ln" /></div>
       <div className="sober-cards">
         {section.links.map((l) => (
           <a key={l.href} className="sober-card" href={l.href} target="_blank" rel="noopener nofollow" style={{ ["--pc" as any]: l.color }}>

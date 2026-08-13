@@ -264,12 +264,12 @@
   },
   "sober": {
     "eyebrow": "Más allá de las reuniones",
-    "h": "Actividades sin alcohol",
-    "hWithPlace": "Actividades sin alcohol en {place}",
-    "lede": "La recuperación es más grande que la sala de reuniones. Estas comunidades y búsquedas muestran eventos sociales sin alcohol, vida nocturna libre de alcohol y encuentros sobrios — de todas las comunidades, no solo de doce pasos.",
-    "ledeWithPlace": "La recuperación es más grande que la sala de reuniones. Estas comunidades y búsquedas muestran eventos sociales sin alcohol en {place}, vida nocturna libre de alcohol y encuentros sobrios — de todas las comunidades, no solo de doce pasos.",
+    "h": "Formas de conectar",
+    "hWithPlace": "Formas de conectar en {place}",
+    "lede": "La recuperación es más grande que la sala de reuniones. Encuentros sobrios, vida nocturna sin alcohol y comunidades donde es fácil hacer amistades que te entienden — porque a quién conoces importa tanto como la reunión.",
+    "ledeWithPlace": "La recuperación es más grande que la sala de reuniones. Encuentros sobrios, vida nocturna sin alcohol y comunidades en {place} donde es fácil hacer amistades que te entienden — porque a quién conoces importa tanto como la reunión.",
     "grpCommunities": "Comunidades y guías sobrias",
-    "grpPlatforms": "Busca en las grandes plataformas",
+    "grpPlatforms": "Encuentra eventos locales",
     "notePlatforms": "Estos son listados independientes — <b>Fellow no los verifica.</b> Las búsquedas en las grandes plataformas pueden mostrar algún evento con alcohol, así que confirma que algo sea libre de alcohol antes de ir.",
     "noteNoPlatforms": "Estas son comunidades independientes y centradas en la sobriedad — <b>Fellow no las verifica,</b> así que confirma los detalles antes de ir. Cada una tiene sus propias herramientas para encontrar eventos cerca de ti."
   },

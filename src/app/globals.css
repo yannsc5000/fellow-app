@@ -512,28 +512,36 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
   vertical-align:middle;background:color-mix(in srgb, var(--brand) 14%, var(--surface));color:var(--brand-ink)}
 
 /* ---- Beyond the meetings: sober-activities outbound section (SoberActivities.tsx) ---- */
-.sober{margin-top:34px;padding-top:26px;border-top:1px solid var(--panel-line)}
-.sober-eyebrow{display:inline-block;font-size:12px;font-weight:850;letter-spacing:.05em;text-transform:uppercase;
-  color:var(--brand-ink);background:color-mix(in srgb, var(--brand) 14%, var(--surface));padding:5px 11px;border-radius:999px;margin:0 0 12px}
-.sober-h{font-size:22px;font-weight:850;letter-spacing:-.01em;margin:0 0 6px}
-.sober-lede{font-size:14.5px;line-height:1.55;color:var(--ink-soft);margin:0 0 16px;max-width:58ch}
-.sober-grp{font-size:12px;font-weight:850;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);margin:18px 0 9px}
-/* Outbound sober links: deliberately LIGHTER than the meeting cards above (a divided list, not
-   elevated cards) so the in-app meetings stay the visual priority — but each row carries its
-   platform's brand color in a round chip (a lettermark stand-in for the logo) and a matching
-   external-link icon, so the list reads as a structured, recognizable set rather than floating. */
-.sober-cards{display:grid;border-top:1px solid var(--line)}
-.sober-card{display:flex;align-items:center;gap:12px;min-height:54px;padding:10px 6px;text-decoration:none;
-  border-bottom:1px solid var(--line);transition:background .12s ease}
-.sober-card:hover{background:var(--surface-2)}
-.sober-card .lx-cico{flex:0 0 auto;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
-  font-size:14px;font-weight:850;letter-spacing:-.02em;
-  background:color-mix(in srgb, var(--pc, var(--brand)) 15%, var(--surface));color:var(--pc, var(--brand))}
+/* "Beyond the meetings" / community section (T4 — warm editorial invitation).
+   A true section head: a people motif + kicker + large H2 that reads as a peer to the meetings
+   section above, reframing this space around connection ("ways to come together") rather than a
+   footnote list. Shared by SoberActivities and FellowshipBeyond. */
+.sober{margin-top:34px;padding-top:26px;border-top:2px solid var(--panel-line)}
+.sober-hd{display:flex;gap:15px;align-items:flex-start}
+.sober-motif{flex:0 0 auto;width:54px;height:54px;border-radius:16px;background:var(--brand-tint);
+  display:grid;place-items:center;color:var(--brand)}
+.sober-eyebrow{display:inline-block;font-size:12px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--brand);margin:0 0 5px}
+.sober-h{font-size:29px;font-weight:900;letter-spacing:-.02em;line-height:1.1;margin:0}
+@media(max-width:520px){ .sober-h{font-size:25px} .sober-motif{width:46px;height:46px;border-radius:13px} }
+.sober-lede{font-size:15.5px;line-height:1.55;color:var(--ink-soft);margin:14px 0 18px;max-width:60ch}
+.sober-grp{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:850;color:var(--ink);margin:22px 0 11px}
+.sober-grp .sober-grp-ln{flex:1;height:1px;background:var(--line)}
+/* Cards now read as a warm, tappable set (bordered rounded rows) — each carries its platform's
+   brand color in a round chip (a lettermark stand-in for the logo) and a matching external icon. */
+.sober-cards{display:grid;gap:9px}
+.sober-card{display:flex;align-items:center;gap:13px;min-height:56px;padding:13px 15px;text-decoration:none;
+  background:var(--surface);border:1px solid var(--line);border-radius:15px;
+  transition:border-color .14s ease,box-shadow .14s ease,transform .14s ease}
+.sober-card:hover{border-color:color-mix(in srgb, var(--pc, var(--brand)) 42%, var(--line));
+  box-shadow:var(--shadow-sm);transform:translateY(-1px)}
+.sober-card .lx-cico{flex:0 0 auto;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;
+  font-size:16px;font-weight:850;letter-spacing:-.02em;color:#fff;background:var(--pc, var(--brand))}
 .sober-card .lx-ctext{flex:1;min-width:0}
-.sober-card .lx-ctext b{display:block;color:var(--ink);font-size:14px;font-weight:750;line-height:1.25}
-.sober-card .lx-ctext small{display:block;color:var(--ink-soft);font-size:12px;margin-top:1px}
-.sober-card .lx-ext{flex:0 0 auto;color:var(--pc, var(--ink-soft));opacity:.8;transition:opacity .12s ease}
-.sober-card:hover .lx-ext{opacity:1}
+.sober-card .lx-ctext b{display:block;color:var(--ink);font-size:15px;font-weight:800;line-height:1.25}
+.sober-card .lx-ctext small{display:block;color:var(--ink-soft);font-size:12.5px;margin-top:1px}
+.sober-card .lx-ext{flex:0 0 auto;color:var(--ink-soft);opacity:.75;transition:opacity .12s ease}
+.sober-card:hover .lx-ext{opacity:1;color:var(--pc, var(--ink-soft))}
 .sober-note{display:flex;gap:9px;align-items:flex-start;margin:16px 0 0;padding:12px 14px;border-radius:14px;
   background:color-mix(in srgb, var(--brand) 6%, var(--surface));border:1px dashed var(--panel-line);
   color:var(--ink-soft);font-size:13px;line-height:1.5}
