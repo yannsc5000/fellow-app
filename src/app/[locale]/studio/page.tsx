@@ -5,6 +5,7 @@ import { getKpis, kpiRecommendations, fmtVal, type Kpi, type KpiStatus } from "@
 import chatbot from "@/lib/chatbot-analytics.json";
 import { fellowshipName, fellowshipColor } from "@/lib/fellowships";
 import { Mark } from "@/components/Mark";
+import { AnalyticsToggle } from "@/components/AnalyticsToggle";
 
 // Internal-only data-health dashboard. noindex/nofollow + disallowed in robots + absent from the
 // sitemap — this page is for the team, not for search. Everything shown is computed at build from
@@ -126,6 +127,7 @@ export default async function StudioPage() {
           <span className={"st-fresh-badge " + (h.daysSinceIngest >= 90 ? "sv-serious" : h.daysSinceIngest >= 30 ? "sv-warning" : "sv-good")}>
             Ingested {h.refDate || "—"} · {h.daysSinceIngest}d ago
           </span>
+          <AnalyticsToggle />
           <Link href="/" className="st-exit">← Fellow</Link>
         </div>
       </header>
