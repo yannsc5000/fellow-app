@@ -57,8 +57,12 @@ export const SOURCES = [
   { id: "aa-detroit-ferndale", fellowship: "AA", system: "meeting-guide", area: "AA of Greater Detroit (Ferndale)", url: "https://www.aaferndale.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "aa-miami-dade",  fellowship: "AA", system: "meeting-guide", area: "Miami-Dade FL",          url: "https://aamiamidade.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "aa-wyoming",     fellowship: "AA", system: "meeting-guide", area: "Wyoming (Area 76)",       url: "https://wyomingaa.org/wp-admin/admin-ajax.php?action=meetings" }, // verify: custom install, confirm from CI
-  // DC METRO double-down: WAIA (aa-dc, above) already covers DC + MD suburbs + close-in VA;
-  // add outer Northern Virginia (Fairfax/NoVA) for full metro coverage.
+  // DC METRO double-down (2026-08-13): full-metro coverage now spans two feeds —
+  //   • WAIA (aa-dc, above) = DC proper + MD suburbs (Montgomery/Prince George's; VERIFIED via
+  //     aa-dc.org?tsml-region=maryland) + close-in VA (Arlington/Alexandria).
+  //   • Northern Virginia Intergroup (aa-nova, below) = outer VA (Fairfax/Loudoun/Prince William).
+  // dedupe() drops the close-in VA overlap between the two. That's the whole DMV.
+  { id: "aa-nova", fellowship: "AA", system: "meeting-guide", area: "Northern Virginia Intergroup (Fairfax/Arlington/Alexandria/Loudoun/Prince William)", url: "https://nvintergroup.org/wp-admin/admin-ajax.php?action=meetings" }, // CANDIDATE: ~300 mtgs; dedupes against WAIA's close-in VA. Verify on next ingest (USE_BROWSER=1 if WAF-blocked).
   // TODO: LA uses a non-TSML format (returns HTML) — needs its own adapter.
   // Grow toward the full ~400 intergroups (see NATIONAL-ROLLOUT.md discovery approach).
 
@@ -225,6 +229,21 @@ export const SOURCES = [
   { id: "aa-roanoke",       fellowship: "AA", system: "meeting-guide", area: "Roanoke VA (Roanoke Valley)",                           url: "https://aaroanoke.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "aa-tallahassee",   fellowship: "AA", system: "meeting-guide", area: "Tallahassee FL (Big Bend, Intergroup 5)",              url: "https://intergroup5.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "aa-montgomery",    fellowship: "AA", system: "meeting-guide", area: "Montgomery AL (Central Alabama)",                       url: "https://centralalaa.org/wp-admin/admin-ajax.php?action=meetings" },
+
+  // ---- Intergroup scan pass (2026-08-13): gap metros not yet covered. Confirmed the
+  // intergroup runs TSML where a plain fetch succeeded (VERIFIED); the rest are CANDIDATE
+  // (modern intergroup TSML site, but robots/WAF-blocked from the sandbox — ingest skips any
+  // that don't return a JSON array, and USE_BROWSER=1 pulls the bot-blocked ones). ----
+  { id: "aa-new-orleans",  fellowship: "AA", system: "meeting-guide", area: "New Orleans LA (Greater New Orleans)",       url: "https://aaneworleans.org/wp-admin/admin-ajax.php?action=meetings" }, // VERIFIED: TSML meeting finder (tsml-day/tsml-region)
+  { id: "aa-delaware",     fellowship: "AA", system: "meeting-guide", area: "Wilmington DE (Northern Delaware Intergroup)", url: "https://ndiaa.org/wp-admin/admin-ajax.php?action=meetings" }, // VERIFIED: 12_step_meeting_list 3.19.16
+  { id: "aa-pittsburgh",   fellowship: "AA", system: "meeting-guide", area: "Pittsburgh PA (Area Central Office)",          url: "https://www.pghaa.org/wp-admin/admin-ajax.php?action=meetings" }, // CANDIDATE: robots-blocked; pghaa.org/meetings is a TSML finder
+  { id: "aa-broward",      fellowship: "AA", system: "meeting-guide", area: "Fort Lauderdale FL (Broward County Intergroup)", url: "https://aabroward.org/wp-admin/admin-ajax.php?action=meetings" }, // CANDIDATE
+  { id: "aa-suffolk-ny",   fellowship: "AA", system: "meeting-guide", area: "Suffolk County NY (east Long Island)",         url: "https://suffolkny-aa.org/wp-admin/admin-ajax.php?action=meetings" }, // CANDIDATE: complements Nassau (aa-longisland)
+  { id: "aa-fairfield-ct", fellowship: "AA", system: "meeting-guide", area: "Fairfield County CT (Stamford/Norwalk, SW CT)", url: "https://www.iafc-aa.org/wp-admin/admin-ajax.php?action=meetings" }, // CANDIDATE: complements Hartford (aa-ct)
+  { id: "aa-new-mexico",   fellowship: "AA", system: "meeting-guide", area: "New Mexico (Area 46, statewide, covers Santa Fe)", url: "https://nm-aa.org/wp-admin/admin-ajax.php?action=meetings" }, // CANDIDATE: statewide; dedupes vs Albuquerque; Santa Fe city site is PDF-only
+  // Checked but NOT TSML (need a custom adapter, tracked for later): Milwaukee (aamilwaukee.com,
+  // legacy index.php CMS), Northern NJ (nnjaa.org, cgi-bin/Perl), Worcester MA (aaworcester.org,
+  // ASP.NET AAStarterKit). Westchester/Putnam NY already covered inside the NY Intergroup feed.
 
   // ---- Other fellowships — many are on BMLT (add their root servers from awesome-bmlt)
   // or publish Meeting Guide feeds. Add per-fellowship national sources here. ----
