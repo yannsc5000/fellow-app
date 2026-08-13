@@ -325,18 +325,19 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
                   {s.text}
                 </button>
               ))}
-              {/* Last chip is a LINK into the problem-first "support groups" funnel page (not a
-                  chat prompt). It routes to /support-groups (locale-aware) — a clean, measurable
-                  funnel entry that covers every situation, including topics the bot doesn't index. */}
-              <a
+              {/* Catch-all last chip: the problem-first "which support group?" question, handled
+                  IN-CHAT (the bot guides them from what they're facing → the right fellowship).
+                  No fellowship dot — it's the "not sure where to start" entry. We still fire a
+                  custom analytics event so this funnel entry stays measurable. */}
+              <button
                 className="chip chip-nav"
-                href={es ? "/es/support-groups" : "/support-groups"}
-                style={{ textDecoration: "none", color: "inherit" }}
-                onClick={() => track("support_groups_chip", { locale: es ? "es" : "en" })}
+                onClick={() => {
+                  track("support_groups_chip", { locale: es ? "es" : "en" });
+                  send(es ? "¿Qué grupo de apoyo es adecuado para mí?" : "Which support group is right for me?");
+                }}
               >
                 {es ? "¿Qué grupo de apoyo es adecuado para mí?" : "Which support group is right for me?"}
-                <Icon name="chevron" size={14} className="chip-chev" aria-hidden />
-              </a>
+              </button>
             </div>
             <p className="chat-fine">{es ? "Fellow es independiente y no está afiliado a ninguna comunidad. Encuentra reuniones — no sustituye la ayuda profesional." : "Fellow is independent and not affiliated with any fellowship. It finds meetings — it isn’t a substitute for professional help."}</p>
           </div>
