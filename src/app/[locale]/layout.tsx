@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 // Nunito Sans — warm, rounded geometric-humanist. Self-hosted via Fontsource (font files ship
 // in our bundle), so there's no request to Google Fonts from the user's browser.
 import "@fontsource-variable/nunito-sans";
-import { Analytics } from "@vercel/analytics/next";
+import { VercelAnalytics } from "@/components/VercelAnalytics";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { setRequestLocale, getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -101,7 +101,7 @@ export default async function LocaleLayout({
           <ChatLauncher />
         </NextIntlClientProvider>
         <ServiceWorkerRegister />
-        <Analytics />
+        <VercelAnalytics />
       </body>
     </html>
   );
