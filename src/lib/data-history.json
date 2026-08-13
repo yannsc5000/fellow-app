@@ -15,5 +15,23 @@
       "SLAA": 99,
       "ACA": 56
     }
+  },
+  {
+    "generatedAt": "2026-08-13T05:26:37.084Z",
+    "total": 81801,
+    "inPerson": 66579,
+    "placed": 64927,
+    "online": 15222,
+    "counts": {
+      "AA": 60759,
+      "NA": 19235,
+      "RD": 944,
+      "Al-Anon": 298,
+      "EDA": 166,
+      "CMA": 162,
+      "SLAA": 99,
+      "SIA": 82,
+      "ACA": 56
+    }
   }
 ]
