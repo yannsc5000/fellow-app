@@ -1,127 +1,54 @@
-// Fetch Google Search Console performance for fellow.space and write the export the internal
-// /studio dashboard reads (src/lib/search-console.json). Zero external dependencies — a service
-// account JWT is minted and signed with Node's built-in crypto, exchanged for an access token,
-// then the Search Analytics API is queried directly. Nothing here invents data: if the property
-// has no traffic yet, it writes real zeros, and /studio shows them honestly.
-//
-//   GSC_KEY_FILE=./gsc-service-account.json npm run gsc
-//
-// One-time Google setup (see the refresh runbook, "Connecting Google Search Console"):
-//   1. Create a Google Cloud service account, download its JSON key.
-//   2. In Search Console → Settings → Users and permissions, add the service account's
-//      client_email as a user (Restricted is enough) on the fellow.space property.
-//   3. Point GSC_KEY_FILE at the JSON key (or set GOOGLE_APPLICATION_CREDENTIALS).
-//
-// Auth: two ways in, checked in this order.
-//   1. GSC_ACCESS_TOKEN — a ready OAuth access token (webmasters.readonly scope). CI supplies
-//      this via Workload Identity Federation (keyless), so no service-account key is downloaded
-//      or stored anywhere. Preferred, and required if your org blocks service-account keys.
-//   2. GSC_KEY_FILE / GOOGLE_APPLICATION_CREDENTIALS — path to a service-account JSON key. The
-//      script mints and signs its own JWT from it. Handy for local runs.
-//
-// Env:
-//   GSC_ACCESS_TOKEN  pre-issued OAuth access token (used in CI; skips the key path entirely)
-//   GSC_KEY_FILE / GOOGLE_APPLICATION_CREDENTIALS  path to the service-account JSON key (local fallback)
-//   GSC_SITE   property URL, default "https://fellow.space/"  (domain property: "sc-domain:fellow.space")
-//   GSC_DAYS   window length in days, default 28
-//   GSC_LAG    days to skip at the recent end for data settling, default 3
-import { readFile, writeFile } from "node:fs/promises";
-import { createSign } from "node:crypto";
+name: Refresh Search Console export
 
-const SITE = process.env.GSC_SITE || "https://fellow.space/";
-const DAYS = Number(process.env.GSC_DAYS || 28);
-const LAG = Number(process.env.GSC_LAG || 3);
-const KEY_FILE = process.env.GSC_KEY_FILE || process.env.GOOGLE_APPLICATION_CREDENTIALS;
-const SCOPE = "https://www.googleapis.com/auth/webmasters.readonly";
+on:
+  schedule:
+    - cron: "0 10 * * 1"    # Mondays at 10:00 UTC
+  workflow_dispatch: {}
 
-const b64url = (buf) => Buffer.from(buf).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-const ymd = (d) => d.toISOString().slice(0, 10);
+permissions:
+  contents: write            # commit the refreshed export back to the repo
+  id-token: write            # mint the GitHub OIDC token for Workload Identity Federation
 
-async function accessToken(key) {
-  const now = Math.floor(Date.now() / 1000);
-  const header = b64url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
-  const claim = b64url(JSON.stringify({
-    iss: key.client_email, scope: SCOPE, aud: key.token_uri || "https://oauth2.googleapis.com/token",
-    iat: now, exp: now + 3600,
-  }));
-  const signer = createSign("RSA-SHA256");
-  signer.update(`${header}.${claim}`);
-  const sig = b64url(signer.sign(key.private_key));
-  const jwt = `${header}.${claim}.${sig}`;
-  const r = await fetch(key.token_uri || "https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer", assertion: jwt }),
-  });
-  if (!r.ok) throw new Error(`token exchange failed: HTTP ${r.status} ${await r.text()}`);
-  return (await r.json()).access_token;
-}
+jobs:
+  search-console:
+    runs-on: ubuntu-latest
+    concurrency: { group: search-console, cancel-in-progress: true }
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with: { node-version: 22 }
 
-async function query(token, body) {
-  const url = `https://searchconsole.googleapis.com/webmasters/v3/sites/${encodeURIComponent(SITE)}/searchAnalytics/query`;
-  const r = await fetch(url, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  if (!r.ok) throw new Error(`query failed: HTTP ${r.status} ${await r.text()}`);
-  return (await r.json()).rows || [];
-}
+      # Keyless auth: exchange GitHub's OIDC token for a scoped Google access token.
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.GSC_SERVICE_ACCOUNT_EMAIL }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/webmasters.readonly
 
-async function main() {
-  // Prefer a token handed in by CI (Workload Identity Federation — keyless). Fall back to
-  // minting one from a local service-account key.
-  let token = process.env.GSC_ACCESS_TOKEN;
-  if (!token) {
-    if (!KEY_FILE) {
-      console.error("✗ No credentials. Set GSC_ACCESS_TOKEN (keyless, via Workload Identity Federation in CI) or GSC_KEY_FILE / GOOGLE_APPLICATION_CREDENTIALS (a service-account JSON key, for local runs).");
-      process.exit(1);
-    }
-    const key = JSON.parse(await readFile(KEY_FILE, "utf8"));
-    token = await accessToken(key);
-  }
+      - name: Fetch Search Console performance
+        run: npm run gsc
+        env:
+          GSC_ACCESS_TOKEN: ${{ steps.auth.outputs.access_token }}
+          GSC_SITE: ${{ vars.GSC_SITE }}
 
-  const end = new Date(Date.now() - LAG * 86_400_000);
-  const start = new Date(end.getTime() - (DAYS - 1) * 86_400_000);
-  const range = { startDate: ymd(start), endDate: ymd(end) };
-  console.log(`+ ${SITE} · ${range.startDate} → ${range.endDate}`);
-
-  // Totals (no dimension → a single summary row).
-  const totalRows = await query(token, { ...range, dimensions: [] });
-  const t = totalRows[0] || { clicks: 0, impressions: 0, ctr: 0, position: 0 };
-
-  // Top queries by clicks.
-  const qRows = await query(token, { ...range, dimensions: ["query"], rowLimit: 12, orderBy: [{ field: "clicks", descending: true }] });
-  const topQueries = qRows.map((r) => ({
-    query: r.keys[0], clicks: r.clicks, impressions: r.impressions, position: +r.position.toFixed(1),
-  }));
-
-  // Opportunities: pages with real demand (impressions) but weak placement (avg position past the
-  // top of page one). Sorted by impressions so the biggest under-performers surface first.
-  const pRows = await query(token, { ...range, dimensions: ["page"], rowLimit: 1000 });
-  const site = SITE.replace(/^sc-domain:/, "https://").replace(/\/$/, "");
-  const opportunities = pRows
-    .filter((r) => r.position > 8 && r.impressions >= 1)
-    .sort((a, b) => b.impressions - a.impressions)
-    .slice(0, 12)
-    .map((r) => ({
-      page: r.keys[0].replace(site, "") || "/",
-      impressions: r.impressions, position: +r.position.toFixed(1), ctr: +r.ctr.toFixed(4),
-    }));
-
-  const out = {
-    generatedAt: new Date().toISOString(),
-    range: `${range.startDate} → ${range.endDate}`,
-    clicks: t.clicks || 0,
-    impressions: t.impressions || 0,
-    ctr: +(t.ctr || 0).toFixed(4),
-    position: +(t.position || 0).toFixed(1),
-    topQueries,
-    opportunities,
-  };
-  await writeFile(new URL("../src/lib/search-console.json", import.meta.url), JSON.stringify(out, null, 2) + "\n");
-  console.log(`+ wrote src/lib/search-console.json — ${out.clicks} clicks / ${out.impressions} impressions, ${topQueries.length} queries, ${opportunities.length} opportunities`);
-  if (out.impressions === 0) console.log("  (zero impressions in range — the site may be new or newly verified; /studio will show real zeros)");
-}
-
-main().catch((e) => { console.error(`✗ ${e.message}`); process.exit(1); });
+      - name: Commit if changed
+        run: |
+          git add src/lib/search-console.json
+          if git diff --cached --quiet -- src/lib/search-console.json; then
+            echo "No change."; exit 0
+          fi
+          if git cat-file -e HEAD:src/lib/search-console.json 2>/dev/null; then
+            meaningful="$(git diff --cached -U0 -- src/lib/search-console.json | grep -E '^[+-]' | grep -vE '^[+-]{3}' | grep -v '"generatedAt"')"
+            if [ -z "$meaningful" ]; then
+              echo "Only generatedAt changed — reverting to avoid a no-op commit."
+              git restore --staged src/lib/search-console.json
+              git checkout -- src/lib/search-console.json
+              exit 0
+            fi
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: refresh Search Console export"
+          git push
