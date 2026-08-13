@@ -969,3 +969,47 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
   .lang-toggle{top:8px;right:8px;padding:2px 4px}
   .lang-toggle button{font-size:12px;padding:6px 8px}
 }
+
+/* ============================================================================
+   Floating Ask Fellow launcher — a lightweight button on every page (except the
+   homepage, which shows Ask Fellow inline). Opens a panel that hosts the same
+   Chat component, lazy-loaded on first open. Teal (--brand) is Ask Fellow's color.
+   ============================================================================ */
+.chat-fab{position:fixed;right:18px;bottom:18px;z-index:1000;display:inline-flex;align-items:center;gap:8px;
+  background:var(--brand);color:#fff;border:none;border-radius:999px;padding:12px 18px;font:inherit;font-weight:600;
+  line-height:1;box-shadow:0 6px 20px rgba(0,0,0,.18);cursor:pointer;
+  transition:transform .15s ease,box-shadow .15s ease}
+.chat-fab:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(0,0,0,.24)}
+.chat-fab:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.chat-fab-label{font-size:15px}
+
+.chat-launcher{position:fixed;inset:0;z-index:1001;pointer-events:none}
+.chat-launcher:not(.is-open){display:none}
+.cl-overlay{position:absolute;inset:0;background:rgba(15,20,20,.45);opacity:0;
+  transition:opacity .2s ease;pointer-events:auto}
+.chat-launcher.is-open .cl-overlay{opacity:1}
+.cl-panel{position:absolute;right:18px;bottom:18px;width:390px;max-width:calc(100vw - 24px);
+  height:min(640px,calc(100vh - 36px));background:var(--surface);border:1px solid var(--line);
+  border-radius:18px;box-shadow:0 18px 50px rgba(0,0,0,.30);display:flex;flex-direction:column;
+  overflow:hidden;pointer-events:auto;animation:cl-in .18s ease}
+@keyframes cl-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.cl-head{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:11px 12px 11px 14px;background:var(--brand);color:#fff;flex:0 0 auto}
+.cl-title{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px}
+.cl-ava{display:inline-flex;align-items:center}
+.cl-close{background:rgba(255,255,255,.16);border:none;color:#fff;border-radius:9px;width:34px;height:34px;
+  display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:background .12s ease}
+.cl-close:hover{background:rgba(255,255,255,.30)}
+.cl-close:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.cl-body{flex:1;min-height:0;display:flex;overflow:hidden}
+.cl-body .chat-wrap{height:100%;flex:1;border:0;border-radius:0;box-shadow:none;margin:0;background:transparent}
+.cl-loading{flex:1;display:flex;align-items:center;justify-content:center}
+
+/* Desktop: floating corner card, page stays interactive (no dark scrim). */
+@media (min-width:641px){ .cl-overlay{display:none} }
+/* Mobile: full-width bottom sheet with a scrim. */
+@media (max-width:640px){
+  .cl-panel{right:0;left:0;bottom:0;width:100%;max-width:100%;height:88vh;border-radius:18px 18px 0 0}
+}
+/* Very small screens: icon-only button so it never crowds the viewport. */
+@media (max-width:420px){ .chat-fab-label{display:none} .chat-fab{padding:14px;border-radius:50%} }

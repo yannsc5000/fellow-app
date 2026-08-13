@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import dynamic from "next/dynamic";
 import { Icon } from "@/components/Icon";
 import { Mark } from "@/components/Mark";
@@ -12,6 +13,7 @@ const Chat = dynamic(() => import("@/components/Chat"), { ssr: false });
 // page. Kept as its own client component so the page itself can be a server component (and
 // fetch coverage data for the promo below).
 export default function HomeExperience() {
+  const t = useTranslations("common");
   // Default to chat deterministically (same on server + client — no hydration mismatch); the
   // effect below flips to Search when there's a ?q=.
   const [mode, setMode] = useState<"search" | "chat">("chat");
@@ -37,7 +39,7 @@ export default function HomeExperience() {
           <div className="mark" aria-hidden><Mark size={52} logo /></div>
           <div>
             <h1>Fellow</h1>
-            <div className="tagline">Find your people</div>
+            <div className="tagline">{t("tagline")}</div>
           </div>
         </a>
       </header>
@@ -59,13 +61,13 @@ export default function HomeExperience() {
             role="tab" id="tab-chat" aria-controls="exp-panel" aria-selected={mode === "chat"}
             tabIndex={mode === "chat" ? 0 : -1} className="exp-tab" onClick={() => setMode("chat")}
           >
-            <Icon name="chatdots" size={22} /> Ask Fellow
+            <Icon name="chatdots" size={22} /> {t("askFellow")}
           </button>
           <button
             role="tab" id="tab-search" aria-controls="exp-panel" aria-selected={mode === "search"}
             tabIndex={mode === "search" ? 0 : -1} className="exp-tab" onClick={() => setMode("search")}
           >
-            <Icon name="searchtab" size={22} /> Find
+            <Icon name="searchtab" size={22} /> {t("find")}
           </button>
         </div>
         <div

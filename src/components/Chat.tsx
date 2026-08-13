@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { useLocale } from "next-intl";
 import { fellowshipColor } from "@/lib/fellowships";
 import { Icon } from "./Icon";
 import { Mark } from "./Mark";
@@ -23,8 +24,13 @@ function timeMin(t: string) {
 function dayOffset(day: number, today: number) {
   return (((day - today) % 7) + 7) % 7;
 }
-function dayLabel(offset: number, day: number) {
-  return offset === 0 ? "Today" : offset === 1 ? "Tomorrow" : DAYS_FULL[day];
+// Always name the weekday so a day the person explicitly asked for is confirmed (e.g. searching
+// "Wednesday" shouldn't just say "Tomorrow"); keep the friendly relative cue for today/tomorrow.
+const DAYS_FULL_ES = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+function dayLabel(offset: number, day: number, es: boolean) {
+  const name = (es ? DAYS_FULL_ES : DAYS_FULL)[day];
+  if (es) return offset === 0 ? `Hoy · ${name}` : offset === 1 ? `Mañana · ${name}` : name;
+  return offset === 0 ? `Today · ${name}` : offset === 1 ? `Tomorrow · ${name}` : name;
 }
 // Sort meetings by (days-from-today, time), then split into contiguous day groups.
 function groupByDay(list: Meeting[]) {
@@ -68,16 +74,17 @@ async function zipToPlace(zip: string): Promise<Place | null> {
 
 // Editable location bar: prepopulated from the device's best guess; tap to change.
 function LocationBar({ place, onSet }: { place: Place | null; onSet: (p: Place) => void }) {
+  const es = useLocale() === "es";
   const [editing, setEditing] = useState(false);
   const [zip, setZip] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!/^\d{5}$/.test(zip)) { setErr(IS_ES ? "Ingresa un código postal de 5 dígitos" : "Enter a 5-digit ZIP"); return; }
+    if (!/^\d{5}$/.test(zip)) { setErr(es ? "Ingresa un código postal de 5 dígitos" : "Enter a 5-digit ZIP"); return; }
     setBusy(true); setErr("");
     const p = await zipToPlace(zip);
-    if (p) { onSet(p); setEditing(false); setZip(""); } else setErr(IS_ES ? "Código postal no encontrado" : "ZIP not found");
+    if (p) { onSet(p); setEditing(false); setZip(""); } else setErr(es ? "Código postal no encontrado" : "ZIP not found");
     setBusy(false);
   }
   function useMe() {
@@ -92,19 +99,19 @@ function LocationBar({ place, onSet }: { place: Place | null; onSet: (p: Place) 
   if (editing) {
     return (
       <form className="loc-form" onSubmit={submit}>
-        <input inputMode="numeric" maxLength={5} autoFocus aria-label={IS_ES ? "Código postal" : "ZIP code"} placeholder={IS_ES ? "Código postal" : "ZIP code"}
+        <input inputMode="numeric" maxLength={5} autoFocus aria-label={es ? "Código postal" : "ZIP code"} placeholder={es ? "Código postal" : "ZIP code"}
           value={zip} onChange={(e) => setZip(e.currentTarget.value.replace(/\D/g, ""))} />
-        <button className="btn btn-soft" type="submit" disabled={busy}>{busy ? <Loader size={18} label={IS_ES ? "Buscando código postal" : "Looking up ZIP"} /> : (IS_ES ? "Ir" : "Go")}</button>
-        <button type="button" className="loc-link" onClick={useMe}><Icon name="nearme" size={14} /> {IS_ES ? "Usar mi ubicación" : "Use my location"}</button>
+        <button className="btn btn-soft" type="submit" disabled={busy}>{busy ? <Loader size={18} label={es ? "Buscando código postal" : "Looking up ZIP"} /> : (es ? "Ir" : "Go")}</button>
+        <button type="button" className="loc-link" onClick={useMe}><Icon name="nearme" size={14} /> {es ? "Usar mi ubicación" : "Use my location"}</button>
         <button type="button" className="loc-link" onClick={() => { setEditing(false); setErr(""); }}>Cancel</button>
         {err && <span className="loc-err" role="alert">{err}</span>}
       </form>
     );
   }
   return (
-    <button className="loc-btn" onClick={() => setEditing(true)} aria-label={place ? `${IS_ES ? "Ubicación" : "Location"}: ${place.label}` : (IS_ES ? "Indica tu ubicación" : "Set your location")}>
+    <button className="loc-btn" onClick={() => setEditing(true)} aria-label={place ? `${es ? "Ubicación" : "Location"}: ${place.label}` : (es ? "Indica tu ubicación" : "Set your location")}>
       <Icon name="pin" size={16} />
-      {place ? <span>{IS_ES ? "Cerca de" : "Near"} <b>{place.label}</b></span> : <span>{IS_ES ? "Indica tu ubicación" : "Set your location"}</span>}
+      {place ? <span>{es ? "Cerca de" : "Near"} <b>{place.label}</b></span> : <span>{es ? "Indica tu ubicación" : "Set your location"}</span>}
       <Icon name="chevron" size={16} className="loc-caret" />
     </button>
   );
@@ -133,25 +140,15 @@ const SUGGESTIONS_ES: { text: string; code: string }[] = [
   { text: "Una reunión de recuperación con meditación", code: "RD" },
 ];
 const REFINE_ES = ["Solo en línea", "Mejor mañana", "Área más amplia", "Por la mañana"];
-// Language: an explicit choice from the header toggle (fellow_lang cookie) wins; otherwise fall back
-// to the browser language. Client-only component, so document/navigator are always available.
-function detectEs(): boolean {
-  if (typeof document !== "undefined") {
-    const m = document.cookie.match(/(?:^|;\s*)fellow_lang=(en|es)/);
-    if (m) return m[1] === "es";
-  }
-  return typeof navigator !== "undefined" && /^es/i.test(navigator.language || "");
-}
-const IS_ES = detectEs();
-
 function ChatCard({ m, onOpen }: { m: Meeting; onOpen: (m: Meeting) => void }) {
+  const es = useLocale() === "es";
   return (
     <button className="chat-card" style={{ ["--fc" as any]: fellowshipColor(m.fellowship) }}
       onClick={() => onOpen(m)} aria-label={`${m.name} details`}>
       <span className="cc-badge">{m.fellowship}</span>
       <span className="cc-body">
         <span className="cc-name">{m.name}</span>
-        <span className="cc-meta">{DAYS[m.day]} · {to12(m.time)} · {m.online ? "Online" : m.place || m.address}</span>
+        <span className="cc-meta">{DAYS[m.day]} · {to12(m.time)} · {m.online ? (es ? "En línea" : "Online") : m.place || m.address}</span>
       </span>
       <Icon name="chevron" size={18} className="cc-chev" />
     </button>
@@ -162,6 +159,7 @@ function ChatCard({ m, onOpen }: { m: Meeting; onOpen: (m: Meeting) => void }) {
 // chronologically from today. Collapsed to the first 3 with a "View all" expander so the
 // first reply stays scannable; expanding reveals the rest, still grouped.
 function MeetingResults({ list, onOpen }: { list: Meeting[]; onOpen: (m: Meeting) => void }) {
+  const es = useLocale() === "es";
   const [expanded, setExpanded] = useState(false);
   const { sorted } = groupByDay(list);
   const shown = expanded ? sorted : sorted.slice(0, 3);
@@ -171,7 +169,7 @@ function MeetingResults({ list, onOpen }: { list: Meeting[]; onOpen: (m: Meeting
     <div className="chat-results">
       {groups.map((g) => (
         <div key={g.offset} className="chat-daygroup">
-          <div className="chat-day">{dayLabel(g.offset, g.day)}</div>
+          <div className="chat-day">{dayLabel(g.offset, g.day, es)}</div>
           <div className="chat-cards">
             {g.items.map((mt) => <ChatCard key={mt.id} m={mt} onOpen={onOpen} />)}
           </div>
@@ -179,7 +177,7 @@ function MeetingResults({ list, onOpen }: { list: Meeting[]; onOpen: (m: Meeting
       ))}
       {hasMore && (
         <button className="chat-viewall" onClick={() => setExpanded((v) => !v)} aria-expanded={expanded}>
-          {expanded ? "Show fewer" : `View all ${sorted.length} meetings`}
+          {expanded ? (es ? "Ver menos" : "Show fewer") : (es ? `Ver las ${sorted.length} reuniones` : `View all ${sorted.length} meetings`)}
           <Icon name="chevron" size={16} className={`va-caret${expanded ? " va-up" : ""}`} />
         </button>
       )}
@@ -188,6 +186,7 @@ function MeetingResults({ list, onOpen }: { list: Meeting[]; onOpen: (m: Meeting
 }
 
 export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => void }) {
+  const es = useLocale() === "es";
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -245,11 +244,11 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
   // Time-of-day framing, shared by the greeting salute, the count window, and its wording, so
   // "Good evening" always lines up with "tonight" and a count of tonight's meetings.
   const hour = new Date().getHours();
-  const salute = IS_ES
+  const salute = es
     ? (hour < 12 ? "Buenos días" : hour < 17 ? "Buenas tardes" : "Buenas noches")
     : (hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening");
   const win = hour < 12 ? "morning" : hour < 17 ? "afternoon" : "tonight";
-  const winWord = IS_ES
+  const winWord = es
     ? (win === "morning" ? "esta mañana" : win === "afternoon" ? "esta tarde" : "esta noche")
     : (win === "morning" ? "this morning" : win === "afternoon" ? "this afternoon" : "tonight");
 
@@ -268,8 +267,8 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
 
   // When we have a location and a live count, lead with it (specific to the time of day);
   // otherwise a warm, still-personal fallback. Never shows a "0" — uses the support line instead.
-  const near = place?.label && place.label !== "your area" ? place.label : (IS_ES ? "ti" : "you");
-  const greeting = IS_ES
+  const near = place?.label && place.label !== "your area" ? place.label : (es ? "ti" : "you");
+  const greeting = es
     ? (place && nearbyCount != null && nearbyCount > 0
         ? `${salute} 👋 Hay ${nearbyCount.toLocaleString()} reunion${nearbyCount === 1 ? "" : "es"} cerca de ${near} ${winWord} — aquí tienes algunas formas de empezar.`
         : place
@@ -296,10 +295,10 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
         body: JSON.stringify({ messages: next.map((m) => ({ role: m.role, content: m.content })), location: place }),
       });
       const d = await r.json();
-      if (!r.ok) { setErr(d?.error || (IS_ES ? "Perdona — algo falló de mi lado. ¿Lo intentas de nuevo?" : "Sorry — something went wrong on my end. Mind trying that again?")); setBusy(false); return; }
+      if (!r.ok) { setErr(d?.error || (es ? "Perdona — algo falló de mi lado. ¿Lo intentas de nuevo?" : "Sorry — something went wrong on my end. Mind trying that again?")); setBusy(false); return; }
       setMsgs((cur) => [...cur, { role: "assistant", content: d.reply || "", meetings: d.meetings || [], webSearch: d.webSearch }]);
     } catch {
-      setErr(IS_ES ? "No pude conectar con Fellow ahora mismo. Revisa tu conexión e inténtalo otra vez — o usa la búsqueda clásica abajo." : "I couldn’t reach Fellow just now. Check your connection and try once more — or use classic Search below.");
+      setErr(es ? "No pude conectar con Fellow ahora mismo. Revisa tu conexión e inténtalo otra vez — o usa la búsqueda clásica abajo." : "I couldn’t reach Fellow just now. Check your connection and try once more — or use classic Search below.");
     } finally {
       setBusy(false);
     }
@@ -317,16 +316,16 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
               <span className="chat-ava" aria-hidden><Mark size={54} /></span>
               <div className="bubble chat-greet-bubble">{greeting}</div>
             </div>
-            <p className="chat-try">{IS_ES ? "Prueba una de estas" : "Try one of these"}</p>
+            <p className="chat-try">{es ? "Prueba una de estas" : "Try one of these"}</p>
             <div className="chat-suggest">
-              {(IS_ES ? SUGGESTIONS_ES : SUGGESTIONS).map((s) => (
+              {(es ? SUGGESTIONS_ES : SUGGESTIONS).map((s) => (
                 <button key={s.text} className="chip" onClick={() => send(s.text)}>
                   <span className="sug-dot" style={{ background: fellowshipColor(s.code) }} aria-hidden />
                   {s.text}
                 </button>
               ))}
             </div>
-            <p className="chat-fine">{IS_ES ? "Fellow es independiente y no está afiliado a ninguna comunidad. Encuentra reuniones — no sustituye la ayuda profesional." : "Fellow is independent and not affiliated with any fellowship. It finds meetings — it isn’t a substitute for professional help."}</p>
+            <p className="chat-fine">{es ? "Fellow es independiente y no está afiliado a ninguna comunidad. Encuentra reuniones — no sustituye la ayuda profesional." : "Fellow is independent and not affiliated with any fellowship. It finds meetings — it isn’t a substitute for professional help."}</p>
           </div>
         )}
         {msgs.map((m, i) => (
@@ -346,25 +345,25 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
                 )}
                 <a className="web-fallback" href={m.webSearch.url} target="_blank" rel="noopener noreferrer">
                   <Icon name="search" size={18} />
-                  <span>{IS_ES ? "Buscar en la web" : "Search the web for"} “{m.webSearch.query}”</span>
+                  <span>{es ? "Buscar en la web" : "Search the web for"} “{m.webSearch.query}”</span>
                   <Icon name="external" size={15} className="wf-ext" />
                 </a>
               </div>
             )}
             {i === lastAssistantIdx && m.meetings && m.meetings.length > 0 && !busy && (
               <div className="chat-followups" aria-label="Refine these results">
-                {(IS_ES ? REFINE_ES : REFINE).map((s) => <button key={s} className="chip" onClick={() => send(s)}>{s}</button>)}
+                {(es ? REFINE_ES : REFINE).map((s) => <button key={s} className="chip" onClick={() => send(s)}>{s}</button>)}
               </div>
             )}
           </div>
         ))}
-        {busy && <div className="msg assistant"><div className="bubble bubble-thinking"><Loader size={30} label={IS_ES ? "Fellow está buscando" : "Fellow is searching"} /></div></div>}
+        {busy && <div className="msg assistant"><div className="bubble bubble-thinking"><Loader size={30} label={es ? "Fellow está buscando" : "Fellow is searching"} /></div></div>}
         {err && (
           <div className="chat-err" role="alert">
             {err}
             {onSwitchToSearch && (
               <button className="btn btn-soft chat-err-switch" onClick={onSwitchToSearch}>
-                <Icon name="search" size={16} /> {IS_ES ? "Usar la búsqueda clásica" : "Use classic Search"}
+                <Icon name="search" size={16} /> {es ? "Usar la búsqueda clásica" : "Use classic Search"}
               </button>
             )}
           </div>
@@ -375,7 +374,7 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
         <textarea id="chatq" ref={inputRef} rows={1} value={input}
           onChange={(e) => setInput(e.currentTarget.value)}
           onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(input); } }}
-          placeholder={listening ? (IS_ES ? "Escuchando…" : "Listening…") : (IS_ES ? "Cuéntame qué necesitas…" : "Tell me what you need…")} autoComplete="off" />
+          placeholder={listening ? (es ? "Escuchando…" : "Listening…") : (es ? "Cuéntame qué necesitas…" : "Tell me what you need…")} autoComplete="off" />
         {speechSupported && (
           <button type="button" className={`btn btn-soft chat-mic${listening ? " mic-on" : ""}`}
             onClick={toggleVoice} aria-pressed={listening} aria-label={listening ? "Stop voice input" : "Speak your request"}>

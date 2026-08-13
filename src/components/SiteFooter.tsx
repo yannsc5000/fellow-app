@@ -1,22 +1,22 @@
-import Link from "next/link";
+"use client";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 
-// Shared site footer — used on every page so the primary links (including the coverage map)
-// and the disclaimer are consistent everywhere. Links lead; the Fellow blurb + copyright sit
-// at the very bottom. Contextual "back" links stay on their own pages.
+// Shared site footer — on every page, so links are locale-aware (keep the current /es prefix) and
+// the labels come from the message catalog. A client component so pages that aren't otherwise
+// translated yet stay statically rendered (translations come from the provider in the layout).
 export function SiteFooter() {
+  const t = useTranslations("footer");
   const year = new Date().getFullYear();
   return (
     <footer className="site-footer">
       <p className="foot-links">
-        <Link href="/">Find a meeting</Link> · <Link href="/support-groups">Support groups</Link> ·{" "}
-        <Link href="/meetings">Meetings by city</Link> · <Link href="/fellowships">Fellowships</Link> ·{" "}
-        <Link href="/coverage">Coverage map</Link> · <Link href="/about">About &amp; sources</Link> ·{" "}
-        <Link href="/about#privacy">Privacy &amp; anonymity</Link>
+        <Link href="/">{t("findMeeting")}</Link> · <Link href="/support-groups">{t("supportGroups")}</Link> ·{" "}
+        <Link href="/meetings">{t("meetingsByCity")}</Link> · <Link href="/fellowships">{t("fellowships")}</Link> ·{" "}
+        <Link href="/coverage">{t("coverageMap")}</Link> · <Link href="/about">{t("about")}</Link> ·{" "}
+        <Link href="/about#privacy">{t("privacy")}</Link>
       </p>
-      <p className="foot-blurb">
-        © {year} Fellow — an independent, non-commercial project, not affiliated with any 12-step
-        fellowship. Meeting data comes from public intergroup feeds.
-      </p>
+      <p className="foot-blurb">{t("blurb", { year })}</p>
     </footer>
   );
 }
