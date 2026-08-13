@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useLocale } from "next-intl";
+import { track } from "@vercel/analytics";
 import { fellowshipColor } from "@/lib/fellowships";
 import { Icon } from "./Icon";
 import { Mark } from "./Mark";
@@ -270,14 +271,14 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
   const near = place?.label && place.label !== "your area" ? place.label : (es ? "ti" : "you");
   const greeting = es
     ? (place && nearbyCount != null && nearbyCount > 0
-        ? `${salute} 👋 Hay ${nearbyCount.toLocaleString()} reunion${nearbyCount === 1 ? "" : "es"} cerca de ${near} ${winWord} — aquí tienes algunas formas de empezar.`
+        ? `${salute} 👋 Hay ${nearbyCount.toLocaleString()} reunion${nearbyCount === 1 ? "" : "es"} cerca de ${near} ${winWord} — aquí tienes algunas formas de empezar:`
         : place
-          ? `${salute} 👋 Puedo ayudarte a encontrar una reunión cerca de ${near} o el tipo de apoyo adecuado — aquí tienes algunas formas de empezar.`
+          ? `${salute} 👋 Puedo ayudarte a encontrar una reunión cerca de ${near} o el tipo de apoyo adecuado — aquí tienes algunas formas de empezar:`
           : `${salute} 👋 Puedo ayudarte a encontrar una reunión o el tipo de apoyo adecuado — ¿qué estás buscando?`)
     : (place && nearbyCount != null && nearbyCount > 0
-        ? `${salute}! 👋 There ${nearbyCount === 1 ? "is" : "are"} ${nearbyCount.toLocaleString()} meeting${nearbyCount === 1 ? "" : "s"} near ${near} ${winWord} — here are a few ways to start.`
+        ? `${salute}! 👋 There ${nearbyCount === 1 ? "is" : "are"} ${nearbyCount.toLocaleString()} meeting${nearbyCount === 1 ? "" : "s"} near ${near} ${winWord} — here are a few ways to start:`
         : place
-          ? `${salute}! 👋 I can help you find a meeting near ${near} or the right kind of support — here are a few ways to start.`
+          ? `${salute}! 👋 I can help you find a meeting near ${near} or the right kind of support — here are a few ways to start:`
           : `${salute}! 👋 I can help you find a meeting or the right kind of support — what are you looking for?`);
 
   async function send(text: string) {
@@ -331,6 +332,7 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
                 className="chip chip-nav"
                 href={es ? "/es/support-groups" : "/support-groups"}
                 style={{ textDecoration: "none", color: "inherit" }}
+                onClick={() => track("support_groups_chip", { locale: es ? "es" : "en" })}
               >
                 {es ? "¿Qué grupo de apoyo es adecuado para mí?" : "Which support group is right for me?"}
                 <Icon name="chevron" size={14} className="chip-chev" aria-hidden />
