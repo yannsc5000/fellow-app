@@ -6,6 +6,7 @@ import { searchMeetings, type MeetingResult } from "@/lib/serverSearch";
 import { FELLOWSHIPS, fellowshipName } from "@/lib/fellowships";
 import { officialFinder } from "@/lib/finders";
 import { logChatEvent } from "@/lib/analytics";
+import { notifyChatEngagement } from "@/lib/notify";
 import fellowshipStats from "@/lib/fellowship-stats.json";
 
 export const runtime = "nodejs";
@@ -123,6 +124,13 @@ export async function POST(req: Request) {
   const incoming: Array<{ role: "user" | "assistant"; content: string }> = Array.isArray(body?.messages) ? body.messages : [];
   if (!incoming.length) return Response.json({ error: "No messages." }, { status: 400 });
 
+  // Email heads-up on a NEW conversation (no prior assistant turn = the first user message).
+  // Kicked off here so it runs concurrently with the model call below, and awaited in `finally`
+  // before the response returns (serverless can freeze after return, dropping un-awaited work).
+  // Sends ZERO chat data — see notifyChatEngagement. No-op unless RESEND_API_KEY is set.
+  const isNewConversation = !incoming.some((m) => m.role === "assistant");
+  const notifyPromise = isNewConversation ? notifyChatEngagement() : null;
+
   // Basic guardrails: cap history + message length to bound cost.
   const trimmed = incoming.slice(-12).map((m) => ({
     role: m.role === "assistant" ? "assistant" as const : "user" as const,
@@ -211,5 +219,9 @@ export async function POST(req: Request) {
     const status = e?.status === 429 ? 429 : 500;
     const msg = status === 429 ? "We've hit today's chat limit — the regular search still works." : "Something went wrong. Please try again.";
     return Response.json({ error: msg }, { status });
+  } finally {
+    // Ensure the engagement email actually goes out before the function is frozen/reclaimed.
+    // Runs after the return value is computed; overlaps the model call so it adds ~no latency.
+    if (notifyPromise) await notifyPromise;
   }
 }
