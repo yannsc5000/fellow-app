@@ -6,7 +6,7 @@ import { alts } from "@/lib/meta";
 import { getFellowshipHub, getFellowshipAll, getSeededFellowships, fellowshipSlug, stateSlug, STATE_NAMES, HUB_CITIES_PER_STATE } from "@/lib/cities";
 import { fellowshipName, fellowshipColor, fellowshipDesc, CODE_BY_SLUG, BY_CODE, FELLOWSHIPS } from "@/lib/fellowships";
 import { officialFinder } from "@/lib/finders";
-import { SEO, EXTRA_FAQS } from "@/lib/fellowshipContent";
+import { getSEO, getExtraFaqs } from "@/lib/fellowshipContent";
 import { CONTACT_EMAIL } from "@/lib/config";
 import { SoberActivities } from "@/components/SoberActivities";
 import { FellowshipBeyond } from "@/components/FellowshipBeyond";
@@ -32,24 +32,24 @@ export async function generateStaticParams() {
   return seeded.map((code) => ({ fellowship: fellowshipSlug(code) }));
 }
 
-async function resolve(fellowship: string) {
+async function resolve(fellowship: string, locale?: string) {
   const code = CODE_BY_SLUG[fellowship];
   if (!code) return null;
   const fa = await getFellowshipAll(fellowship); // meeting counts + existence (null if none indexed)
-  const finder = officialFinder(code);
+  const finder = officialFinder(code, undefined, locale);
   return { code, fa, finder };
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; fellowship: string }> }): Promise<Metadata> {
   const { locale, fellowship } = await params;
-  const r = await resolve(fellowship);
+  const r = await resolve(fellowship, locale);
   if (!r) return {};
   const name = fellowshipName(r.code);
-  const desc = fellowshipDesc(r.code);
+  const desc = fellowshipDesc(r.code, locale);
   // Prefer the tuned per-fellowship long-tail title/meta; fall back to a generated one.
-  // NOTE: the tuned SEO map + description prose are still English pending the deep-content
-  // translation pass — only the canonical/hreflang are locale-aware here for now.
-  const seo = SEO[r.code];
+  // The tuned SEO map is locale-aware (Spanish overrides render on /es); the generated
+  // fallbacks below are still English pending the deep-content translation pass.
+  const seo = getSEO(r.code, locale);
   const title = seo?.title || `${name} (${r.code}) Meetings — Online & Near You | Fellow`;
   const description = seo?.description || (r.fa
     ? `Find free, anonymous ${name} (${r.code}) meetings near you — ${fmt(r.fa.inPerson)} in person plus online. Browse by city, filter by day and time, and find secular and young people's groups on Fellow.`
@@ -67,12 +67,12 @@ export default async function FellowshipPage({ params }: { params: Promise<{ loc
   const { locale, fellowship } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("fellowship");
-  const r = await resolve(fellowship);
+  const r = await resolve(fellowship, locale);
   if (!r) notFound();
   const { code, fa, finder } = r;
   const name = fellowshipName(code);
   const group = BY_CODE[code]?.group;
-  const desc = fellowshipDesc(code);
+  const desc = fellowshipDesc(code, locale);
   const hasMeetings = !!fa;
   const inPerson = fa?.inPerson || 0;
   const online = fa?.online || 0;
@@ -101,7 +101,7 @@ export default async function FellowshipPage({ params }: { params: Promise<{ loc
   // reflects what Fellow actually indexes) + the fellowship-specific scope / "how is X different
   // from Y?" questions from the content library (which double as "which group is right for me?"
   // routing). Rendered as an accordion AND as FAQPage structured data.
-  const extra = EXTRA_FAQS[code] || [];
+  const extra = getExtraFaqs(code, locale);
   const faqs: { q: string; a: string }[] = [
     { q: t("faqFreeQ", { code }), a: t("faqFreeA", { code }) },
     {

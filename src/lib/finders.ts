@@ -62,8 +62,48 @@ const DEFS: Record<string, FinderDef> = {
   },
 };
 
-export const officialFinder = (code?: string, loc?: FinderLoc): OfficialFinder | null => {
+// Spanish labels for the finder links. The domain in parentheses is kept verbatim; only the
+// "Find a … meeting" verb phrase is translated. AI-drafted, pending native review.
+const ES_LABELS: Record<string, string> = {
+  AA: "Buscar AA (aa.org)",
+  NA: "Buscar NA (na.org)",
+  ACA: "Buscador de reuniones de ACA (adultchildren.org)",
+  "Al-Anon": "Buscar una reunión de Al-Anon (al-anon.org)",
+  Alateen: "Buscar una reunión de Alateen (al-anon.org)",
+  "Nar-Anon": "Buscar una reunión de Nar-Anon (nar-anon.org)",
+  OA: "Buscar una reunión de OA (oa.org)",
+  GA: "Buscar una reunión de GA (gamblersanonymous.org)",
+  MA: "Buscar una reunión de MA (marijuana-anonymous.org)",
+  CMA: "Buscar una reunión de CMA (crystalmeth.org)",
+  CoDA: "Buscar una reunión de CoDA (coda.org)",
+  SAA: "Buscador de reuniones de SAA (saa-meetings.org)",
+  SLAA: "Buscador de reuniones de S.L.A.A. (slaafws.org)",
+  SA: "Buscar una reunión de SA (sa.org)",
+  DA: "Buscar una reunión de DA (debtorsanonymous.org)",
+  UA: "Buscar una reunión de UA (underearnersanonymous.org)",
+  EDA: "Buscar una reunión de EDA (eatingdisordersanonymous.org)",
+  NicA: "Buscar una reunión de Nicotina Anónimos (nicotine-anonymous.org)",
+  RD: "Reuniones de Recovery Dharma (recoverydharma.org)",
+  CA: "Buscar una reunión de CA (ca.org)",
+  HA: "Buscar una reunión de HA (heroinanonymous.org)",
+  PA: "Buscar una reunión de PA (pillsanonymous.org)",
+  FAIR: "Buscar una reunión de FA (foodaddicts.org)",
+  FAA: "Buscar una reunión de FAA (foodaddicts anonymous)",
+  SCA: "Buscador de reuniones de SCA (onlinesca.org)",
+  SRA: "Buscar una reunión de SRA (sexualrecovery.org)",
+  SIA: "Buscar una reunión de SIA (siawso.org)",
+  WA: "Buscar una reunión de WA (workaholics-anonymous.org)",
+  CLA: "Buscar una reunión de CLA (clutterersanonymous.org)",
+  EA: "Buscar una reunión de EA (emotionsanonymous.org)",
+  "Gam-Anon": "Buscar una reunión de Gam-Anon (gam-anon.org)",
+  "Co-Anon": "Buscar una reunión de Co-Anon (co-anon.org)",
+  FA: "Buscar una reunión de Familias Anónimas (familiesanonymous.org)",
+  SMART: "Buscador de reuniones de SMART Recovery (smartrecovery.org)",
+};
+
+export const officialFinder = (code?: string, loc?: FinderLoc, locale?: string): OfficialFinder | null => {
   const d = code ? DEFS[code] : null;
   if (!d) return null;
-  return { label: d.label, url: d.build ? d.build(loc || null) : d.url };
+  const label = locale === "es" && code && ES_LABELS[code] ? ES_LABELS[code] : d.label;
+  return { label, url: d.build ? d.build(loc || null) : d.url };
 };

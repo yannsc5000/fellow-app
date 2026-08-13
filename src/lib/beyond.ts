@@ -99,6 +99,120 @@ const BY_CODE_SECTION: Record<string, BeyondSection> = {
   // (Alcohol & drugs → sober section; Sex & relationships → intentionally none.)
 };
 
-export function beyondFor(code: string): BeyondSection | null {
-  return BY_CODE_SECTION[code] || null;
+// ---- Spanish (es) translations ------------------------------------------------------------
+// AI-drafted; PENDING native, recovery-aware review before this ships to production (see the
+// i18n guardrail). English above stays the source of truth; these override only at render time
+// for /es. Sections are shared across fellowship codes, so overrides are keyed by section
+// identity. Organization names (link `title`) are US proper nouns and stay in English; only the
+// descriptive `sub` is translated, keyed by href (which stays byte-identical to English).
+type BeyondSectionES = {
+  heading: string; lede: string; groupLabel: string; note: string;
+  subs: Record<string, string>; // keyed by href
+};
+
+const FOOD_ES: BeyondSectionES = {
+  heading: "Apoyo más allá del programa",
+  lede: "La recuperación de las dificultades con la comida y la alimentación es más grande que un solo programa. Estas comunidades y líneas de ayuda ofrecen apoyo junto con tus reuniones, centradas en la sanación y la neutralidad corporal, nunca en dietas ni en la pérdida de peso.",
+  groupLabel: "Apoyo confiable para la alimentación y la imagen corporal",
+  note: "Son organizaciones independientes; Fellow no las verifica. Todo lo que aparece aquí es neutral respecto a la recuperación y el cuerpo, nunca centrado en dietas ni en el peso.",
+  subs: {
+    "https://www.allianceforeatingdisorders.com/": "Línea de ayuda gratuita y buscador de terapeutas",
+    "https://anad.org/": "Grupos de apoyo entre pares y mentoría gratuitos",
+    "https://thebodypositive.org/": "Comunidad de imagen corporal y autoaceptación",
+  },
+};
+
+const FAMILY_ES: BeyondSectionES = {
+  heading: "Apoyo para familias y seres queridos",
+  lede: "Apoyar a alguien en recuperación —o recuperarte de sus efectos en ti— requiere su propia comunidad. Estas organizaciones de confianza ayudan junto con tus reuniones.",
+  groupLabel: "Para personas afectadas por la adicción de alguien",
+  note: "Son organizaciones independientes; Fellow no las verifica; contacta con la que mejor te encaje.",
+  subs: {
+    "https://smartrecovery.org/family": "Grupos de apoyo para seres queridos",
+    "https://www.nami.org/": "Apoyo y educación familiar para la salud mental",
+    "https://drugfree.org/": "Línea de ayuda y recursos gratuitos para familias",
+  },
+};
+
+const FINANCIAL_ES: BeyondSectionES = {
+  heading: "Recursos para el bienestar financiero",
+  lede: "Junto con los pasos, estos recursos sin fines de lucro y públicos pueden ayudarte a estabilizar tus finanzas y a construir una relación más sana con el dinero.",
+  groupLabel: "Ayuda sin fines de lucro y pública con el dinero",
+  note: "Solo recursos sin fines de lucro y gubernamentales, nunca prestamistas ni servicios de pago para liquidación de deudas.",
+  subs: {
+    "https://www.nfcc.org/": "Asesoría sin fines de lucro sobre crédito y deudas",
+    "https://www.consumerfinance.gov/": "Herramientas y guías gubernamentales gratuitas sobre dinero",
+  },
+};
+
+const MENTAL_ES: BeyondSectionES = {
+  heading: "Apoyo para la salud mental",
+  lede: "La recuperación y el bienestar emocional van de la mano. Estas organizaciones de confianza ofrecen apoyo entre pares, educación y herramientas gratuitas junto con tus reuniones.",
+  groupLabel: "Apoyo entre pares y herramientas",
+  note: "Son organizaciones independientes; Fellow no las verifica.",
+  subs: {
+    "https://www.nami.org/": "Apoyo y educación familiar para la salud mental",
+    "https://mhanational.org/": "Herramientas de evaluación gratuitas y apoyo entre pares",
+  },
+};
+
+const GAMBLING_ES: BeyondSectionES = {
+  heading: "Apoyo más allá de las reuniones",
+  lede: "La recuperación de un problema con el juego a menudo implica atender también las finanzas. Estos recursos confidenciales y sin fines de lucro ayudan junto con tus reuniones.",
+  groupLabel: "Recuperación del juego y las finanzas",
+  note: "Solo líneas de ayuda y recursos sin fines de lucro, nunca contenido de apuestas o juego.",
+  subs: {
+    "https://www.ncpgambling.org/": "Línea de ayuda confidencial: llama o envía un mensaje al 1-800-GAMBLER",
+    "https://www.nfcc.org/": "Asesoría sin fines de lucro sobre crédito y deudas",
+  },
+};
+
+const WORK_ES: BeyondSectionES = {
+  heading: "Apoyo más allá de las reuniones",
+  lede: "Tomar distancia del trabajo compulsivo requiere apoyo. Estas organizaciones de confianza ofrecen herramientas para el estrés, el agotamiento y el bienestar mental junto con tus reuniones.",
+  groupLabel: "Agotamiento y bienestar",
+  note: "Son organizaciones independientes; Fellow no las verifica.",
+  subs: {
+    "https://mhanational.org/": "Herramientas de evaluación gratuitas y apoyo entre pares",
+    "https://www.nami.org/": "Apoyo y educación familiar para la salud mental",
+  },
+};
+
+const CLUTTER_ES: BeyondSectionES = {
+  heading: "Apoyo más allá de las reuniones",
+  lede: "Estos recursos profesionales y sin fines de lucro apoyan la recuperación de la desorganización crónica junto con tus reuniones.",
+  groupLabel: "Ayuda con el desorden y la desorganización",
+  note: "Son organizaciones independientes; Fellow no las verifica.",
+  subs: {
+    "https://www.challengingdisorganization.org/": "Ayuda para la desorganización crónica y la acumulación",
+    "https://mhanational.org/": "Herramientas de evaluación gratuitas y apoyo entre pares",
+  },
+};
+
+const SECTION_ES = new Map<BeyondSection, BeyondSectionES>([
+  [FOOD, FOOD_ES],
+  [FAMILY, FAMILY_ES],
+  [FINANCIAL, FINANCIAL_ES],
+  [MENTAL, MENTAL_ES],
+  [GAMBLING, GAMBLING_ES],
+  [WORK, WORK_ES],
+  [CLUTTER, CLUTTER_ES],
+]);
+
+function localizeSection(s: BeyondSection, o: BeyondSectionES): BeyondSection {
+  return {
+    heading: o.heading,
+    lede: o.lede,
+    groupLabel: o.groupLabel,
+    note: o.note,
+    links: s.links.map((l) => ({ ...l, sub: o.subs[l.href] ?? l.sub })),
+  };
+}
+
+// Locale-aware accessor. English stays the default; `es` applies the overrides above.
+export function beyondFor(code: string, locale?: string): BeyondSection | null {
+  const s = BY_CODE_SECTION[code] || null;
+  if (!s || locale !== "es") return s;
+  const o = SECTION_ES.get(s);
+  return o ? localizeSection(s, o) : s;
 }

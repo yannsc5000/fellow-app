@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Icon } from "@/components/Icon";
 import { beyondFor } from "@/lib/beyond";
 
@@ -7,7 +7,8 @@ import { beyondFor } from "@/lib/beyond";
 // and Sex & relationships intentionally has no section — so this returns null for both. Reuses the
 // sober section's styling (.sober*) for a consistent quiet, colored-chip list.
 export async function FellowshipBeyond({ code }: { code: string }) {
-  const section = beyondFor(code);
+  const locale = await getLocale();
+  const section = beyondFor(code, locale);
   if (!section) return null;
   const t = await getTranslations("sober");
 

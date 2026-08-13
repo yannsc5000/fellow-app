@@ -168,3 +168,174 @@ export const EXTRA_FAQS: Record<string, FaqItem[]> = {
     { q: "How is Families Anonymous different from Nar-Anon and Al-Anon?", a: "All three support people affected by someone else — Al-Anon centers on drinking, Nar-Anon on drug addiction, and Families Anonymous on drug, alcohol, or related behavioral issues. Pick the one closest to your situation." },
   ],
 };
+
+// ---- Spanish (es) translations ------------------------------------------------------------
+// AI-drafted; PENDING native, recovery-aware review before this ships to production (see the
+// i18n guardrail). The English `SEO` and `EXTRA_FAQS` above stay the source of truth; these
+// override only at render time for /es. Keyed by Fellow's internal codes, byte-identical to
+// the English keys. Fellowship acronyms in parentheses are kept exactly; established Spanish
+// fellowship names are used where they exist.
+export const SEO_ES: Record<string, { title: string; description: string }> = {
+  AA: { title: "Reuniones de AA cerca de ti y en línea | Alcohólicos Anónimos", description: "Encuentra reuniones de Alcohólicos Anónimos (AA) cerca de ti, presenciales y en línea. Descubre qué es AA, quién puede asistir y qué esperar." },
+  NA: { title: "Reuniones de NA cerca de ti y en línea | Narcóticos Anónimos", description: "Encuentra reuniones de Narcóticos Anónimos (NA) cerca de ti o en línea. Busca reuniones locales y descubre qué esperar en tu primera reunión de NA." },
+  CA: { title: "Reuniones de Cocaína Anónimos cerca de ti y en línea | CA", description: "Encuentra reuniones de Cocaína Anónimos (CA) cerca de ti y en línea. Explora reuniones locales de recuperación, opciones virtuales e información para quienes recién llegan." },
+  HA: { title: "Reuniones de Heroína Anónimos cerca de ti y en línea | HA", description: "Encuentra reuniones de Heroína Anónimos (HA) cerca de ti y en línea, con información y recursos para quienes buscan recuperarse de la adicción a la heroína." },
+  MA: { title: "Reuniones de Marihuana Anónimos cerca de ti y en línea | MA", description: "Encuentra reuniones de Marihuana Anónimos (MA) cerca de ti o en línea y descubre qué esperar de una reunión de apoyo para la recuperación del cannabis." },
+  CMA: { title: "Reuniones de Metanfetamina Cristal Anónimos cerca de ti | CMA", description: "Encuentra reuniones de Metanfetamina Cristal Anónimos (CMA) cerca de ti y en línea. Busca reuniones locales de recuperación de la metanfetamina, con opciones para quienes recién llegan." },
+  NicA: { title: "Reuniones de Nicotina Anónimos cerca de ti y en línea | NicA", description: "Encuentra reuniones de Nicotina Anónimos cerca de ti o en línea para quienes buscan apoyo entre pares en torno a la nicotina, el tabaco y el vapeo." },
+  PA: { title: "Reuniones de Pastillas Anónimas cerca de ti y en línea | PA", description: "Encuentra reuniones de Pastillas Anónimas (PA) cerca de ti y reuniones virtuales para quienes buscan apoyo entre pares para recuperarse de la adicción a las pastillas." },
+  RD: { title: "Reuniones de Recovery Dharma cerca de ti y en línea", description: "Encuentra reuniones de Recovery Dharma cerca de ti y en línea. Explora reuniones de recuperación de inspiración budista con meditación, atención plena y apoyo comunitario." },
+  OA: { title: "Reuniones de Comedores Compulsivos Anónimos | OA", description: "Encuentra reuniones de Comedores Compulsivos Anónimos (OA) cerca de ti y en línea para quienes buscan apoyo entre pares en torno al comer compulsivo y los problemas con la comida." },
+  EDA: { title: "Reuniones de Trastornos Alimentarios Anónimos | EDA", description: "Encuentra reuniones de Trastornos Alimentarios Anónimos (EDA) cerca de ti y en línea, con información para quienes recién llegan y buscan apoyo entre pares en la recuperación." },
+  FAIR: { title: "Reuniones de Adictos a la Comida en Recuperación Anónimos", description: "Encuentra reuniones de Adictos a la Comida en Recuperación Anónimos (FA) cerca de ti y en línea. Explora las opciones de reuniones e información para quienes recién llegan." },
+  FAA: { title: "Reuniones de Adictos a la Comida Anónimos | FAA", description: "Encuentra reuniones de Adictos a la Comida Anónimos (FAA) cerca de ti o en línea y conoce el apoyo entre pares para quienes buscan recuperarse de la adicción a la comida." },
+  SAA: { title: "Reuniones de Sexoadictos Anónimos cerca de ti | SAA", description: "Encuentra reuniones de Sexoadictos Anónimos (SAA) cerca de ti o en línea para quienes buscan apoyo entre pares confidencial para la conducta sexual compulsiva." },
+  SA: { title: "Reuniones de Sexólicos Anónimos cerca de ti y en línea | SA", description: "Encuentra reuniones de Sexólicos Anónimos (SA) cerca de ti y en línea. Explora las opciones de reuniones locales e información para quienes recién llegan." },
+  SLAA: { title: "Reuniones de SLAA cerca de ti | Adicción al sexo y al amor", description: "Encuentra reuniones de Adictos al Sexo y al Amor Anónimos (SLAA) cerca de ti y en línea para apoyo con patrones de sexo, amor y relaciones." },
+  SCA: { title: "Reuniones de Compulsivos Sexuales Anónimos | SCA", description: "Encuentra reuniones de Compulsivos Sexuales Anónimos (SCA) cerca de ti y en línea, con información para quienes recién llegan y opciones de reuniones locales." },
+  SRA: { title: "Reuniones de Recuperación Sexual Anónimos | SRA", description: "Encuentra reuniones de Recuperación Sexual Anónimos (SRA) cerca de ti y en línea para quienes buscan recuperarse de la conducta sexual compulsiva." },
+  COSLAA: { title: "Reuniones de COSLAA | Apoyo para familiares y parejas", description: "Encuentra información y opciones de apoyo de COSLAA para quienes afecta la adicción al sexo o al amor de otra persona, incluidos los recursos locales o en línea disponibles." },
+  SIA: { title: "Reuniones de Sobrevivientes de Incesto Anónimos | SIA", description: "Encuentra reuniones de Sobrevivientes de Incesto Anónimos (SIA), incluidas las reuniones en línea, para adultos que buscan apoyo entre pares tras el abuso sexual infantil o el incesto." },
+  DA: { title: "Reuniones de Deudores Anónimos cerca de ti y en línea | DA", description: "Encuentra reuniones de Deudores Anónimos (DA) cerca de ti y en línea para quienes buscan apoyo entre pares en torno a las deudas y las conductas financieras compulsivas." },
+  UA: { title: "Reuniones de Subganadores Anónimos cerca de ti | UA", description: "Encuentra reuniones de Subganadores Anónimos (UA) cerca de ti y en línea. Explora reuniones de apoyo entre pares sobre el subganar y los patrones en torno al trabajo." },
+  WA: { title: "Reuniones de Trabajadores Compulsivos Anónimos | WA", description: "Encuentra reuniones de Trabajadores Compulsivos Anónimos cerca de ti y en línea para quienes buscan apoyo entre pares en torno al trabajar compulsivo y los patrones poco sanos de trabajo." },
+  CLA: { title: "Reuniones de Acumuladores Anónimos cerca de ti | CLA", description: "Encuentra reuniones de Acumuladores Anónimos (CLA) cerca de ti y en línea para apoyo entre pares en torno al desorden y la dificultad para manejar las posesiones y el espacio." },
+  EA: { title: "Reuniones de Emociones Anónimas cerca de ti y en línea | EA", description: "Encuentra reuniones de Emociones Anónimas (EA) cerca de ti o en línea. Busca reuniones locales de apoyo entre pares e información para quienes recién llegan." },
+  GA: { title: "Reuniones de Jugadores Anónimos cerca de ti y en línea | GA", description: "Encuentra reuniones de Jugadores Anónimos (GA) cerca de ti y en línea para quienes buscan apoyo entre pares para el juego problemático o compulsivo." },
+  CoDA: { title: "Reuniones de CoDA cerca de ti | Codependientes Anónimos", description: "Encuentra reuniones de Codependientes Anónimos (CoDA) cerca de ti o en línea para quienes buscan apoyo entre pares en torno a los patrones de relación codependientes." },
+  ACA: { title: "Reuniones de ACA cerca de ti y en línea | Hijos Adultos", description: "Encuentra reuniones de ACA cerca de ti y en línea para adultos afectados por haber crecido con el alcoholismo o la disfunción familiar. Explora reuniones locales e información para quienes recién llegan." },
+  "Al-Anon": { title: "Reuniones de Al-Anon cerca de ti y en línea | Apoyo familiar", description: "Encuentra reuniones de Al-Anon cerca de ti y en línea para familiares y amistades afectados por la forma de beber de otra persona. Explora reuniones locales y virtuales." },
+  Alateen: { title: "Reuniones de Alateen cerca de ti | Apoyo familiar para jóvenes", description: "Encuentra reuniones de Alateen cerca de ti y en línea para jóvenes afectados por la forma de beber de otra persona, con información local y para quienes recién llegan." },
+  "Nar-Anon": { title: "Reuniones de Nar-Anon cerca de ti y en línea | Apoyo familiar", description: "Encuentra reuniones de Nar-Anon cerca de ti y en línea para familiares y amistades afectados por el consumo de drogas o la adicción de otra persona." },
+  "Gam-Anon": { title: "Reuniones de Gam-Anon | Apoyo familiar para el juego", description: "Encuentra reuniones de Gam-Anon para familiares y amistades afectados por el juego de otra persona. Busca opciones de reuniones locales y en línea." },
+  "Co-Anon": { title: "Reuniones de Co-Anon cerca de ti y en línea | Apoyo familiar", description: "Encuentra reuniones de Co-Anon y apoyo entre pares para familiares y amistades afectados por la adicción a la cocaína u otra sustancia de otra persona." },
+  FA: { title: "Reuniones de Familias Anónimas cerca de ti y en línea", description: "Encuentra reuniones de Familias Anónimas cerca de ti y en línea para familiares y amistades preocupados por los problemas de drogas, alcohol o conducta de un ser querido." },
+};
+
+export const EXTRA_FAQS_ES: Record<string, FaqItem[]> = {
+  AA: [
+    { q: "¿Tengo que llamarme alcohólico para ir a AA?", a: "No, no necesitas un diagnóstico ni una etiqueta. Las reuniones cerradas son para cualquier persona con el deseo de dejar de beber; las reuniones abiertas también reciben visitantes. Fíjate si una reunión aparece como abierta o cerrada, y ven tal como eres." },
+  ],
+  NA: [
+    { q: "¿NA es solo para personas adictas a los narcóticos?", a: "A pesar del nombre, NA no se limita a los narcóticos ni a los opioides: es para cualquier persona para quien las drogas se han vuelto un problema, sea cual sea la sustancia. El único requisito es el deseo de dejar de consumir." },
+  ],
+  CA: [
+    { q: "¿Cocaína Anónimos es solo para la cocaína o el crack?", a: "No, CA es para cualquier persona que quiera dejar de consumir cocaína y otras sustancias que alteran la mente, así que la cocaína no tiene que ser tu única dificultad para pertenecer." },
+  ],
+  HA: [
+    { q: "¿En qué se diferencia Heroína Anónimos de NA?", a: "HA se centra específicamente en la recuperación de la heroína y los opioides, mientras que NA es para la adicción a las drogas de cualquier tipo. Si la heroína ha sido tu principal dificultad, quizá te sientas más a gusto en HA, pero ambos usan el mismo apoyo entre pares de 12 pasos, así que vale la pena probar el que encaje." },
+  ],
+  MA: [
+    { q: "¿Marihuana Anónimos es para la hierba o el cannabis?", a: "Sí: «marihuana», «cannabis» y «hierba» apuntan al mismo lugar. MA es para cualquier persona que quiera dejar de consumir cannabis; no necesitas una etiqueta en particular para venir." },
+  ],
+  CMA: [
+    { q: "¿CMA es solo para personas que se recuperan de la metanfetamina?", a: "CMA se centra en la recuperación de la metanfetamina, y esa experiencia compartida es la razón por la que muchas personas vienen; su único requisito es el deseo de dejar de consumir. Si la metanfetamina no es central para ti, quizá NA o CA encajen mejor." },
+  ],
+  NicA: [
+    { q: "¿Nicotina Anónimos puede ayudarme si vapeo?", a: "Sí: NicA se trata de vivir libre de nicotina en cualquier forma, incluidos el vapeo y el tabaco. Es apoyo entre pares, así que muchas personas lo usan junto con otras herramientas para dejarlo." },
+  ],
+  PA: [
+    { q: "¿Pastillas Anónimas es para medicamentos recetados?", a: "Sí: PA es para cualquier persona que quiera dejar de consumir pastillas, recetadas o no. Una nota importante: algunos medicamentos no deben suspenderse de golpe, así que consulta a un médico antes de cambiar una receta." },
+  ],
+  RD: [
+    { q: "¿Necesito ser budista para Recovery Dharma?", a: "No. RD se apoya en prácticas budistas como la meditación y la atención plena, pero no necesitas ningún trasfondo ni creencia: las reuniones para quienes recién llegan presentan las ideas con calma." },
+    { q: "¿Recovery Dharma es una alternativa a los programas de 12 pasos?", a: "Es su propio programa dirigido por pares e inspirado en el budismo, no una reunión de AA modificada. Algunas personas lo combinan con otro apoyo de recuperación si esa combinación les ayuda." },
+  ],
+  OA: [
+    { q: "¿OA es solo para el comer en exceso?", a: "No: OA es para cualquier persona con una relación poco sana con la comida, incluidos los atracones, la restricción u otros patrones. No hay pesajes, y es apoyo entre pares, así que puede acompañar la atención profesional." },
+  ],
+  EDA: [
+    { q: "¿Quién puede asistir a una reunión de EDA?", a: "EDA está abierta a cualquier persona con el deseo de recuperarse de un trastorno alimentario. Como los trastornos alimentarios pueden ser graves desde el punto de vista médico, está pensada para complementar el tratamiento profesional, no para reemplazarlo." },
+  ],
+  FAIR: [
+    { q: "¿Cuál es la diferencia entre FA y Comedores Compulsivos Anónimos?", a: "Ambas son comunidades de 12 pasos para la recuperación con la comida, pero organizaciones separadas con su propia literatura y prácticas. Adictos a la Comida en Recuperación Anónimos lo plantea como recuperación de la adicción a la comida; OA usa un lenguaje más amplio sobre el comer compulsivo. Leer sobre ambas y probar una reunión es la mejor forma de saber cuál encaja." },
+  ],
+  FAA: [
+    { q: "¿En qué se diferencia FAA de Adictos a la Comida en Recuperación Anónimos?", a: "Adictos a la Comida Anónimos (FAA) y Adictos a la Comida en Recuperación Anónimos (FA) son organizaciones distintas con nombres parecidos: cada una tiene su propio plan de alimentación y sus prácticas. Si no estás seguro, lee sobre ambas y prueba la reunión que encaje con tu situación." },
+  ],
+  SAA: [
+    { q: "¿Cómo sé si SAA es adecuado para mí?", a: "No necesitas diagnosticarte primero. SAA es para cualquier persona que sienta que su conducta sexual se ha vuelto difícil de controlar o está causando daño, y que quiere apoyo para cambiarla. Leer la información para quienes recién llegan y probar una reunión puede ayudarte a decidir." },
+  ],
+  SA: [
+    { q: "¿Qué significa «sobriedad sexual» en SA?", a: "SA usa su propia definición de sobriedad sexual, común a toda la comunidad, que es más específica que las definiciones que usan otras comunidades. Si eso te importa, lo mejor es leer directamente la declaración de la propia SA." },
+    { q: "¿Cuál es la diferencia entre SA y SAA?", a: "Ambas son de 12 pasos, pero SA usa una única definición compartida de sobriedad, mientras que SAA deja más de eso al plan de recuperación de cada persona. Sus culturas y su literatura difieren, así que prueba la que se ajuste a ti." },
+  ],
+  SLAA: [
+    { q: "¿SLAA también es para la adicción al amor y a las relaciones?", a: "Sí: SLAA se organiza en torno a patrones tanto de sexo como de amor, incluidas las relaciones obsesivas y la fijación romántica, así que no necesitas encajar en una etiqueta para venir." },
+    { q: "¿En qué se diferencia SLAA de SAA?", a: "SLAA incluye de forma explícita los patrones de amor y de relaciones; SAA se centra en la conducta sexual compulsiva. Ambas son de 12 pasos, pero su lenguaje y su manera de definir la recuperación difieren." },
+  ],
+  SCA: [
+    { q: "¿En qué se diferencia SCA de SAA o SA?", a: "Las tres son comunidades de 12 pasos separadas para la recuperación de la conducta sexual, con distinta literatura y enfoques de la sobriedad. La mejor opción suele ser aquella con cuyas reuniones y lenguaje te identifiques." },
+  ],
+  SRA: [
+    { q: "¿En qué se diferencia SRA de SAA, SA y SLAA?", a: "Todas son comunidades de 12 pasos separadas, pero su enfoque y sus definiciones de la recuperación difieren: SLAA incluye el amor y las relaciones, SA usa una única definición compartida de sobriedad, y SRA tiene su propia definición y literatura. SRA es más pequeña, así que una reunión en línea puede ayudar si no hay nada cerca." },
+  ],
+  COSLAA: [
+    { q: "¿Hay apoyo para las parejas de un adicto al sexo o al amor?", a: "Sí: COSLAA es para las personas a quienes afecta la adicción al sexo o al amor de otra persona. Es una comunidad pequeña con listados centrales limitados, así que confirma que cualquier reunión esté vigente; si no encuentras una, otras comunidades de apoyo para parejas y familiares pueden ayudar." },
+    { q: "¿Cuál es la diferencia entre COSLAA y SLAA?", a: "SLAA es para tus propios patrones de adicción al sexo y al amor; COSLAA es para el impacto de los de otra persona. «Ayuda para mi conducta» frente a «ayuda por la de otra persona» es la forma más sencilla de distinguirlas." },
+  ],
+  SIA: [
+    { q: "¿Para quién es Sobrevivientes de Incesto Anónimos?", a: "SIA es una comunidad de apoyo entre pares para adultos sobrevivientes de abuso sexual infantil e incesto. Puedes empezar simplemente escuchando. Como estas conversaciones pueden ser difíciles, algunas personas también buscan apoyo profesional para el trauma junto con las reuniones." },
+  ],
+  DA: [
+    { q: "¿Deudores Anónimos es solo para personas con grandes deudas?", a: "No: DA se trata del endeudamiento compulsivo y de los patrones en torno al dinero, no de una cantidad concreta. Gastar de más, pedir prestado o la evasión pueden traer a las personas. Es apoyo entre pares, no asesoría legal, fiscal ni financiera." },
+  ],
+  UA: [
+    { q: "¿Qué significa «subganar» en UA?", a: "En UA, el subganar es más amplio que un salario bajo: puede incluir subutilizar tus capacidades, evitar oportunidades o tener dificultades para ganar lo suficiente para cubrir tus necesidades. Es la idea propia de la comunidad, no un diagnóstico." },
+    { q: "¿En qué se diferencia UA de Deudores Anónimos?", a: "UA se centra en el subganar y en cómo usas el tiempo, el trabajo y las oportunidades; DA se centra en el endeudamiento compulsivo. Se solapan, y algunas personas se identifican con ambas, pero son comunidades separadas." },
+  ],
+  WA: [
+    { q: "¿Cómo sé si podría ser un trabajador compulsivo?", a: "No necesitas un diagnóstico. WA es para las personas que encuentran el trabajo compulsivo, siempre urgente, difícil de desconectar o dañino para la salud y las relaciones. Un profesional clínico también puede ayudar si el estrés o el agotamiento necesitan atención." },
+  ],
+  CLA: [
+    { q: "¿Acumuladores Anónimos es lo mismo que un grupo de apoyo para la acumulación compulsiva?", a: "No exactamente: CLA es una comunidad de pares de 12 pasos para personas que luchan con el desorden, mientras que el trastorno de acumulación es un diagnóstico clínico. Algunas personas encuentran útil CLA, pero no diagnostica ni trata un trastorno; la ayuda profesional es un camino aparte." },
+  ],
+  EA: [
+    { q: "¿Quién puede asistir a Emociones Anónimas?", a: "EA es una comunidad de apoyo entre pares para el bienestar emocional, para personas que lidian con cosas como la ansiedad, la depresión o el estrés. No es terapia ni atención de crisis, y funciona bien junto con el apoyo profesional." },
+  ],
+  GA: [
+    { q: "¿Cómo sé si tengo un problema con el juego?", a: "No necesitas decidir un diagnóstico primero. Si el juego, las apuestas deportivas o el casino están causando problemas de dinero, de relaciones o emocionales y te ha costado parar, quizá valga la pena probar una reunión de GA. GA ofrece apoyo entre pares en lugar de tratamiento clínico." },
+  ],
+  CoDA: [
+    { q: "¿Qué señales indican que una reunión de CoDA podría ayudar?", a: "Las personas suelen llegar a CoDA cuando las relaciones se sienten desequilibradas: dificultad para poner límites, enfocarse demasiado en las necesidades de otra persona o repetir patrones que se sienten poco sanos. Su único requisito es el deseo de tener relaciones sanas y afectuosas." },
+    { q: "¿CoDA es solo para las relaciones románticas?", a: "No: los patrones codependientes también pueden aparecer en la familia, las amistades, el trabajo y el cuidado de otros, incluida tu relación contigo mismo." },
+  ],
+  ACA: [
+    { q: "¿Puedo asistir a ACA si mis padres no eran alcohólicos?", a: "Es posible que sí: el nombre completo es Hijos Adultos de Alcohólicos y Familias Disfuncionales, e incluye a personas marcadas por la disfunción familiar incluso sin alcohol. Lee la información para quienes recién llegan y prueba una reunión cuya descripción encaje con tu experiencia." },
+    { q: "¿Qué significa «familias disfuncionales» en ACA?", a: "Es el marco de ACA para los entornos de la infancia que pueden dejar patrones duraderos en la adultez, no un único diagnóstico. Los miembros exploran cómo esas dinámicas tempranas todavía afectan sus relaciones, sus emociones y su conducta hoy." },
+  ],
+  "Al-Anon": [
+    { q: "¿Al-Anon es para cónyuges, padres e hijos de alcohólicos?", a: "Sí: es para cualquier persona afectada por la forma de beber de otra, y esa persona no tiene que estar en AA ni siquiera admitir un problema. Para las personas más jóvenes, Alateen es la versión hecha para adolescentes." },
+    { q: "¿Puedo asistir a Al-Anon si la persona sigue bebiendo?", a: "Sí. Al-Anon se trata de tu propio bienestar, no de que quien bebe deje de hacerlo primero: eres bienvenido esté bebiendo, sobria, en tratamiento o sin querer buscar ayuda." },
+  ],
+  Alateen: [
+    { q: "¿Alateen es para adolescentes con un padre o madre alcohólicos?", a: "Es para jóvenes afectados por la forma de beber de otra persona: un padre, madre, padrastro, hermano, familiar o amigo. Como atiende a menores, las reuniones tienen reglas específicas de edad y protección, así que sigue las indicaciones de cada listado." },
+    { q: "¿En qué se diferencia Alateen de Al-Anon?", a: "Forman parte de la misma familia y ambas se centran en las personas afectadas por la forma de beber de otra, pero Alateen está diseñada para jóvenes mientras que Al-Anon atiende sobre todo a adultos." },
+  ],
+  "Nar-Anon": [
+    { q: "¿Nar-Anon es para padres de alguien que consume drogas?", a: "Sí, y también para cónyuges, parejas, hermanos, hijos adultos y amistades cercanas afectados por la adicción de un ser querido. Puedes asistir esté o no tu ser querido en recuperación." },
+    { q: "¿Cuál es la diferencia entre NA y Nar-Anon?", a: "NA es para la propia recuperación de una persona de la adicción a las drogas; Nar-Anon es para los familiares y las amistades afectados por la de otra. Si estás apoyando a alguien, Nar-Anon suele ser el mejor punto de partida." },
+  ],
+  "Gam-Anon": [
+    { q: "¿Gam-Anon es para las familias de jugadores problemáticos?", a: "Sí: para cónyuges, parejas, padres y otros seres queridos afectados por el juego de alguien. Puedes asistir esté o no en recuperación quien juega." },
+    { q: "¿Cuál es la diferencia entre Jugadores Anónimos y Gam-Anon?", a: "GA es para la propia recuperación del juego de una persona; Gam-Anon es para quienes se ven afectados por ella. Tu motivo para venir decide cuál encaja." },
+  ],
+  "Co-Anon": [
+    { q: "¿Co-Anon es para las familias afectadas por la adicción a la cocaína?", a: "Sí, y de forma más amplia para las personas afectadas por el consumo de cocaína u otra sustancia de un ser querido, esté o no esa persona en recuperación." },
+    { q: "¿Cuál es la diferencia entre Cocaína Anónimos y Co-Anon?", a: "CA es para la propia recuperación de una persona; Co-Anon es para su familia y sus amistades. Los nombres se parecen, así que vale la pena comprobar cuál coincide con tu situación." },
+  ],
+  FA: [
+    { q: "¿Hay apoyo para los padres de un adulto que lucha con la adicción?", a: "Sí: Familias Anónimas es para los familiares y las amistades afectados por los problemas de drogas, alcohol o conducta de un ser querido, esté o no esa persona en recuperación." },
+    { q: "¿En qué se diferencia Familias Anónimas de Nar-Anon y Al-Anon?", a: "Las tres apoyan a las personas afectadas por otra: Al-Anon se centra en la bebida, Nar-Anon en la adicción a las drogas, y Familias Anónimas en los problemas de drogas, alcohol o conducta relacionados. Elige la más cercana a tu situación." },
+  ],
+};
+
+// Locale-aware accessors. English stays the default; `es` applies the overrides above.
+export function getSEO(code: string, locale?: string): { title: string; description: string } | undefined {
+  if (locale === "es" && SEO_ES[code]) return SEO_ES[code];
+  return SEO[code];
+}
+export function getExtraFaqs(code: string, locale?: string): FaqItem[] {
+  if (locale === "es" && EXTRA_FAQS_ES[code]) return EXTRA_FAQS_ES[code];
+  return EXTRA_FAQS[code] || [];
+}

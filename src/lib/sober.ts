@@ -27,13 +27,39 @@ const DIRECTORIES: SoberLink[] = [
   { mark: "Z", color: "#2E9E5B", title: "Zero Proof Places", sub: "Dry bars & alcohol-free venues near you", href: "https://www.zeroproofplaces.com/" },
 ];
 
-export function soberLinks(opts: { city?: string; state?: string; stateName?: string }): SoberLinks {
-  const { city, state, stateName } = opts;
+// ---- Spanish (es) translations ------------------------------------------------------------
+// AI-drafted; PENDING native, recovery-aware review before this ships to production. English
+// above stays the source of truth; these override only at render time for /es. Brand names
+// (directory titles), URLs, `mark`, `color`, and the quoted platform search tokens in the
+// platform `sub` stay byte-identical to English — those tokens mirror the actual (English)
+// search query sent to Meetup/Eventbrite.
+//
+// Directory `sub` blurbs are keyed by href (a stable, unique key). Platform `title` strings are
+// keyed by `mark`. Platform `sub` is intentionally NOT overridden — it is only the quoted search
+// tokens plus the place label, both of which stay as-is.
+const ES_DIR_SUB: Record<string, string> = {
+  "https://www.intherooms.com/": "Comunidad de recuperación en línea: eventos en vivo y encuentros",
+  "https://www.loosidapp.com/": "App social en sobriedad y guías «Boozeless» por ciudad",
+  "https://thesobercurator.com/": "Vida nocturna en sobriedad y eventos sin alcohol, por ciudad",
+  "https://www.zeroproofplaces.com/": "Bares secos y locales sin alcohol cerca de ti",
+};
+const ES_PLATFORM_TITLE: Record<string, string> = {
+  M: "Grupos en sobriedad y de recuperación en Meetup",
+  E: "Eventos sin alcohol en Eventbrite",
+};
+
+export function soberLinks(opts: { city?: string; state?: string; stateName?: string; locale?: string }): SoberLinks {
+  const { city, state, stateName, locale } = opts;
   const hasCity = !!(city && state);
   const place = hasCity ? (city as string) : "";
   const label = hasCity ? `${city}, ${state}` : "";
+  const es = locale === "es";
 
-  const platforms: SoberLink[] = hasCity
+  const directories: SoberLink[] = es
+    ? DIRECTORIES.map((l) => ({ ...l, sub: ES_DIR_SUB[l.href] ?? l.sub }))
+    : DIRECTORIES;
+
+  const platformsEN: SoberLink[] = hasCity
     ? [
         {
           mark: "M", color: "#E0384E",
@@ -50,5 +76,9 @@ export function soberLinks(opts: { city?: string; state?: string; stateName?: st
       ]
     : [];
 
-  return { place, directories: DIRECTORIES, platforms };
+  const platforms: SoberLink[] = es
+    ? platformsEN.map((l) => ({ ...l, title: ES_PLATFORM_TITLE[l.mark] ?? l.title }))
+    : platformsEN;
+
+  return { place, directories, platforms };
 }

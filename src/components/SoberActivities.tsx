@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Icon } from "@/components/Icon";
 import { soberLinks } from "@/lib/sober";
 import { BY_CODE } from "@/lib/fellowships";
@@ -13,7 +13,8 @@ export async function SoberActivities({ city, state, stateName, fellowship }:
   { city?: string; state?: string; stateName?: string; fellowship?: string }) {
   // Gate: on a fellowship page, only the alcohol & drugs family gets the sober section.
   if (fellowship && BY_CODE[fellowship]?.group !== "Alcohol & drugs") return null;
-  const { place, directories, platforms } = soberLinks({ city, state, stateName });
+  const locale = await getLocale();
+  const { place, directories, platforms } = soberLinks({ city, state, stateName, locale });
   const hasPlatforms = platforms.length > 0;
   const t = await getTranslations("sober");
 

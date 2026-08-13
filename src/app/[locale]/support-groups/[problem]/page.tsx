@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { alts } from "@/lib/meta";
-import { PROBLEMS, PROBLEM_BY_SLUG, type Route } from "@/lib/problems";
+import { PROBLEMS, getProblems, getProblem, type Route } from "@/lib/problems";
 import { fellowshipName, fellowshipColor } from "@/lib/fellowships";
 import { fellowshipSlug } from "@/lib/cities";
 import { Icon } from "@/components/Icon";
@@ -17,10 +17,8 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; problem: string }> }): Promise<Metadata> {
   const { locale, problem } = await params;
-  const p = PROBLEM_BY_SLUG[problem];
+  const p = getProblem(problem, locale);
   if (!p) return {};
-  // p.title / p.description come from problems.ts and are still English pending the
-  // deep-content translation pass; the canonical/hreflang are locale-aware.
   return {
     title: p.title,
     description: p.description,
@@ -52,11 +50,11 @@ function RouteCards({ routes }: { routes: Route[] }) {
 export default async function ProblemPage({ params }: { params: Promise<{ locale: string; problem: string }> }) {
   const { locale, problem } = await params;
   setRequestLocale(locale);
-  const p = PROBLEM_BY_SLUG[problem];
+  const p = getProblem(problem, locale);
   if (!p) notFound();
   const t = await getTranslations("problem");
 
-  const others = PROBLEMS.filter((x) => x.slug !== p.slug);
+  const others = getProblems(locale).filter((x) => x.slug !== p.slug);
   const jsonld = {
     "@context": "https://schema.org",
     "@graph": [
@@ -116,7 +114,7 @@ export default async function ProblemPage({ params }: { params: Promise<{ locale
       <h2 style={{ fontSize: 20, marginTop: 28 }}>{t("exploreMore")}</h2>
       <div className="city-chips">
         {others.map((x) => (
-          <Link key={x.slug} href={`/support-groups/${x.slug}`} className="city-chip">{x.h1.replace(/ support groups$/i, "")}</Link>
+          <Link key={x.slug} href={`/support-groups/${x.slug}`} className="city-chip">{x.short ?? x.h1.replace(/ support groups$/i, "")}</Link>
         ))}
       </div>
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { alts } from "@/lib/meta";
-import { PROBLEMS } from "@/lib/problems";
+import { getProblems } from "@/lib/problems";
 import { Icon } from "@/components/Icon";
 import { SiteFooter } from "@/components/SiteFooter";
 
@@ -26,6 +26,7 @@ export default async function SupportGroupsIndex({ params }: { params: Promise<{
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("supportGroups");
+  const problems = getProblems(locale);
   const jsonld = {
     "@context": "https://schema.org",
     "@graph": [
@@ -56,7 +57,7 @@ export default async function SupportGroupsIndex({ params }: { params: Promise<{
       <p>{t("lede")}</p>
 
       <div className="route-cards" style={{ marginTop: 18 }}>
-        {PROBLEMS.map((p) => (
+        {problems.map((p) => (
           <Link key={p.slug} className="route-card" href={`/support-groups/${p.slug}`}>
             <span className="route-text" style={{ marginLeft: 2 }}>
               <b>{p.h1}</b>
