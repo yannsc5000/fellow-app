@@ -21,7 +21,13 @@
   },
   "home": {
     "introHeading": "Find a recovery meeting near you — free and anonymous",
-    "introBody": "Fellow is a free, independent finder for recovery meetings across the United States. It lists {total} Alcoholics Anonymous (AA), Narcotics Anonymous (NA) and other 12-step and peer-support meetings in all {states} states and DC — both in person and online — with no sign-up, no account, and no tracking. Search by city, day, or fellowship, browse the <cov>nationwide coverage map</cov>, or just tell <b>Ask Fellow</b> what you're looking for and it'll find a meeting near you. Not sure which group fits? Start from <sg>what you're facing</sg>.",
+    "introBody": "Fellow is a free, independent finder for recovery meetings across the United States — Alcoholics Anonymous (AA), Narcotics Anonymous (NA) and other 12-step and peer-support meetings. Search by city, day, or fellowship, browse the <cov>nationwide coverage map</cov>, or just tell <b>Ask Fellow</b> what you're looking for.",
+    "introChipFree": "Free & anonymous",
+    "introChipNoAccount": "No sign-up or account",
+    "introChipNoTracking": "No tracking",
+    "introChipInPersonOnline": "In person & online",
+    "introChipStates": "50 states + DC",
+    "introCta": "Not sure which group fits? Start with <sg>what you're facing</sg>",
     "cityBrowseHeading": "Browse meetings by city",
     "allCities": "All cities →"
   },

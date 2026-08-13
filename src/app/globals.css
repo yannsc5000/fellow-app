@@ -935,10 +935,18 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 
 /* Home answer-ready intro — crawlable entity copy under the interactive widget. */
 .home-intro{max-width:760px;margin:26px auto 4px;padding:0 4px}
-.home-intro h2{font-size:19px;font-weight:800;letter-spacing:-.01em;margin:0 0 8px}
+.home-intro h2{font-size:23px;font-weight:850;letter-spacing:-.015em;line-height:1.16;margin:0 0 9px}
 .home-intro p{color:var(--ink-soft);font-size:15.5px;line-height:1.6;margin:0}
 .home-intro strong{color:var(--ink)}
-.home-intro a{color:var(--brand-ink);font-weight:700}
+.home-intro a{color:var(--brand-ink);font-weight:750}
+/* Trust chips — Fellow's differentiators (free, no sign-up, no tracking, in person & online,
+   nationwide) made scannable so the section reads as intentional, not orphaned prose. */
+.home-intro-chips{display:flex;flex-wrap:wrap;gap:8px;margin:15px 0 0;padding:0;list-style:none}
+.home-intro-chip{display:inline-flex;align-items:center;gap:6px;background:var(--brand-tint);
+  color:var(--brand-ink);border-radius:999px;padding:7px 13px;font-size:13px;font-weight:800}
+.home-intro-chip svg{flex:0 0 auto}
+.home-intro .home-intro-cta{color:var(--ink);margin-top:14px}
+.home-intro .home-intro-cta a{font-weight:800}
 /* Styleguide note used on the living styleguide's card comparison. */
 .sg-note{color:var(--ink-soft);font-size:14px;line-height:1.5;max-width:640px;margin:6px 0 14px}
 

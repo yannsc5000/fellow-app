@@ -21,7 +21,13 @@
   },
   "home": {
     "introHeading": "Encuentra una reunión de recuperación cerca de ti — gratis y anónimo",
-    "introBody": "Fellow es un buscador gratuito e independiente de reuniones de recuperación en todo Estados Unidos. Incluye {total} reuniones de Alcohólicos Anónimos (AA), Narcóticos Anónimos (NA) y otros programas de doce pasos y de apoyo entre pares en los {states} estados y DC — presenciales y en línea — sin registro, sin cuenta y sin rastreo. Busca por ciudad, día o comunidad, explora el <cov>mapa de cobertura nacional</cov>, o simplemente dile a <b>Pregunta a Fellow</b> qué necesitas y encontrará una reunión cerca de ti. ¿No sabes cuál es para ti? Empieza por <sg>lo que estás enfrentando</sg>.",
+    "introBody": "Fellow es un buscador gratuito e independiente de reuniones de recuperación en todo Estados Unidos — Alcohólicos Anónimos (AA), Narcóticos Anónimos (NA) y otras reuniones de doce pasos y de apoyo entre pares. Busca por ciudad, día o comunidad, explora el <cov>mapa de cobertura nacional</cov>, o simplemente dile a <b>Pregunta a Fellow</b> qué necesitas.",
+    "introChipFree": "Gratis y anónimo",
+    "introChipNoAccount": "Sin registro ni cuenta",
+    "introChipNoTracking": "Sin rastreo",
+    "introChipInPersonOnline": "Presencial y en línea",
+    "introChipStates": "50 estados + DC",
+    "introCta": "¿No sabes cuál es para ti? Empieza por <sg>lo que estás enfrentando</sg>",
     "cityBrowseHeading": "Explora reuniones por ciudad",
     "allCities": "Todas las ciudades →"
   },

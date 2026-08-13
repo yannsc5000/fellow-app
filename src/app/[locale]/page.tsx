@@ -59,10 +59,22 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
         <h2 id="home-intro-h">{t("introHeading")}</h2>
         <p>
           {t.rich("introBody", {
-            total: coverage.total.toLocaleString(),
-            states: coverage.statesCovered,
             b: (chunks) => <strong>{chunks}</strong>,
             cov: (chunks) => <Link href="/coverage">{chunks}</Link>,
+          })}
+        </p>
+        <ul className="home-intro-chips">
+          {(["introChipFree", "introChipNoAccount", "introChipNoTracking", "introChipInPersonOnline", "introChipStates"] as const).map((k) => (
+            <li key={k} className="home-intro-chip">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M5 12l5 5L20 6" />
+              </svg>
+              {t(k)}
+            </li>
+          ))}
+        </ul>
+        <p className="home-intro-cta">
+          {t.rich("introCta", {
             sg: (chunks) => <Link href="/support-groups">{chunks}</Link>,
           })}
         </p>
