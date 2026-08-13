@@ -40,7 +40,7 @@ jobs:
             echo "No change."; exit 0
           fi
           if git cat-file -e HEAD:src/lib/search-console.json 2>/dev/null; then
-            meaningful="$(git diff --cached -U0 -- src/lib/search-console.json | grep -E '^[+-]' | grep -vE '^[+-]{3}' | grep -v '"generatedAt"')"
+            meaningful="$(git diff --cached -U0 -- src/lib/search-console.json | grep -E '^[+-]' | grep -vE '^[+-]{3}' | grep -v '"generatedAt"' || true)"
             if [ -z "$meaningful" ]; then
               echo "Only generatedAt changed — reverting to avoid a no-op commit."
               git restore --staged src/lib/search-console.json
