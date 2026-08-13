@@ -517,13 +517,10 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
    section above, reframing this space around connection ("ways to come together") rather than a
    footnote list. Shared by SoberActivities and FellowshipBeyond. */
 .sober{margin-top:34px;padding-top:26px;border-top:2px solid var(--panel-line)}
-.sober-hd{display:flex;gap:15px;align-items:flex-start}
-.sober-motif{flex:0 0 auto;width:54px;height:54px;border-radius:16px;background:var(--brand-tint);
-  display:grid;place-items:center;color:var(--brand)}
-.sober-eyebrow{display:inline-block;font-size:12px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;
-  color:var(--brand);margin:0 0 5px}
-.sober-h{font-size:29px;font-weight:900;letter-spacing:-.02em;line-height:1.1;margin:0}
-@media(max-width:520px){ .sober-h{font-size:25px} .sober-motif{width:46px;height:46px;border-radius:13px} }
+.sober-eyebrow{display:block;font-size:12px;font-weight:850;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--brand);margin:0 0 7px}
+.sober-h{font-size:29px;font-weight:900;letter-spacing:-.02em;line-height:1.12;margin:0}
+@media(max-width:520px){ .sober-h{font-size:25px} }
 .sober-lede{font-size:15.5px;line-height:1.55;color:var(--ink-soft);margin:14px 0 18px;max-width:60ch}
 .sober-grp{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:850;color:var(--ink);margin:22px 0 11px}
 .sober-grp .sober-grp-ln{flex:1;height:1px;background:var(--line)}
