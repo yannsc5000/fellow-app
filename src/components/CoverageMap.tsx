@@ -93,7 +93,7 @@ export default function CoverageMap({ data }: { data: Coverage }) {
                 href={`/state/${st.toLowerCase()}`}
                 className={"cov-cell" + (lvl === 0 ? " cov-empty" : "")}
                 data-lvl={lvl}
-                style={{ gridRow: r, gridColumn: c }}
+                style={{ gridRow: r, gridColumn: c, animationDelay: `${(r + c) * 24}ms` }}
                 aria-label={t("cellAria", { state: NAME[st], n: fmt(n), label })}
                 onClick={(e) => {
                   e.preventDefault();

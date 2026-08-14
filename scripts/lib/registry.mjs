@@ -252,6 +252,8 @@ export const SOURCES = [
   { id: "cma-az",  fellowship: "CMA", system: "meeting-guide", area: "CMA Arizona",      url: "https://cmaaz.org/wp-admin/admin-ajax.php?action=meetings" },
   // MA — Marijuana Anonymous. National site confirmed running TSML (12_step_meeting_list
   // plugin); WAF blocks the sandbox fetcher but it serves JSON from CI / a real server.
+  // Verified 2026-08-14: valid TSML 3.19.16 (also runs TEC for events). 0 count = WAF block, not
+  // stale → recovers on a browser-enabled ingest (CI USE_BROWSER=1 or residential-IP run).
   { id: "ma-national", fellowship: "MA", system: "meeting-guide", area: "Marijuana Anonymous (national)", url: "https://marijuana-anonymous.org/wp-admin/admin-ajax.php?action=meetings" },
   // RD — Recovery Dharma (Buddhist-inspired). National site runs TSML (12_step_meeting_list
   // 3.19.16); endpoint verified returning meeting JSON with lat/lng + Zoom links.
@@ -262,6 +264,8 @@ export const SOURCES = [
   // CoDA migrated off TSML to The Events Calendar (verified 2026-08-14: page exposes tec-api, no
   // 12_step_meeting_list) — the old admin-ajax URL is dead. Pull via the Tribe Events REST API instead.
   { id: "coda-national", fellowship: "CoDA", system: "tribe-events", area: "Co-Dependents Anonymous (national)", url: "https://coda.org/wp-json/tribe/events/v1/events" },
+  // FLAG (2026-08-14): heroinanonymous.org/meetings/ now JS-redirects to an external locator — the
+  // TSML admin-ajax feed is likely dead. Verify in a browser; if moved, repoint (tribe-events?) or drop.
   { id: "ha-national",   fellowship: "HA",   system: "meeting-guide", area: "Heroin Anonymous (national)",        url: "https://heroinanonymous.org/wp-admin/admin-ajax.php?action=meetings" },
   // SLAA — Sex & Love Addicts Anonymous. No single open national feed (the FWS site uses
   // a custom portal), but regional intergroups run TSML. Greater Delaware Valley VERIFIED
@@ -301,5 +305,7 @@ export const SOURCES = [
   { id: "sia-national", fellowship: "SIA", system: "meeting-guide", area: "Survivors of Incest Anonymous (national)", url: "https://siawso.org/wp-admin/admin-ajax.php?action=meetings" },
   // SCA — Sexual Compulsives Anonymous. National site runs TSML (12_step_meeting_list 3.19.16
   // meta tag + tsml-region/tsml-day patterns); WordPress install is in the /WP/ subdirectory.
+  // Verified 2026-08-14: alive and valid TSML 3.19.16 under /WP/ (site just doesn't surface in
+  // search). 0 count = WAF block, not stale → recovers on a browser-enabled ingest.
   { id: "sca-national", fellowship: "SCA", system: "meeting-guide", area: "Sexual Compulsives Anonymous (national)", url: "https://sca-recovery.org/WP/wp-admin/admin-ajax.php?action=meetings" },
 ];
