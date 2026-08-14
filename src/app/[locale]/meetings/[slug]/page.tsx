@@ -4,17 +4,31 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { alts } from "@/lib/meta";
 import { meetingSheetHref } from "@/lib/meetingHref";
-import { getCities, getCity, fellowshipLabel, cityFellowshipLinks, CITY_PREVIEW } from "@/lib/cities";
-import { fellowshipColor } from "@/lib/fellowships";
-import { Icon } from "@/components/Icon";
+import { getCities, getCity, fellowshipLabel, cityFellowshipLinks } from "@/lib/cities";
 import { SoberActivities } from "@/components/SoberActivities";
 import { SiteFooter } from "@/components/SiteFooter";
+import { CityWeekCalendar, type CalDay } from "@/components/CityWeekCalendar";
 
-function to12(t: string) {
-  const [h, m] = String(t).split(":").map(Number);
-  const ap = (h || 0) < 12 ? "AM" : "PM";
-  const hh = (h || 0) % 12 || 12;
-  return `${hh}:${String(m || 0).padStart(2, "0")} ${ap}`;
+// Group a city's (day-then-time sorted) meetings into the week Calendar's compact shape: per day,
+// the four day-part bands (up to 3 sample meetings each + the band's true total) plus an hourly
+// histogram for the sparkline. Small payload — the long tail lives behind "View all".
+const CAL_BANDS: [string, number, number][] = [
+  ["Morning", 0, 720], ["Midday", 720, 1020], ["Evening", 1020, 1260], ["Late", 1260, 1440],
+];
+const calMins = (t: string) => { const [h, m] = String(t).split(":").map(Number); return (h || 0) * 60 + (m || 0); };
+function buildWeek(meetings: { id: string; name: string; fellowship: string; day: number; time: string; place: string; address: string }[]): CalDay[] {
+  const byDow: Record<number, typeof meetings> = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+  for (const m of meetings) if (byDow[m.day]) byDow[m.day].push(m);
+  return [0, 1, 2, 3, 4, 5, 6].map((dow) => {
+    const list = byDow[dow];
+    const hours = new Array(17).fill(0);
+    for (const m of list) { const h = Math.floor(calMins(m.time) / 60); if (h >= 6 && h <= 22) hours[h - 6]++; }
+    const bands = CAL_BANDS.map(([label, a, b]) => {
+      const inb = list.filter((m) => { const t = calMins(m.time); return t >= a && t < b; });
+      return { label, total: inb.length, items: inb.slice(0, 3).map((m) => ({ name: m.name, fellowship: m.fellowship, time: m.time, href: meetingSheetHref(m) })) };
+    });
+    return { bands, hours };
+  });
 }
 
 // Only pre-built city slugs are valid; anything else 404s.
@@ -48,11 +62,9 @@ export default async function CityPage({ params }: { params: Promise<{ locale: s
   const c = await getCity(slug);
   if (!c) notFound();
   const t = await getTranslations("city");
-  const dayAbbr = t("dayAbbr").split(",");
-
-  // Short preview on the city page itself (meetings are pre-sorted by day then time); the full
-  // day-by-day listing lives on /meetings/[slug]/all.
-  const preview = c.meetings.slice(0, CITY_PREVIEW);
+  // The week Calendar (swim-lanes on desktop, day-picker on mobile) built from this city's
+  // meetings; the full day-by-day listing lives on /meetings/[slug]/all.
+  const week = buildWeek(c.meetings);
   const fellNames = c.fellowships.map(fellowshipLabel);
   const fellowshipLinks = cityFellowshipLinks(c);
   const liveSearch = `/?q=${encodeURIComponent(c.city)}`;
@@ -108,23 +120,8 @@ export default async function CityPage({ params }: { params: Promise<{ locale: s
       )}
 
       <h2 style={{ fontSize: 20, marginTop: 22 }}>{t("weekPreview")}</h2>
-      <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-        {preview.map((m) => (
-          <li key={m.id}>
-            <Link className="mtg-row" href={meetingSheetHref(m)}>
-              <span className="mtg-dot" style={{ background: fellowshipColor(m.fellowship) }} aria-hidden />
-              <span className="mtg-body">
-                <strong>{dayAbbr[m.day]} · {to12(m.time)}</strong> — {m.name}
-                <span className="mtg-meta">
-                  {" "}· {fellowshipLabel(m.fellowship)}{m.place ? ` · ${m.place}` : ""}
-                </span>
-              </span>
-              <Icon name="chevron" size={20} className="mtg-chev" />
-            </Link>
-          </li>
-        ))}
-      </ul>
-      <p style={{ margin: "14px 0 0" }}>
+      <CityWeekCalendar week={week} allHref={`/meetings/${c.slug}/all`} />
+      <p style={{ margin: "16px 0 0" }}>
         <Link href={`/meetings/${c.slug}/all`} className="city-chip city-chip-all">
           {t("viewAll", { count: c.count.toLocaleString(), city: c.city })}
         </Link>

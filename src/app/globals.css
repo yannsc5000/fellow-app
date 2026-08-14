@@ -1156,3 +1156,8 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .cal-phone .cal-mname{font-size:12.5px;color:var(--ink)}
 .cal-phone .cal-mfel{font-size:11px;color:var(--ink-soft)}
 .cal-mempty{padding:18px 2px;color:var(--ink-soft);font-size:15px}
+/* On the static city/fellowship pages the calendar breaks out of the ~760px reading column to the
+   app width, staying centered in the viewport (its <main> is margin-auto centered). Pure margin —
+   no transform — so it never introduces a horizontal scrollbar. */
+.city-cal{width:min(1040px, calc(100vw - 32px));margin-left:calc((100% - min(1040px, 100vw - 32px)) / 2);margin-top:20px}
+.cal-more-m{display:inline-block;padding:6px 0}

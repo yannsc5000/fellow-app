@@ -4,15 +4,29 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { alts } from "@/lib/meta";
 import { meetingSheetHref } from "@/lib/meetingHref";
-import { getFellowshipCityParams, getFellowshipCity, CITY_MAX_PER_DAY } from "@/lib/cities";
-import { Icon } from "@/components/Icon";
+import { getFellowshipCityParams, getFellowshipCity } from "@/lib/cities";
 import { SiteFooter } from "@/components/SiteFooter";
+import { CityWeekCalendar, type CalDay } from "@/components/CityWeekCalendar";
 
-function to12(t: string) {
-  const [h, m] = String(t).split(":").map(Number);
-  const ap = (h || 0) < 12 ? "AM" : "PM";
-  const hh = (h || 0) % 12 || 12;
-  return `${hh}:${String(m || 0).padStart(2, "0")} ${ap}`;
+// Same compact week shape as the city page — but every meeting here is the page's one fellowship,
+// so we stamp its code on each item (the row then hides the redundant label; the dot keeps the color).
+const CAL_BANDS: [string, number, number][] = [
+  ["Morning", 0, 720], ["Midday", 720, 1020], ["Evening", 1020, 1260], ["Late", 1260, 1440],
+];
+const calMins = (t: string) => { const [h, m] = String(t).split(":").map(Number); return (h || 0) * 60 + (m || 0); };
+function buildWeek(meetings: { id: string; name: string; day: number; time: string; place: string; address: string }[], code: string): CalDay[] {
+  const byDow: Record<number, typeof meetings> = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+  for (const m of meetings) if (byDow[m.day]) byDow[m.day].push(m);
+  return [0, 1, 2, 3, 4, 5, 6].map((dow) => {
+    const list = byDow[dow];
+    const hours = new Array(17).fill(0);
+    for (const m of list) { const h = Math.floor(calMins(m.time) / 60); if (h >= 6 && h <= 22) hours[h - 6]++; }
+    const bands = CAL_BANDS.map(([label, a, b]) => {
+      const inb = list.filter((m) => { const t = calMins(m.time); return t >= a && t < b; });
+      return { label, total: inb.length, items: inb.slice(0, 3).map((m) => ({ name: m.name, fellowship: code, time: m.time, href: meetingSheetHref({ ...m, fellowship: code }) })) };
+    });
+    return { bands, hours };
+  });
 }
 
 export const dynamicParams = false;
@@ -42,13 +56,8 @@ export default async function FellowshipCityPage({ params }: { params: Promise<{
   const fc = await getFellowshipCity(fellowship, slug);
   if (!fc) notFound();
   const t = await getTranslations("fellowshipCity");
-  const td = await getTranslations("meetingDayList");
-  const DAYS = td("days").split(",");
-
-  const byDay: Record<number, typeof fc.meetings> = {};
-  for (const m of fc.meetings) (byDay[m.day] ||= []).push(m);
-  let shown = 0;
-  for (let d = 0; d < 7; d++) if (byDay[d]) shown += Math.min(byDay[d].length, CITY_MAX_PER_DAY);
+  const tc = await getTranslations("city");
+  const week = buildWeek(fc.meetings, fc.code);
   const liveSearch = `/?q=${encodeURIComponent(`${fc.code} in ${fc.city}`)}`;
 
   const jsonld = {
@@ -85,41 +94,11 @@ export default async function FellowshipCityPage({ params }: { params: Promise<{
         <Link href={liveSearch}>{t("searchInCity", { code: fc.code, city: fc.city })}</Link>
       </p>
 
-      {DAYS.map((dayName, d) => {
-        const all = byDay[d];
-        if (!all || !all.length) return null;
-        const rows = all.slice(0, CITY_MAX_PER_DAY);
-        return (
-          <section key={d} style={{ margin: "18px 0" }}>
-            <h2 style={{ fontSize: 20 }}>{dayName} — {td("count", { n: all.length })}</h2>
-            <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-              {rows.map((m) => (
-                <li key={m.id}>
-                  <Link className="mtg-row" href={meetingSheetHref({ ...m, fellowship: fc.code })}>
-                    <span className="mtg-body">
-                      <strong>{to12(m.time)}</strong> — {m.name}
-                      {m.place || m.address ? <span className="mtg-meta"> · {m.place || m.address}</span> : null}
-                    </span>
-                    <Icon name="chevron" size={20} className="mtg-chev" />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            {all.length > rows.length && (
-              <p style={{ margin: "8px 0 0", color: "var(--ink-soft)", fontSize: 14 }}>
-                {td("moreOn", { n: all.length - rows.length, day: dayName })}<Link href={liveSearch}>{td("seeAllLive")}</Link>
-              </p>
-            )}
-          </section>
-        );
-      })}
-
-      {fc.count > shown && (
-        <p style={{ marginTop: 16 }}>
-          {t("showing", { shown, count: fc.count.toLocaleString(), code: fc.code, city: fc.city })}
-          <Link href={liveSearch}>{t("seeAllFilters")}</Link>
-        </p>
-      )}
+      <h2 style={{ fontSize: 20, marginTop: 22 }}>{tc("weekPreview")}</h2>
+      <CityWeekCalendar week={week} allHref={liveSearch} hideFellowship />
+      <p style={{ margin: "16px 0 0" }}>
+        <Link href={liveSearch} className="city-chip city-chip-all">{t("seeAllFilters")}</Link>
+      </p>
 
       <p style={{ margin: "28px 0", color: "var(--ink-soft)", fontSize: 15 }}>
         {t("independentNote", { name: fc.name })}<Link href="/about">{t("aboutSources")}</Link>
