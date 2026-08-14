@@ -10,6 +10,9 @@ on:
     - cron: "0 9 * * *"    # daily at 09:00 UTC
   workflow_dispatch: {}
 
+permissions:
+  contents: write            # commit the refreshed coverage stats + ingest history back to main
+
 jobs:
   ingest:
     runs-on: ubuntu-latest
@@ -42,6 +45,35 @@ jobs:
           TYPESENSE_ADMIN_API_KEY: ${{ secrets.TYPESENSE_ADMIN_API_KEY }}
           NEXT_PUBLIC_TYPESENSE_COLLECTION: ${{ secrets.TYPESENSE_COLLECTION }}
           # INDEX_MIN_RATIO: "0.7"   # (default) minimum size vs. live index before aborting
+
+      # Commit the SMALL derived data files so the site + the chatbot's honest-coverage list
+      # track the daily index, instead of only refreshing on a manual local ingest. Pushing to
+      # main triggers a Vercel redeploy that picks them up. No-op when nothing changed.
+      #
+      #   src/lib/fellowship-stats.json  (~200 B)  — which fellowships have meetings; the chatbot
+      #                                              reads this to describe coverage honestly. This
+      #                                              is the fix for the "coverage drift" bug: the
+      #                                              browser-enabled CI ingest can surface feeds a
+      #                                              browserless local run misses, so the bot stops
+      #                                              punting on fellowships Typesense actually has.
+      #   src/lib/data-history.json      (~300 B)  — the /studio growth chart's daily points.
+      #
+      # NOT committed here: public/data/meetings.json.gz (~8 MB, the dataset the Vercel BUILD reads
+      # for the static coverage/city/fellowship pages). Committing an 8 MB binary daily would bloat
+      # git history (~3 GB/yr; gz doesn't delta-compress). Keep refreshing it on your manual ingest
+      # cadence. If you want the static pages auto-fresh too, uncomment the git add line below AND
+      # move this job to a weekly schedule (e.g. cron "0 9 * * 1") to keep the bloat bounded.
+      - name: Commit refreshed data files
+        run: |
+          git add src/lib/fellowship-stats.json src/lib/data-history.json
+          # git add public/data/meetings.json.gz   # <- opt in for auto-fresh static pages (see note above)
+          if git diff --cached --quiet; then
+            echo "No data change — nothing to commit."; exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: refresh coverage stats + ingest history [skip ci]"
+          git push
 
       # Keep a copy of the raw dataset as a build artifact
       - uses: actions/upload-artifact@v4
