@@ -383,9 +383,13 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
         )}
         {msgs.map((m, i) => (
           <div key={i} className={`msg ${m.role}`}>
-            {/* Discovery flow: when the bot routes to 2+ fellowships, lead with tappable chips to
-                each one's page (/[fellowship]) so people can read about the options it named. */}
-            {m.role === "assistant" && m.fellowships && m.fellowships.length >= 2 && (
+            {/* Discovery flow: lead with tappable chips to each recommended fellowship's page
+                (/[fellowship]). Show them when 2+ groups were named, OR when a group was named but no
+                meetings came back (a gap topic like DA) — there the chip is the main next step. We
+                skip it only for a direct single-fellowship query that already returned meeting cards,
+                where the chip would just duplicate the result. */}
+            {m.role === "assistant" && m.fellowships && m.fellowships.length > 0 &&
+              (m.fellowships.length >= 2 || !(m.meetings && m.meetings.length > 0)) && (
               <div className="chat-fellows">
                 <span className="chat-fellows-label">{es ? "Grupos que podrían encajar" : "Groups that might fit"}</span>
                 <div className="chat-fellows-chips">

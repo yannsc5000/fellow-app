@@ -133,6 +133,23 @@ function dedupeMeetings(list: MeetingResult[]): MeetingResult[] {
   return list.filter((m) => (m.id && !seen.has(m.id) ? (seen.add(m.id), true) : false)).slice(0, 12);
 }
 
+// Fellowships the model named in its final REPLY text (e.g. "Debtors Anonymous (DA)") even when it
+// explained a gap topic WITHOUT calling search_meetings. Merge these into the recommended set so the
+// "Groups that might fit" chip and the official-finder / web-search buttons still appear. Matches the
+// full fellowship name or a "(CODE)" parenthetical — never a bare short code (those collide with state
+// abbreviations like CA/GA/MA/PA/WA).
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+function mergeReplyFellowships(text: string, into: string[]): void {
+  if (!text) return;
+  const lower = text.toLowerCase();
+  for (const f of FELLOWSHIPS) {
+    if (into.includes(f.code)) continue;
+    if (lower.includes(f.name.toLowerCase()) || new RegExp(`\\(\\s*${escapeRe(f.code)}\\s*\\)`).test(text)) {
+      into.push(f.code);
+    }
+  }
+}
+
 export async function POST(req: Request) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return Response.json({ error: "Chat isn't configured yet." }, { status: 503 });
@@ -177,7 +194,7 @@ export async function POST(req: Request) {
   // Built from what they were actually looking for (fellowship + place), never personal data.
   const lastUserMsg = [...trimmed].reverse().find((m) => m.role === "user")?.content || "";
   const buildWebSearch = () => {
-    const fCode = lastInput?.fellowship ? String(lastInput.fellowship) : "";
+    const fCode = lastInput?.fellowship ? String(lastInput.fellowship) : (recommended[0] || "");
     const fName = fCode ? fellowshipName(fCode) : "";
     const place = (lastInput?.query && String(lastInput.query).trim())
       || (body?.location?.label && body.location.label !== "your area" ? String(body.location.label) : "");
@@ -232,6 +249,9 @@ export async function POST(req: Request) {
         continue;
       }
       const reply = resp.content.filter((c) => c.type === "text").map((c: any) => c.text).join("").trim();
+      // Capture any fellowship the model named in prose but didn't pass to search_meetings (common on
+      // gap topics like DA) so the chip + handoff buttons still appear.
+      mergeReplyFellowships(reply, recommended);
       const meetings = dedupeMeetings(collected);
       // Privacy-preserving analytics: aggregate counters only (no message text, place, or IP).
       await logChatEvent({ fellowship: lastInput?.fellowship, found: meetings.length > 0, online: lastInput?.online === true });
