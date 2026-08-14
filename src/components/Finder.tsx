@@ -6,7 +6,8 @@ import {
 import dynamic from "next/dynamic";
 import { searchClient } from "@/lib/typesense";
 import { COLLECTION } from "@/lib/schema";
-import { fellowshipName, fellowshipColor } from "@/lib/fellowships";
+import { fellowshipName, fellowshipColor, CODE_BY_SLUG } from "@/lib/fellowships";
+import { parseSearchState, EMPTY_STATE, type SearchState } from "@/lib/searchState";
 import { officialFinder } from "@/lib/finders";
 import { CONTACT_EMAIL } from "@/lib/config";
 import { parseQuery, type Parsed } from "@/lib/parseQuery";
@@ -150,8 +151,13 @@ function QueryDriver({ text }: { text: string }) {
 }
 
 function Toggle({ attribute, value, label }: { attribute: string; value: string; label: string }) {
-  const { items, refine } = useRefinementList({ attribute });
-  const on = items.some((i) => i.value === value && i.isRefined);
+  const { refine } = useRefinementList({ attribute });
+  // Read pressed-state from the authoritative UI state, not from `items`: a value seeded from the
+  // URL (or one whose facet currently returns zero hits) may be absent from the facet response, but
+  // it is always present in indexUiState.refinementList. This keeps a /search?format=online landing
+  // showing the Online chip as active even before results resolve or when the filter yields nothing.
+  const { indexUiState } = useInstantSearch();
+  const on = (indexUiState.refinementList?.[attribute] ?? []).includes(value);
   return (
     <button className="chip" aria-pressed={on} onClick={() => refine(value)}>{label}</button>
   );
@@ -580,22 +586,49 @@ function CalendarView({ onOpen, onOpenDay, timeWindow }: {
   );
 }
 
+// ---- URL filter-state → Finder seed mappings (drive both the homepage links and /search deep-links) ----
+const WEEKDAY_TOKEN: Record<string, number> = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
+const TIME_WINDOWS: Record<string, { lo: number; hi: number }> = {
+  morning: { lo: 300, hi: 719 }, midday: { lo: 690, hi: 810 }, afternoon: { lo: 720, hi: 1019 }, evening: { lo: 1020, hi: 1259 },
+};
+function whenToSeed(when: string[]) {
+  const now = new Date(); const today = now.getDay();
+  const days: number[] = []; let soon = false, tonight = false;
+  for (const w of when) {
+    if (w === "today") days.push(today);
+    else if (w === "tomorrow") days.push((today + 1) % 7);
+    else if (w === "tonight") { days.push(today); tonight = true; }
+    else if (w === "soon") soon = true;
+    else if (w in WEEKDAY_TOKEN) days.push(WEEKDAY_TOKEN[w]);
+  }
+  return { days: [...new Set(days)], soon, tonight };
+}
+// "washington-dc" → "Washington, DC" (a ZIP passes through) for geocoding the search center.
+function slugToPlaceLabel(slug: string): string {
+  if (/^\d{5}$/.test(slug)) return slug;
+  const parts = slug.split("-");
+  const st = parts.length > 1 ? parts[parts.length - 1].toUpperCase() : "";
+  const city = parts.slice(0, parts.length > 1 ? -1 : undefined).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  return st ? `${city}, ${st}` : city;
+}
+
 export default function Finder() {
-  const [view, setView] = useState<"calendar" | "list" | "map">("calendar"); // calendar default; List/Map alt views
+  // The full filter state parsed from the URL (path + query) — one contract that seeds both the
+  // homepage's ?q=/?fellowship= links and the /search route's pretty-path + toggle deep-links.
+  const urlState = useMemo<SearchState>(() =>
+    (typeof window !== "undefined" ? parseSearchState(window.location.pathname, window.location.search) : EMPTY_STATE), []);
+  const whenSeed = useMemo(() => whenToSeed(urlState.when), [urlState]);
+  const [view, setView] = useState<"calendar" | "list" | "map">(urlState.view ?? "calendar"); // calendar default
   const [place, setPlace] = useState<Place>(null);
   const [selected, setSelected] = useState<any>(null);
   const [located, setLocated] = useState(false); // already tried device location?
-  const [soon, setSoon] = useState(false);                 // "Starts soon" toggle
-  const [dayToggles, setDayToggles] = useState<number[]>([]); // Today / Tomorrow toggles
+  const [soon, setSoon] = useState(whenSeed.soon);            // "Starts soon" (from when=soon)
+  const [dayToggles, setDayToggles] = useState<number[]>(whenSeed.days); // Today / Tomorrow / weekday
   const toggleDay = (d: number) => setDayToggles((cur) => (cur.includes(d) ? cur.filter((x) => x !== d) : [...cur, d]));
-  // Seed from ?q= so shared search links and the sitelinks search box land pre-filled.
-  const [raw, setRaw] = useState(() =>
-    typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("q") || "" : "");
-  // Seed the fellowship facet from ?fellowship=CODE so a fellowship/problem page's "search
-  // meetings" CTA lands on Browse already filtered to that fellowship near the user.
-  const initialFellowship = typeof window !== "undefined"
-    ? (new URLSearchParams(window.location.search).get("fellowship") || "").trim()
-    : "";
+  // Free text seeds from ?q=; the fellowship slug (pretty path or ?fellowship=) resolves to its
+  // canonical facet code.
+  const [raw, setRaw] = useState(urlState.q || "");
+  const initialFellowship = urlState.fellowship ? (CODE_BY_SLUG[urlState.fellowship] || "") : "";
   const parsed = useMemo(() => parseQuery(raw), [raw]);     // → filters + residual text
   // Keep the URL in sync with the query so any search is a copy-pasteable link.
   useEffect(() => {
@@ -626,9 +659,23 @@ export default function Finder() {
     // Stay in the current view (don't force Map) — just center results on the user.
     navigator.geolocation.getCurrentPosition((p) => useCoords(p.coords.latitude, p.coords.longitude, false));
   }
-  // On first load, default results to the user's area (if they allow location).
+  // A URL location (pretty-path or ?near=) seeds the search center: ZIP → coords, else geocode the
+  // city. Runs once; takes precedence over auto-geolocation below.
   useEffect(() => {
-    if (place || located || typeof navigator === "undefined" || !navigator.geolocation) return;
+    const near = urlState.near;
+    if (!near) return;
+    let cancelled = false;
+    (async () => {
+      const p = /^\d{5}$/.test(near) ? await zipToPlace(near) : await geocodePlace(slugToPlaceLabel(near));
+      if (!cancelled && p) setPlace(p);
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  // On first load, default results to the user's area (if they allow location) — unless the URL
+  // already named a location.
+  useEffect(() => {
+    if (urlState.near || place || located || typeof navigator === "undefined" || !navigator.geolocation) return;
     setLocated(true);
     navigator.geolocation.getCurrentPosition(
       (p) => useCoords(p.coords.latitude, p.coords.longitude, false),
@@ -680,14 +727,30 @@ export default function Finder() {
   // ONLY thing chosen — otherwise the day chips broaden the results (union), not conflict.
   const days = [...new Set([...dayToggles, ...(parsed.day != null ? [parsed.day] : []), ...(soon ? [TODAY] : [])])];
   const soleSoon = soon && dayToggles.length === 0 && parsed.day == null;
-  const timeWindow = soleSoon ? { lo: nowMin - 20, hi: nowMin + 90 } : parsed.window;
+  // Time-of-day comes from a natural-language query (parsed.window) or, on a /search deep-link, the
+  // ?time= param (and when=tonight → evening). URL-seeded, no dedicated toggle UI yet.
+  const initialTimeWindow = urlState.time ? TIME_WINDOWS[urlState.time] : (whenSeed.tonight ? { lo: 1020, hi: 1439 } : null);
+  const timeWindow = soleSoon ? { lo: nowMin - 20, hi: nowMin + 90 } : (parsed.window ?? initialTimeWindow);
   // Load more hits when a time window is active OR the calendar is open (the week view wants as
   // much of the week as the index page allows, not just the first 100).
   const wide = !!timeWindow || view === "calendar";
+  // Seed InstantSearch facets from the URL: fellowship, online/in-person, and open/closed/accessible.
+  const initialUi = useMemo(() => {
+    const rl: Record<string, string[]> = {};
+    if (initialFellowship) rl.fellowship = [initialFellowship];
+    if (urlState.format === "online") rl.online = ["true"];
+    else if (urlState.format === "in-person") rl.online = ["false"];
+    const typeVals = [
+      ...urlState.types.map((t) => (t === "open" ? "Open" : "Closed")),
+      ...(urlState.access.includes("wheelchair") ? ["Wheelchair"] : []),
+    ];
+    if (typeVals.length) rl.types = typeVals;
+    return Object.keys(rl).length ? { [COLLECTION]: { refinementList: rl } } : undefined;
+  }, [initialFellowship, urlState]);
 
   return (
     <InstantSearch searchClient={searchClient} indexName={COLLECTION} future={{ preserveSharedStateOnUnmount: true }}
-      initialUiState={initialFellowship ? { [COLLECTION]: { refinementList: { fellowship: [initialFellowship] } } } : undefined}>
+      initialUiState={initialUi}>
       <GeoConfigure place={place} wide={wide} searching={searching} />
       <QueryDriver text={queryText} />
       <DaySync days={days} />

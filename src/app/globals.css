@@ -1161,3 +1161,10 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
    no transform — so it never introduces a horizontal scrollbar. */
 .city-cal{width:min(1040px, calc(100vw - 32px));margin-left:calc((100% - min(1040px, 100vw - 32px)) / 2);margin-top:20px}
 .cal-more-m{display:inline-block;padding:6px 0}
+
+/* /search route — server-rendered message-match header above the live Finder. */
+.search-head{margin:2px 0 14px}
+.search-h1{font-size:23px;font-weight:850;letter-spacing:-.02em;margin:0 0 4px;line-height:1.2}
+.search-sub{font-size:14.5px;color:var(--ink-soft);margin:0}
+.search-back{margin:18px 0 0}
+@media(max-width:560px){ .search-h1{font-size:20px} }
