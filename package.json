@@ -18,7 +18,8 @@
     "kpi:alerts": "node scripts/kpi-alerts.mjs",
     "smoke": "node scripts/smoke-test.mjs",
     "bootstrap": "npm run typesense:up && npm run ingest && npm run index",
-    "bootstrap:local": "npm run typesense:up && npm run ingest -- --local && npm run index"
+    "bootstrap:local": "npm run typesense:up && npm run ingest -- --local && npm run index",
+    "test": "node --test scripts/lib/*.test.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",

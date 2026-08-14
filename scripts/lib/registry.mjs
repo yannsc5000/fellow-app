@@ -268,11 +268,21 @@ export const SOURCES = [
   { id: "slaa-ny",  fellowship: "SLAA", system: "meeting-guide", area: "SLAA New York",                                 url: "https://www.slaany.org/wp-admin/admin-ajax.php?action=meetings" },
   // EDA — Eating Disorders Anonymous. National TSML feed VERIFIED (~100 meetings).
   { id: "eda-national", fellowship: "EDA", system: "meeting-guide", area: "Eating Disorders Anonymous (national)", url: "https://eatingdisordersanonymous.org/wp-admin/admin-ajax.php?action=meetings" },
-  // Al-Anon — national site is closed, but state intergroups run TSML. GA + PA VERIFIED
-  // (~150 / ~100). Alateen meetings are included within these feeds (tagged), so they
-  // surface under Al-Anon rather than as a separate source (avoids double-pull dupes).
-  { id: "alanon-ga", fellowship: "Al-Anon", system: "meeting-guide", area: "Georgia Al-Anon",       url: "https://www.ga-al-anon.org/wp-admin/admin-ajax.php?action=meetings" },
-  { id: "alanon-pa", fellowship: "Al-Anon", system: "meeting-guide", area: "Pennsylvania Al-Anon",  url: "https://pa-al-anon.org/wp-admin/admin-ajax.php?action=meetings" },
+  // Al-Anon — national site (al-anon.org) runs its own meeting-search portal, not an open TSML
+  // feed, so we aggregate the state/area intergroups that DO run TSML. Alateen meetings are
+  // included within these feeds (tagged), so they surface under Al-Anon rather than as a separate
+  // source (avoids double-pull dupes). Many big-state areas (TX, NY, …) just point to the national
+  // search and self-host nothing, so coverage grows area by area.
+  // VERIFIED TSML 3.19.16, root install (2026-08-14): GA, PA, MD, OH-Cleveland.
+  { id: "alanon-ga",           fellowship: "Al-Anon", system: "meeting-guide", area: "Georgia Al-Anon",              url: "https://www.ga-al-anon.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "alanon-pa",           fellowship: "Al-Anon", system: "meeting-guide", area: "Pennsylvania Al-Anon",         url: "https://pa-al-anon.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "alanon-md",           fellowship: "Al-Anon", system: "meeting-guide", area: "Maryland Al-Anon",             url: "https://alanon-maryland.org/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "alanon-oh-cleveland", fellowship: "Al-Anon", system: "meeting-guide", area: "Cleveland Al-Anon (Ohio)",     url: "https://www.clevelandal-anon.org/wp-admin/admin-ajax.php?action=meetings" },
+  // CANDIDATES — confirmed TSML 3.19.16 but the admin-ajax path is unverified. N.CA serves its
+  // meetings under /blog/, so WordPress is likely installed there (root fallback if this returns 0);
+  // NC District 6 matched the TSML "Meetings Archive" pattern but wasn't fetched directly.
+  { id: "alanon-ca-north",     fellowship: "Al-Anon", system: "meeting-guide", area: "Northern California Al-Anon (NCWSA)", url: "https://northernca-al-anon.org/blog/wp-admin/admin-ajax.php?action=meetings" },
+  { id: "alanon-nc-d6",        fellowship: "Al-Anon", system: "meeting-guide", area: "North Carolina Al-Anon (District 6)", url: "https://alanonalateen6nc.org/wp-admin/admin-ajax.php?action=meetings" },
   // CANDIDATES — confirmed TSML (12_step_meeting_list meta tag) but WAF/robots-blocked
   // from the sandbox; pull fine from CI. DA source is DC-area (double-down bonus).
   { id: "da-dc",           fellowship: "DA",       system: "meeting-guide", area: "Capital Area Debtors Anonymous (Washington DC)", url: "https://debtorsanonymousdc.org/wp-admin/admin-ajax.php?action=meetings" },
