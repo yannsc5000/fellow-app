@@ -512,7 +512,9 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
   border-radius:14px;box-shadow:0 1px 1.5px rgba(16,70,60,.04);
   transition:border-color .14s ease,box-shadow .14s ease,transform .14s ease}
 .mtg-row:hover{border-color:color-mix(in srgb, var(--brand) 45%, var(--line));box-shadow:var(--shadow-sm);transform:translateY(-1px)}
-.mtg-dot{flex:0 0 auto;width:9px;height:9px;border-radius:50%;margin-right:1px}
+/* Inline (inside .mtg-body) so the fellowship dot sits on the meeting name's first line,
+   instead of vertically centering against a wrapped two-line row. */
+.mtg-dot{display:inline-block;width:9px;height:9px;border-radius:50%;vertical-align:middle;margin:0 8px 2px 0}
 .mtg-body{flex:1;min-width:0}
 .mtg-row .mtg-meta{color:var(--ink-soft)}
 .mtg-chev{flex:0 0 auto;color:var(--brand-ink);opacity:.55;transition:transform .12s ease,opacity .12s ease}
@@ -1081,3 +1083,76 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 
 /* Coverage tiles cascade in once on load (per-tile delay set inline in CoverageMap). */
 .cov-cell{animation:cov-in var(--dur-2) var(--ease-out) both}
+
+/* ===== Calendar (week) view — Finder ============================================================
+   Desktop = swim-lanes (day-part rows spanning the week). Mobile = day-picker + that day's agenda.
+   All colors come from tokens so light/dark both work; "today" uses --action (burnt orange). ===== */
+.cal{margin-top:2px}
+/* minmax(0,1fr) (not plain 1fr) so the 7 day columns shrink to fit narrow desktop/tablet widths
+   and the meeting rows ellipsis-clip, instead of the grid overflowing horizontally. */
+.cal-lane{display:grid;grid-template-columns:58px repeat(7,minmax(0,1fr));gap:8px}
+.cal-lhead{border-radius:14px 14px 0 0;padding:9px 8px 8px;text-align:center;background:var(--surface-2)}
+.cal-lhead.is-today{background:color-mix(in srgb, var(--action) 12%, var(--surface))}
+.cal-lhead .cal-d{display:block;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft)}
+.cal-lhead .cal-n{display:block;font-size:19px;font-weight:850;line-height:1.15}
+.cal-lhead.is-today .cal-d,.cal-lhead.is-today .cal-n{color:var(--action)}
+.cal-spark{display:flex;gap:1.5px;height:14px;align-items:flex-end;margin-top:6px}
+.cal-spark i{flex:1;border-radius:2px;min-height:2px}
+.cal-llabel{display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:10px;
+  font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);text-align:right}
+.cal-cell{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:5px;min-height:60px;
+  display:flex;flex-direction:column;gap:1px;transition:transform var(--dur-1) var(--ease-out),box-shadow var(--dur-1) var(--ease-out)}
+.cal-cell:hover{transform:translateY(var(--lift));box-shadow:var(--shadow-md);position:relative;z-index:2}
+.cal-cell.is-empty{background:transparent;border-style:dashed;border-color:color-mix(in srgb,var(--line) 75%,transparent);min-height:44px}
+.cal-cell.is-today{background:color-mix(in srgb, var(--action) 7%, var(--surface));border-color:color-mix(in srgb, var(--action) 32%, var(--line))}
+.cal-cell.is-empty.is-today{background:color-mix(in srgb, var(--action) 5%, transparent)}
+.cal-mrow{display:flex;align-items:center;gap:6px;text-align:left;background:transparent;border:0;cursor:pointer;
+  padding:4px 5px;border-radius:8px;width:100%;font-family:inherit;transition:background var(--dur-1) var(--ease-out)}
+.cal-mrow:hover{background:color-mix(in srgb,var(--fc) 12%, var(--surface-2))}
+.cal-dot{flex:0 0 auto;width:7px;height:7px;border-radius:50%;background:var(--fc,var(--brand))}
+.cal-mtime{flex:0 0 auto;font-size:11px;font-weight:850;color:var(--ink);white-space:nowrap}
+.cal-mname{flex:1;min-width:0;font-size:11.5px;font-weight:700;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cal-mfel{flex:0 0 auto;font-size:10px;font-weight:800;color:var(--fc,var(--brand))}
+.cal-more{align-self:flex-start;margin-top:auto;background:transparent;border:0;cursor:pointer;font-family:inherit;
+  font-size:10.5px;font-weight:800;color:var(--brand-ink);padding:3px 5px;border-radius:6px}
+.cal-more:hover{text-decoration:underline}
+
+/* Week stepper: ‹ › + range label + "jump to this week" reset. Forward-bounded, centered,
+   and shared by desktop + mobile. */
+.cal-weeknav{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 0 12px}
+.cal-nav{width:32px;height:32px;border-radius:10px;border:1px solid var(--line);background:var(--surface);
+  color:var(--ink-soft);font-weight:800;cursor:pointer;font-size:16px;line-height:1}
+.cal-nav:hover:not(:disabled){border-color:var(--brand);color:var(--brand-ink)}
+.cal-nav:disabled{opacity:.4;cursor:default}
+.cal-weeklabel{font-size:16px;font-weight:850;letter-spacing:-.01em;min-width:96px;text-align:center}
+.cal-reset{font-size:12px;font-weight:800;color:var(--brand-ink);background:var(--brand-tint);
+  border:0;border-radius:999px;padding:6px 13px;cursor:pointer}
+
+/* Mobile day view — hidden on desktop, shown under the swim-lane breakpoint (small tablets and
+   below; every phone is ≤430px CSS-wide, so this only affects narrow tablet/desktop windows). */
+.cal-desk{display:block}
+.cal-phone{display:none}
+@media (max-width:820px){ .cal-desk{display:none} .cal-phone{display:block} }
+/* Week-paged day-strip: the seven days of the viewed week, sharing the width so all fit. */
+.cal-daypick{display:flex;gap:5px;padding:2px 0 10px}
+.cal-dp{flex:1;min-width:0;text-align:center;padding:7px 3px 6px;border-radius:12px;background:var(--surface);
+  border:1px solid var(--line);cursor:pointer;font-family:inherit;color:var(--ink)}
+.cal-dp.is-sel{background:var(--brand);border-color:var(--brand);color:#fff}
+.cal-dp.is-today{background:var(--action);border-color:var(--action);color:#fff}
+.cal-dp .cal-dd{display:block;font-size:9px;font-weight:800;text-transform:uppercase;opacity:.75}
+.cal-dp .cal-nn{display:block;font-size:14px;font-weight:850}
+.cal-dp .cal-spark{height:12px;margin:4px 4px 0}
+.cal-dp.is-sel .cal-spark i,.cal-dp.is-today .cal-spark i{background:rgba(255,255,255,.85)!important;opacity:1!important}
+.cal-mtitle{font-size:15px;font-weight:850;margin:4px 2px 9px;display:flex;align-items:center;gap:8px}
+.cal-todaytag{font-size:9px;font-weight:850;letter-spacing:.05em;text-transform:uppercase;color:#fff;
+  background:var(--action);padding:2px 7px;border-radius:999px}
+.cal-mcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:2px 14px 10px}
+.cal-mband{font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);
+  padding:13px 0 3px;border-top:1px solid var(--line)}
+.cal-mband:first-child{border-top:0}
+.cal-phone .cal-mrow{padding:9px 2px;gap:10px}
+.cal-phone .cal-dot{width:8px;height:8px}
+.cal-phone .cal-mtime{width:54px;font-size:12.5px}
+.cal-phone .cal-mname{font-size:12.5px;color:var(--ink)}
+.cal-phone .cal-mfel{font-size:11px;color:var(--ink-soft)}
+.cal-mempty{padding:18px 2px;color:var(--ink-soft);font-size:15px}

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, Fragment } from "react";
 import {
   InstantSearch, Configure, useSearchBox, useRefinementList, useHits, useInstantSearch, useClearRefinements, useStats,
 } from "react-instantsearch";
@@ -414,8 +414,174 @@ function ResultsCount({ place, startsSoon, timeWindow }: { place: Place; startsS
   return <div className="count-line" aria-live="polite">{n.toLocaleString()} meeting{n === 1 ? "" : "s"}{suffix}</div>;
 }
 
+// ---- Calendar (week) view ----------------------------------------------------------------
+// A recurrence-honest week: recovery meetings repeat by day-of-week + time, so the calendar
+// shows one week at a time rather than a 30-day grid. Desktop uses "swim-lanes" — the day-parts
+// (Morning/Midday/Evening/Late) are rows spanning all seven days, so the eye scans one band
+// straight across the week — with a ‹ › week stepper. Mobile can't fit seven columns, so it
+// collapses to a rolling forward day-strip → that day's agenda. Because the data is weekly-
+// recurring, navigation is forward-only within a bounded horizon (CAL_MAX_WEEKS) and "Today" is
+// marked (burnt orange) only on the current week/day; both views show the same meetings re-dated.
+const CAL_DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const CAL_BANDS: [string, number, number][] = [
+  ["Morning", 0, 720], ["Midday", 720, 1020], ["Evening", 1020, 1260], ["Late", 1260, 1440],
+];
+const CAL_MAX_WEEKS = 6; // how far ahead you can browse (weekly-recurring data → a bounded horizon)
+const calMins = (t: string) => { const [h, m] = String(t).split(":").map(Number); return (h || 0) * 60 + (m || 0); };
+
+function CalendarView({ onOpen, onOpenDay, timeWindow }: {
+  onOpen: (m: any) => void; onOpenDay: (d: number) => void; timeWindow: { lo: number; hi: number } | null;
+}) {
+  const { items: rawItems } = useHits();
+  const items = timeWindow ? rawItems.filter((m: any) => inWindow(m, timeWindow)) : rawItems;
+  const { status, error } = useInstantSearch();
+  const busy = status === "loading" || status === "stalled";
+  const [weekOffset, setWeekOffset] = useState(0); // week paging (0 = this week), shared by desktop + mobile
+  const [selDow, setSelDow] = useState(TODAY);     // mobile: which weekday of the viewed week is expanded
+
+  const now = useMemo(() => new Date(), []);
+  const todayDow = now.getDay();
+  // The Sun→Sat dates for the currently-paged week — drives both the desktop columns and the mobile strip.
+  const weekDates = useMemo(() => {
+    const sun = new Date(now); sun.setDate(now.getDate() - now.getDay() + weekOffset * 7);
+    return CAL_DOW.map((_, i) => { const d = new Date(sun); d.setDate(sun.getDate() + i); return d; });
+  }, [now, weekOffset]);
+  // Group the loaded hits by day-of-week, chronological within each day.
+  const byDay = useMemo(() => {
+    const g: Record<number, any[]> = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
+    for (const m of items) { const d = Number(m.day); if (g[d]) g[d].push(m); }
+    for (let d = 0; d < 7; d++) g[d].sort((a, b) => calMins(a.time) - calMins(b.time));
+    return g;
+  }, [items]);
+  // Per-hour counts (6am–10pm) per day → the mini "when's it busy" sparkline; shared max scales them.
+  const perHour = useMemo(() => {
+    const g: Record<number, number[]> = {}; let max = 1;
+    for (let d = 0; d < 7; d++) {
+      const arr = new Array(17).fill(0);
+      for (const m of byDay[d]) { const h = Math.floor(calMins(m.time) / 60); if (h >= 6 && h <= 22) { arr[h - 6]++; if (arr[h - 6] > max) max = arr[h - 6]; } }
+      g[d] = arr;
+    }
+    return { g, max };
+  }, [byDay]);
+
+  if (error) return (
+    <div className="state" role="alert"><h2>We’re having trouble loading meetings</h2>
+      <p>Switch to List to keep browsing, or reload the page.</p></div>
+  );
+  if (busy && !items.length) return <Skeletons />;
+  if (!items.length) return (
+    <div className="state"><h2>Nothing to show on the calendar</h2>
+      <p>Widen your search or clear a filter to see the week.</p></div>
+  );
+
+  const spark = (dow: number) => (
+    <span className="cal-spark" aria-hidden>
+      {perHour.g[dow].map((n, i) => (
+        <i key={i} style={{ height: `${Math.max(2, (n / perHour.max) * 14)}px`, background: "var(--brand)", opacity: n ? 0.35 + 0.65 * Math.min(1, n / perHour.max) : 0.14 }} />
+      ))}
+    </span>
+  );
+  const bandOf = (dow: number, a: number, b: number) => byDay[dow].filter((m) => { const t = calMins(m.time); return t >= a && t < b; });
+  const MRow = (m: any) => {
+    const t = to12(m.time);
+    return (
+      <button key={m.objectID} className="cal-mrow" style={{ ["--fc" as any]: fellowshipColor(m.fellowship) }}
+        onClick={() => onOpen(m)} title={`${m.name} · ${fellowshipName(m.fellowship)}`}>
+        <span className="cal-dot" aria-hidden />
+        <span className="cal-mtime">{t.hh}{t.ap[0].toLowerCase()}</span>
+        <span className="cal-mname">{m.name}</span>
+        <span className="cal-mfel">{m.fellowship}</span>
+      </button>
+    );
+  };
+
+  // Desktop week label ("Aug 16 – 22", or "Aug 30 – Sep 5" across a month boundary).
+  const wa = weekDates[0], wb = weekDates[6];
+  const weekLabel = wa.getMonth() === wb.getMonth()
+    ? `${wa.toLocaleDateString(undefined, { month: "short", day: "numeric" })} – ${wb.getDate()}`
+    : `${wa.toLocaleDateString(undefined, { month: "short", day: "numeric" })} – ${wb.toLocaleDateString(undefined, { month: "short", day: "numeric" })}`;
+  const selDate = weekDates[selDow];
+  // The week stepper — identical on desktop and mobile, centered.
+  const weekNav = (
+    <div className="cal-weeknav">
+      <button className="cal-nav" aria-label="Previous week" disabled={weekOffset === 0}
+        onClick={() => setWeekOffset((w) => Math.max(0, w - 1))}>‹</button>
+      <span className="cal-weeklabel">{weekOffset === 0 ? "This week" : weekLabel}</span>
+      <button className="cal-nav" aria-label="Next week" disabled={weekOffset >= CAL_MAX_WEEKS - 1}
+        onClick={() => setWeekOffset((w) => Math.min(CAL_MAX_WEEKS - 1, w + 1))}>›</button>
+      {weekOffset !== 0 && <button className="cal-reset" onClick={() => setWeekOffset(0)}>Jump to this week</button>}
+    </div>
+  );
+
+  return (
+    <div className="cal" aria-busy={busy}>
+      {/* Desktop: week stepper + swim-lanes — day-parts are rows spanning the week. */}
+      <div className="cal-desk">
+        {weekNav}
+        <div className="cal-lane">
+          <div className="cal-corner" aria-hidden />
+          {CAL_DOW.map((dn, d) => {
+            const isToday = weekOffset === 0 && d === todayDow;
+            return (
+              <div key={d} className={`cal-lhead${isToday ? " is-today" : ""}`}>
+                <span className="cal-d">{dn}</span><span className="cal-n">{weekDates[d].getDate()}</span>{spark(d)}
+              </div>
+            );
+          })}
+          {CAL_BANDS.map(([label, a, b]) => (
+            <Fragment key={label}>
+              <div className="cal-llabel">{label}</div>
+              {CAL_DOW.map((_, d) => {
+                const isToday = weekOffset === 0 && d === todayDow;
+                const list = bandOf(d, a, b);
+                if (!list.length) return <div key={d} className={`cal-cell is-empty${isToday ? " is-today" : ""}`} aria-hidden />;
+                const show = list.slice(0, 3); const more = list.length - show.length;
+                return (
+                  <div key={d} className={`cal-cell${isToday ? " is-today" : ""}`}>
+                    {show.map(MRow)}
+                    {more > 0 && <button className="cal-more" onClick={() => onOpenDay(d)}>+{more} more →</button>}
+                  </div>
+                );
+              })}
+            </Fragment>
+          ))}
+        </div>
+      </div>
+
+      {/* Mobile: same week stepper, then the viewed week's 7 days → the selected day's agenda. */}
+      <div className="cal-phone">
+        {weekNav}
+        <div className="cal-daypick" role="tablist" aria-label="Pick a day">
+          {CAL_DOW.map((dn, d) => {
+            const sel = d === selDow, isToday = weekOffset === 0 && d === todayDow;
+            return (
+              <button key={d} role="tab" aria-selected={sel}
+                className={`cal-dp${sel ? " is-sel" : ""}${isToday ? " is-today" : ""}`}
+                onClick={() => setSelDow(d)}>
+                <span className="cal-dd">{dn.slice(0, 2)}</span><span className="cal-nn">{weekDates[d].getDate()}</span>{spark(d)}
+              </button>
+            );
+          })}
+        </div>
+        <div className="cal-mtitle">
+          {FULL_DAYS[selDow]}, {selDate.toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+          {weekOffset === 0 && selDow === todayDow ? <span className="cal-todaytag">Today</span> : null}
+        </div>
+        <div className="cal-mcard">
+          {byDay[selDow].length === 0
+            ? <div className="cal-mempty">No meetings listed for this day.</div>
+            : CAL_BANDS.map(([label, a, b]) => {
+                const list = bandOf(selDow, a, b); if (!list.length) return null;
+                return <Fragment key={label}><div className="cal-mband">{label}</div>{list.map(MRow)}</Fragment>;
+              })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Finder() {
-  const [view, setView] = useState<"list" | "map">("list"); // list default; Near me → map
+  const [view, setView] = useState<"calendar" | "list" | "map">("calendar"); // calendar default; List/Map alt views
   const [place, setPlace] = useState<Place>(null);
   const [selected, setSelected] = useState<any>(null);
   const [located, setLocated] = useState(false); // already tried device location?
@@ -515,7 +681,9 @@ export default function Finder() {
   const days = [...new Set([...dayToggles, ...(parsed.day != null ? [parsed.day] : []), ...(soon ? [TODAY] : [])])];
   const soleSoon = soon && dayToggles.length === 0 && parsed.day == null;
   const timeWindow = soleSoon ? { lo: nowMin - 20, hi: nowMin + 90 } : parsed.window;
-  const wide = !!timeWindow;
+  // Load more hits when a time window is active OR the calendar is open (the week view wants as
+  // much of the week as the index page allows, not just the first 100).
+  const wide = !!timeWindow || view === "calendar";
 
   return (
     <InstantSearch searchClient={searchClient} indexName={COLLECTION} future={{ preserveSharedStateOnUnmount: true }}
@@ -548,12 +716,16 @@ export default function Finder() {
       <div className="results-head">
         <LocationControl place={place} onZip={setPlace} onNearMe={nearMe} onClear={() => setPlace(null)} />
         <div className="seg" role="group" aria-label="View">
+          <button aria-pressed={view === "calendar"} onClick={() => setView("calendar")}>Calendar</button>
           <button aria-pressed={view === "list"} onClick={() => setView("list")}>List</button>
           <button aria-pressed={view === "map"} onClick={() => setView("map")}>Map</button>
         </div>
       </div>
 
-      {view === "list" ? (
+      {view === "calendar" ? (
+        <CalendarView onOpen={setSelected} timeWindow={timeWindow}
+          onOpenDay={(d) => { setSoon(false); setDayToggles([d]); setView("list"); }} />
+      ) : view === "list" ? (
         <Results onOpen={setSelected} user={user} onClearLocation={() => setPlace(null)} startsSoon={soleSoon} timeWindow={timeWindow} />
       ) : (
         <ErrorBoundary fallback={<div className="state"><h2>The map didn’t load</h2><p>Switch back to List to keep browsing meetings, or reload the page.</p></div>}>

@@ -38,8 +38,8 @@ export async function MeetingDayList({
               {shown.map((r) => (
                 <li key={r.id}>
                   <Link className="mtg-row" href={r.href}>
-                    {r.dot ? <span className="mtg-dot" style={{ background: r.dot }} aria-hidden /> : null}
                     <span className="mtg-body">
+                      {r.dot ? <span className="mtg-dot" style={{ background: r.dot }} aria-hidden /> : null}
                       <strong>{to12(r.time)}</strong> — {r.name}
                       {r.online ? <span className="va-badge">{t("online")}</span> : null}
                       {r.meta ? <span className="mtg-meta"> · {r.meta}</span> : null}
