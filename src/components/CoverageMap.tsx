@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 import type { Coverage } from "@/lib/coverage";
 import { fellowshipName } from "@/lib/fellowships";
@@ -29,6 +30,7 @@ const fmt = (n: number) => n.toLocaleString("en-US");
 const short = (n: number) => (n >= 1000 ? (n / 1000).toFixed(n >= 10000 ? 0 : 1) + "k" : String(n));
 
 export default function CoverageMap({ data }: { data: Coverage }) {
+  const t = useTranslations("coverageMap");
   const [sel, setSel] = useState<string>("__all");
   const [tip, setTip] = useState<{ st: string; x: number; y: number } | null>(null);
   // A tap/click "pins" the popup (with a link to the state page) instead of navigating away —
@@ -58,12 +60,12 @@ export default function CoverageMap({ data }: { data: Coverage }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sel]);
 
-  const label = sel === "__all" ? "all fellowships" : fellowshipName(sel);
-  const chips: [string, string][] = [["__all", "All"], ...data.fellowships.map((f) => [f, f] as [string, string])];
+  const label = sel === "__all" ? t("allFellowships") : fellowshipName(sel);
+  const chips: [string, string][] = [["__all", t("allChip")], ...data.fellowships.map((f) => [f, f] as [string, string])];
 
   return (
     <div className="cov">
-      <div className="cov-fells" role="group" aria-label="Choose a fellowship">
+      <div className="cov-fells" role="group" aria-label={t("chooseFellowship")}>
         {chips.map(([key, lab]) => (
           <button key={key} className="cov-fell" aria-pressed={sel === key} onClick={() => setSel(key)}>
             {lab} <span className="cov-c">{fmt(key === "__all" ? data.placed : data.inPerson[key] || 0)}</span>
@@ -71,12 +73,16 @@ export default function CoverageMap({ data }: { data: Coverage }) {
         ))}
       </div>
       <p className="cov-hint">
-        Showing {label} — <strong>{fmt(sel === "__all" ? data.placed : data.inPerson[sel] || 0)}</strong> in-person
-        meetings across {covered} states.
+        {t.rich("showing", {
+          label,
+          n: fmt(sel === "__all" ? data.placed : data.inPerson[sel] || 0),
+          covered,
+          b: (ch) => <strong>{ch}</strong>,
+        })}
       </p>
 
       <div className="cov-mapcard">
-        <div className="cov-grid" role="group" aria-label={`U.S. map of ${label} meeting counts by state — select a state to see its meetings`}>
+        <div className="cov-grid" role="group" aria-label={t("mapAria", { label })}>
           {STATES.map((st) => {
             const [r, c] = GRID[st];
             const n = countFor(st);
@@ -88,7 +94,7 @@ export default function CoverageMap({ data }: { data: Coverage }) {
                 className={"cov-cell" + (lvl === 0 ? " cov-empty" : "")}
                 data-lvl={lvl}
                 style={{ gridRow: r, gridColumn: c }}
-                aria-label={`${NAME[st]} — ${fmt(n)} ${label} meetings. Tap for details and the ${NAME[st]} page.`}
+                aria-label={t("cellAria", { state: NAME[st], n: fmt(n), label })}
                 onClick={(e) => {
                   e.preventDefault();
                   const rc = e.currentTarget.getBoundingClientRect();
@@ -107,10 +113,10 @@ export default function CoverageMap({ data }: { data: Coverage }) {
           })}
         </div>
         <div className="cov-legend">
-          <span className="cov-lab">fewer</span>
+          <span className="cov-lab">{t("fewer")}</span>
           <span className="cov-ramp" aria-hidden />
-          <span className="cov-lab">{max ? `more · up to ${fmt(max)}` : "more"}</span>
-          <span className="cov-emp"><i aria-hidden /> none indexed</span>
+          <span className="cov-lab">{max ? t("moreUpTo", { max: fmt(max) }) : t("more")}</span>
+          <span className="cov-emp"><i aria-hidden /> {t("noneIndexed")}</span>
         </div>
       </div>
 
@@ -128,15 +134,15 @@ export default function CoverageMap({ data }: { data: Coverage }) {
             style={{ left: Math.min(active.x + 14, winW - 236), top: active.y + 14 }}
             role={isPin ? "dialog" : undefined}
           >
-            {isPin && <button type="button" className="cov-tip-x" aria-label="Close" onClick={() => setPin(null)}>×</button>}
+            {isPin && <button type="button" className="cov-tip-x" aria-label={t("close")} onClick={() => setPin(null)}>×</button>}
             <div className="cov-tip-t">{NAME[st]}</div>
             <div className="cov-tip-r"><span>{label}</span><b>{fmt(n)}</b></div>
             {sel === "__all"
               ? <div className="cov-tip-r"><span>AA / NA</span><b>{fmt(o.AA || 0)} / {fmt(o.NA || 0)}</b></div>
-              : <div className="cov-tip-r"><span>all fellowships</span><b>{fmt(o.__all || 0)}</b></div>}
+              : <div className="cov-tip-r"><span>{t("allFellowships")}</span><b>{fmt(o.__all || 0)}</b></div>}
             {isPin && (
               <Link className="cov-tip-cta" href={`/state/${st.toLowerCase()}`}>
-                See all meetings in {NAME[st]} →
+                {t("seeAllIn", { state: NAME[st] })}
               </Link>
             )}
           </div>

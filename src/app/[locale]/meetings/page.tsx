@@ -26,9 +26,10 @@ export default async function MeetingsIndex({ params }: { params: Promise<{ loca
   setRequestLocale(locale);
   const t = await getTranslations("meetingsIndex");
   const cities = await getCities();
-  // Group by state (getCities already sorts by stateName, then count).
+  // Group by state, then alphabetize the cities within each state (getCities returns them by count).
   const byState: Record<string, typeof cities> = {};
   for (const c of cities) (byState[c.stateName] ||= []).push(c);
+  for (const st of Object.keys(byState)) byState[st].sort((a, b) => a.city.localeCompare(b.city));
   const states = Object.keys(byState).sort();
   const total = cities.reduce((n, c) => n + c.count, 0);
 

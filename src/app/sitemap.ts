@@ -27,6 +27,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/meetings`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${base}/fellowships`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${base}/coverage`, lastModified: now, changeFrequency: "weekly", priority: 0.6 },
+    // Crawlable reference page — indexable and in the sitemap, but deliberately NOT linked from nav/footer.
+    { url: `${base}/taxonomy`, lastModified: now, changeFrequency: "weekly", priority: 0.5 },
     { url: `${base}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: `${base}/support-groups`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     ...PROBLEMS.map((p) => ({

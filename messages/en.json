@@ -19,6 +19,43 @@
     "privacy": "Privacy & anonymity",
     "blurb": "© {year} Fellow — an independent, non-commercial project, not affiliated with any 12-step fellowship. Meeting data comes from public intergroup feeds."
   },
+  "coverageMap": {
+    "chooseFellowship": "Choose a fellowship",
+    "allChip": "All",
+    "allFellowships": "all fellowships",
+    "showing": "Showing {label} — <b>{n}</b> in-person meetings across {covered} states.",
+    "mapAria": "U.S. map of {label} meeting counts by state — select a state to see its meetings",
+    "cellAria": "{state} — {n} {label} meetings. Tap for details and the {state} page.",
+    "fewer": "fewer",
+    "more": "more",
+    "moreUpTo": "more · up to {max}",
+    "noneIndexed": "none indexed",
+    "close": "Close",
+    "seeAllIn": "See all meetings in {state} →"
+  },
+  "taxonomy": {
+    "metaTitle": "The 12-Step & Recovery Fellowship Taxonomy | Fellow",
+    "metaDesc": "A living directory of every 12-step and peer-support recovery fellowship — grouped by what they address, with what each is for and where to find meetings.",
+    "h1": "The recovery fellowship taxonomy",
+    "intro": "Every 12-step and peer-support fellowship Fellow knows about, grouped by what it addresses. {indexed} of {total} have meetings indexed so far; the rest link to their fellowship page and official directory.",
+    "coverageComing": "coverage coming",
+    "meetingsLabel": "meetings",
+    "openPage": "About {code}",
+    "searchMeetings": "Find {code} meetings",
+    "facingH2": "By what you're facing",
+    "facingLead": "Not sure which fellowship fits? Start from the problem — each links to the group for you, and for a loved one.",
+    "forYou": "For yourself",
+    "forLovedOne": "For a loved one",
+    "backToFellow": "← Back to Fellow",
+    "group": {
+      "alcoholDrugs": "Alcohol & drugs",
+      "food": "Food & eating",
+      "sex": "Sex & relationships",
+      "money": "Money & work",
+      "emotional": "Emotional & behavioral",
+      "family": "Family & friends"
+    }
+  },
   "home": {
     "introHeading": "Find a recovery meeting near you — free and anonymous",
     "introBody": "Fellow is a free, independent finder for recovery meetings across the United States — Alcoholics Anonymous (AA), Narcotics Anonymous (NA) and other 12-step and peer-support meetings. Search by city, day, or fellowship, browse the <cov>nationwide coverage map</cov>, or just tell <b>Ask Fellow</b> what you're looking for.",

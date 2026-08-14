@@ -32,11 +32,11 @@ export default async function FellowshipsPage({ params }: { params: Promise<{ lo
   const t = await getTranslations("fellowshipsHub");
   const tc = await getTranslations("common");
   const [c, hub] = await Promise.all([getCoverage(), getFellowshipHub()]);
-  // List EVERY fellowship: the ones we index (biggest in-person first), then the rest of the
-  // taxonomy (seeded pages, "coverage coming"), so the hub covers the whole family.
+  // List EVERY fellowship, alphabetized by name (indexed + "coverage coming" together). `indexed`
+  // still drives which cards show real counts vs the "coverage coming" badge below.
   const indexed = c.fellowships;
   const seeded = FELLOWSHIPS.map((f) => f.code).filter((code) => !indexed.includes(code));
-  const list = [...indexed, ...seeded];
+  const list = [...indexed, ...seeded].sort((a, b) => fellowshipName(a).localeCompare(fellowshipName(b)));
 
   const jsonld = {
     "@context": "https://schema.org",

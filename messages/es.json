@@ -19,6 +19,43 @@
     "privacy": "Privacidad y anonimato",
     "blurb": "© {year} Fellow — un proyecto independiente y sin fines de lucro, no afiliado a ninguna comunidad de doce pasos. Los datos de las reuniones provienen de fuentes públicas de los intergrupos."
   },
+  "coverageMap": {
+    "chooseFellowship": "Elige una comunidad",
+    "allChip": "Todas",
+    "allFellowships": "todas las comunidades",
+    "showing": "Mostrando {label}: <b>{n}</b> reuniones presenciales en {covered} estados.",
+    "mapAria": "Mapa de EE. UU. con el número de reuniones de {label} por estado — selecciona un estado para ver sus reuniones",
+    "cellAria": "{state}: {n} reuniones de {label}. Toca para ver detalles y la página de {state}.",
+    "fewer": "menos",
+    "more": "más",
+    "moreUpTo": "más · hasta {max}",
+    "noneIndexed": "ninguna indexada",
+    "close": "Cerrar",
+    "seeAllIn": "Ver todas las reuniones en {state} →"
+  },
+  "taxonomy": {
+    "metaTitle": "La taxonomía de comunidades de recuperación y 12 pasos | Fellow",
+    "metaDesc": "Un directorio vivo de todas las comunidades de recuperación de 12 pasos y de apoyo entre pares — agrupadas por lo que abordan, con para qué sirve cada una y dónde encontrar reuniones.",
+    "h1": "La taxonomía de comunidades de recuperación",
+    "intro": "Todas las comunidades de 12 pasos y de apoyo entre pares que Fellow conoce, agrupadas por lo que abordan. {indexed} de {total} tienen reuniones indexadas hasta ahora; el resto enlaza a su página y a su directorio oficial.",
+    "coverageComing": "cobertura próximamente",
+    "meetingsLabel": "reuniones",
+    "openPage": "Sobre {code}",
+    "searchMeetings": "Buscar reuniones de {code}",
+    "facingH2": "Según lo que estás enfrentando",
+    "facingLead": "¿No sabes cuál comunidad encaja? Empieza por el problema — cada uno enlaza a la comunidad para ti y para un ser querido.",
+    "forYou": "Para ti",
+    "forLovedOne": "Para un ser querido",
+    "backToFellow": "← Volver a Fellow",
+    "group": {
+      "alcoholDrugs": "Alcohol y drogas",
+      "food": "Comida y alimentación",
+      "sex": "Sexo y relaciones",
+      "money": "Dinero y trabajo",
+      "emotional": "Emocional y conductual",
+      "family": "Familia y amistades"
+    }
+  },
   "home": {
     "introHeading": "Encuentra una reunión de recuperación cerca de ti — gratis y anónimo",
     "introBody": "Fellow es un buscador gratuito e independiente de reuniones de recuperación en todo Estados Unidos — Alcohólicos Anónimos (AA), Narcóticos Anónimos (NA) y otras reuniones de doce pasos y de apoyo entre pares. Busca por ciudad, día o comunidad, explora el <cov>mapa de cobertura nacional</cov>, o simplemente dile a <b>Pregunta a Fellow</b> qué necesitas.",
