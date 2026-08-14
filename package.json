@@ -19,7 +19,8 @@
     "smoke": "node scripts/smoke-test.mjs",
     "bootstrap": "npm run typesense:up && npm run ingest && npm run index",
     "bootstrap:local": "npm run typesense:up && npm run ingest -- --local && npm run index",
-    "test": "node --test scripts/lib/*.test.mjs"
+    "test": "node --test scripts/lib/*.test.mjs",
+    "indexnow": "node scripts/indexnow.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.116.0",
