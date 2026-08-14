@@ -75,6 +75,14 @@ jobs:
           git commit -m "chore: refresh coverage stats + ingest history [skip ci]"
           git push
 
+      # Ping IndexNow so Bing/Yandex/Seznam re-crawl the refreshed aggregate pages (hubs + every
+      # problem + fellowship page, both locales) within minutes — the sitemap covers the long tail.
+      # Non-fatal: the commit above triggers a Vercel redeploy and crawlers arrive minutes later, by
+      # which time it's live. (First run may 403 until the public/<key>.txt file is deployed once.)
+      - name: Ping IndexNow
+        run: npm run indexnow
+        continue-on-error: true
+
       # Keep a copy of the raw dataset as a build artifact
       - uses: actions/upload-artifact@v4
         with: { name: meetings-json, path: public/data/meetings.json, retention-days: 7 }
