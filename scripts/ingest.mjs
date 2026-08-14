@@ -125,6 +125,25 @@ async function loadSource(s) {
       }
       return out;
     }
+    // The Events Calendar (Tribe Events) REST — orgs that migrated off TSML (e.g. CoDA). Returns dated
+    // event INSTANCES, so pull a 15-day window (every weekly meeting appears ≥ once) and paginate;
+    // dedupe() later collapses the repeats. TEC returns HTTP 400 past the last page, which stops us.
+    if (s.system === 'tribe-events') {
+      const out = [];
+      const now = new Date();
+      const ymd = (dt) => dt.toISOString().slice(0, 10);
+      const start = ymd(now), end = ymd(new Date(now.getTime() + 15 * 86_400_000));
+      for (let page = 1; page <= 80; page++) {
+        let data;
+        try { data = await getJSON(`${s.url}?per_page=50&page=${page}&start_date=${start}&end_date=${end}`); }
+        catch { break; }
+        const events = Array.isArray(data?.events) ? data.events : [];
+        if (!events.length) break;
+        out.push(...events);
+        if (data.total_pages && page >= Number(data.total_pages)) break;
+      }
+      return out;
+    }
     return await getJSON(s.url);
   } catch (e) {
     // 1. TSML static cache — a plain asset, usually not behind the admin-ajax WAF rule.

@@ -142,6 +142,75 @@ export function fromBMLT(rec, i, fellowship = 'NA') {
   return enrich(m);
 }
 
+// Minimal HTML-entity decode — The Events Calendar returns titles/venues HTML-encoded.
+export function decodeEntities(s) {
+  if (!s) return '';
+  return String(s)
+    .replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&nbsp;/g, ' ')
+    .replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&#8217;|&#039;|&#39;|&rsquo;|&lsquo;|&#8216;/g, "'")
+    .replace(/&#8220;|&#8221;|&ldquo;|&rdquo;/g, '"')
+    .replace(/&#8211;|&ndash;/g, '–').replace(/&#8212;|&mdash;/g, '—')
+    .replace(/&#0?38;/g, '&')
+    .replace(/&#(\d+);/g, (_, n) => { const c = Number(n); return Number.isFinite(c) ? String.fromCharCode(c) : ''; })
+    .replace(/\s+/g, ' ').trim();
+}
+
+// A category/tag/title hinting an online/phone meeting (venue geo is then ignored).
+const TEC_ONLINE_RE = /\b(online|virtual|phone|telephone|electronic|zoom)\b/i;
+const pad2 = (n) => String(n).padStart(2, '0');
+
+// The Events Calendar (Tribe Events) REST event → our schema. CoDA and other orgs that migrated off
+// TSML use this plugin; its /wp-json/tribe/events/v1/events endpoint returns dated event INSTANCES,
+// so recurring weekly meetings arrive several times — dedupe() collapses them by name|day|time|address.
+export function fromTribeEvents(rec, i, fellowship = 'CoDA') {
+  const sd = rec.start_date_details || {};
+  const ed = rec.end_date_details || {};
+  const y = num(sd.year), mo = num(sd.month), d = num(sd.day);
+  // Weekday (0=Sun) from the event's LOCAL calendar date; UTC construction keeps it TZ-stable.
+  const day = (y && mo && d) ? new Date(Date.UTC(y, mo - 1, d)).getUTCDay() : NaN;
+  const time = (sd.hour != null && sd.minutes != null)
+    ? `${pad2(sd.hour)}:${pad2(sd.minutes)}`
+    : (typeof rec.start_date === 'string' ? rec.start_date.slice(11, 16) : null);
+
+  const catNames = [...(rec.categories || []), ...(rec.tags || [])]
+    .map((c) => decodeEntities((c && (c.name || c.slug)) || '')).filter(Boolean);
+  const title = decodeEntities(rec.title || rec.name || '');
+  const online = catNames.some((n) => TEC_ONLINE_RE.test(n)) || TEC_ONLINE_RE.test(title);
+
+  const v = rec.venue || {};
+  const state = v.stateprovince || v.state || '';
+  const address = [v.address, v.city, [state, v.zip].filter(Boolean).join(' ')]
+    .map((x) => decodeEntities(x || '')).filter(Boolean).join(', ');
+  const websiteRaw = decodeEntities(rec.website || rec.url || '');
+
+  const m = {
+    id: `${fellowship.toLowerCase()}-tec-${i}`,
+    source: 'tribe-events',
+    fellowship,
+    name: title || 'Meeting',
+    day: Number.isInteger(day) ? day : NaN,   // NaN if missing → filtered out by ingest
+    time: typeof time === 'string' ? time.slice(0, 5) : null,
+    end: (ed.hour != null && ed.minutes != null) ? `${pad2(ed.hour)}:${pad2(ed.minutes)}` : null,
+    place: decodeEntities(v.venue || '') || null,
+    address,
+    online,
+    lat: online ? null : num(v.geo_lat),
+    lng: online ? null : num(v.geo_lng),
+    types: catNames.filter((n) => !TEC_ONLINE_RE.test(n)).slice(0, 6),
+    notes: '',
+    conference_url: online
+      ? (rec.virtual_url || (/^https?:\/\//i.test(websiteRaw) ? websiteRaw : ''))
+      : '',
+    conference_phone: '',
+    website: websiteRaw,
+    updated: (typeof rec.modified_utc === 'string' ? rec.modified_utc : '')
+      || (typeof rec.date_utc === 'string' ? rec.date_utc : ''),
+  };
+  m.dist = (m.lat != null) ? +haversineMi(DC_CENTER.lat, DC_CENTER.lng, m.lat, m.lng).toFixed(1) : null;
+  return enrich(m);
+}
+
 export function dedupe(list) {
   const seen = new Set();
   return list.filter(m => {
@@ -152,7 +221,9 @@ export function dedupe(list) {
 
 // Map one source's raw records with the right adapter + fellowship.
 export function normalizeSource(records = [], { system, fellowship }) {
-  const adapter = system === 'bmlt' ? fromBMLT : fromMeetingGuide;
+  const adapter = system === 'bmlt' ? fromBMLT
+    : system === 'tribe-events' ? fromTribeEvents
+    : fromMeetingGuide;
   return records.map((r, i) => adapter(r, i, fellowship));
 }
 

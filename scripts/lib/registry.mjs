@@ -259,7 +259,9 @@ export const SOURCES = [
   // CANDIDATES — endpoint responded behind a WAF/JS challenge from the sandbox (403 /
   // JS redirect), consistent with a TSML site. ingest() skips any that don't return a
   // usable JSON array, so these are safe to include; verify counts from the CI run.
-  { id: "coda-national", fellowship: "CoDA", system: "meeting-guide", area: "Co-Dependents Anonymous (national)", url: "https://coda.org/wp-admin/admin-ajax.php?action=meetings" },
+  // CoDA migrated off TSML to The Events Calendar (verified 2026-08-14: page exposes tec-api, no
+  // 12_step_meeting_list) — the old admin-ajax URL is dead. Pull via the Tribe Events REST API instead.
+  { id: "coda-national", fellowship: "CoDA", system: "tribe-events", area: "Co-Dependents Anonymous (national)", url: "https://coda.org/wp-json/tribe/events/v1/events" },
   { id: "ha-national",   fellowship: "HA",   system: "meeting-guide", area: "Heroin Anonymous (national)",        url: "https://heroinanonymous.org/wp-admin/admin-ajax.php?action=meetings" },
   // SLAA — Sex & Love Addicts Anonymous. No single open national feed (the FWS site uses
   // a custom portal), but regional intergroups run TSML. Greater Delaware Valley VERIFIED
