@@ -287,8 +287,13 @@ export const SOURCES = [
   { id: "alanon-nc-d6",        fellowship: "Al-Anon", system: "meeting-guide", area: "North Carolina Al-Anon (District 6)", url: "https://alanonalateen6nc.org/wp-admin/admin-ajax.php?action=meetings" },
   // CANDIDATES — confirmed TSML (12_step_meeting_list meta tag) but WAF/robots-blocked
   // from the sandbox; pull fine from CI. DA source is DC-area (double-down bonus).
+  // DA-DC: verified 2026-08-14 still valid TSML 3.19.16 (also runs The Events Calendar for "events",
+  // but meetings are TSML) — so its 0 count is a WAF block, not a stale feed; recovers on a
+  // browser-enabled ingest (CI USE_BROWSER=1 or a residential-IP run).
   { id: "da-dc",           fellowship: "DA",       system: "meeting-guide", area: "Capital Area Debtors Anonymous (Washington DC)", url: "https://debtorsanonymousdc.org/wp-admin/admin-ajax.php?action=meetings" },
-  { id: "ua-national",     fellowship: "UA",       system: "meeting-guide", area: "Underearners Anonymous (national)",              url: "https://www.underearnersanonymous.org/wp-admin/admin-ajax.php?action=meetings" },
+  // UA: migrated off TSML to The Events Calendar (verified 2026-08-14, same as CoDA) — old admin-ajax
+  // URL was dead. Repointed to the Tribe Events REST API (see the tribe-events adapter).
+  { id: "ua-national",     fellowship: "UA",       system: "tribe-events", area: "Underearners Anonymous (national)",              url: "https://www.underearnersanonymous.org/wp-json/tribe/events/v1/events" },
   { id: "aca-az",          fellowship: "ACA",      system: "meeting-guide", area: "ACA Arizona Intergroup",                         url: "https://aca-arizona.org/wp-admin/admin-ajax.php?action=meetings" },
   { id: "naranon-national",fellowship: "Nar-Anon", system: "meeting-guide", area: "Nar-Anon Family Groups (national)",             url: "https://nar-anon.org/wp-admin/admin-ajax.php?action=meetings" },
   // SIA — Survivors of Incest Anonymous. National TSML feed VERIFIED (live JSON array with
