@@ -19,6 +19,7 @@ jobs:
     concurrency: { group: ingest, cancel-in-progress: true }
     steps:
       - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }4
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: npm }
       - run: npm ci
@@ -73,7 +74,17 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git commit -m "chore: refresh coverage stats + ingest history [skip ci]"
-          git push
+          # The ingest runs ~25 min; main can advance while it works, which turns a plain push into a
+          # non-fast-forward reject. Rebase our single derived-data commit onto the latest main and
+          # retry, so a concurrent push doesn't fail the whole run.
+          for attempt in 1 2 3 4 5; do
+            if git push; then
+              echo "Pushed on attempt $attempt."; exit 0
+            fi
+            echo "Push rejected (attempt $attempt) — rebasing onto origin/${GITHUB_REF_NAME:-main} and retrying."
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME:-main}" || true
+          done
+          echo "Push still failing after 5 attempts."; exit 1
 
       # Ping IndexNow so Bing/Yandex/Seznam re-crawl the refreshed aggregate pages (hubs + every
       # problem + fellowship page, both locales) within minutes — the sitemap covers the long tail.
