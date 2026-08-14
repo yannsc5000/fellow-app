@@ -3,7 +3,7 @@
 // the tool returns; it never invents them. Returns { reply, meetings }.
 import Anthropic from "@anthropic-ai/sdk";
 import { searchMeetings, type MeetingResult } from "@/lib/serverSearch";
-import { FELLOWSHIPS, fellowshipName } from "@/lib/fellowships";
+import { FELLOWSHIPS, fellowshipName, CODE_BY_SLUG } from "@/lib/fellowships";
 import { PROBLEMS, type Route } from "@/lib/problems";
 import { officialFinder } from "@/lib/finders";
 import { logChatEvent } from "@/lib/analytics";
@@ -169,6 +169,9 @@ export async function POST(req: Request) {
   const msgs: Anthropic.MessageParam[] = trimmed;
   const collected: MeetingResult[] = [];
   let lastInput: any = null; // remember the last search's inputs to build a web-search fallback
+  // Canonical fellowship codes the model routed to this turn (every code it searched), in first-seen
+  // order. Powers the "Groups that might fit" chips the client renders — each links to /[fellowship].
+  const recommended: string[] = [];
 
   // When Fellow's index has nothing, offer a Google search the user can open in a new tab.
   // Built from what they were actually looking for (fellowship + place), never personal data.
@@ -208,6 +211,9 @@ export async function POST(req: Request) {
           if (block.type !== "tool_use") continue;
           const input = (block.input || {}) as any;
           lastInput = input || lastInput;
+          // Record the routed fellowship (normalized to its canonical code) for the chips.
+          const canon = CODE_BY_SLUG[String(input.fellowship || "").trim().toLowerCase()];
+          if (canon && !recommended.includes(canon)) recommended.push(canon);
           let found = await searchMeetings(input);
           // Deterministic safety net for the widen ladder: if an in-person search with a location
           // or a specific day comes back empty, automatically retry online (nationwide) so we never
@@ -229,7 +235,7 @@ export async function POST(req: Request) {
       const meetings = dedupeMeetings(collected);
       // Privacy-preserving analytics: aggregate counters only (no message text, place, or IP).
       await logChatEvent({ fellowship: lastInput?.fellowship, found: meetings.length > 0, online: lastInput?.online === true });
-      return Response.json(meetings.length ? { reply, meetings } : { reply, meetings, webSearch: buildWebSearch() });
+      return Response.json(meetings.length ? { reply, meetings, fellowships: recommended } : { reply, meetings, fellowships: recommended, webSearch: buildWebSearch() });
     }
     // Ran out of turns — never throw away what we already found. Return the collected meetings
     // (deduped) rather than an empty result, so the ladder's work isn't lost.
@@ -237,8 +243,8 @@ export async function POST(req: Request) {
     await logChatEvent({ fellowship: lastInput?.fellowship, found: meetings.length > 0, online: lastInput?.online === true });
     return Response.json(
       meetings.length
-        ? { reply: "Here are the meetings I found for you:", meetings }
-        : { reply: "Sorry — I had trouble pulling that together. Mind trying that again, maybe with a bit more detail?", meetings, webSearch: buildWebSearch() },
+        ? { reply: "Here are the meetings I found for you:", meetings, fellowships: recommended }
+        : { reply: "Sorry — I had trouble pulling that together. Mind trying that again, maybe with a bit more detail?", meetings, fellowships: recommended, webSearch: buildWebSearch() },
     );
   } catch (e: any) {
     const status = e?.status === 429 ? 429 : 500;

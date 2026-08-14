@@ -2,7 +2,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocale } from "next-intl";
 import { track } from "@vercel/analytics";
-import { fellowshipColor } from "@/lib/fellowships";
+import { fellowshipColor, fellowshipName } from "@/lib/fellowships";
+import { Link } from "@/i18n/navigation";
 import { Icon } from "./Icon";
 import { Mark } from "./Mark";
 import { Loader } from "./Loader";
@@ -52,7 +53,7 @@ function groupByDay(list: Meeting[]) {
 
 type Meeting = { id: string; name: string; fellowship: string; day: number; time: string; place: string; address: string; online: boolean; lat: number | null; lng: number | null; conference_url?: string; conference_phone?: string; website?: string; updated?: string; end?: string; types?: string[]; notes?: string; transit_json?: string; parking_json?: string };
 type WebSearch = { query: string; url: string; official?: { label: string; url: string } };
-type Msg = { role: "user" | "assistant"; content: string; meetings?: Meeting[]; webSearch?: WebSearch };
+type Msg = { role: "user" | "assistant"; content: string; meetings?: Meeting[]; webSearch?: WebSearch; fellowships?: string[] };
 type Place = { lat: number; lng: number; label: string };
 
 // Keyless helpers (shared shape with the Search view).
@@ -186,6 +187,9 @@ function MeetingResults({ list, onOpen }: { list: Meeting[]; onOpen: (m: Meeting
   );
 }
 
+// sessionStorage key for the in-tab conversation (ephemeral — cleared on tab close or "New chat").
+const CHAT_STORE_KEY = "fellow-chat";
+
 export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => void }) {
   const es = useLocale() === "es";
   const [msgs, setMsgs] = useState<Msg[]>([]);
@@ -196,9 +200,37 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
   const [place, setPlace] = useState<Place | null>(null);
   const [nearbyCount, setNearbyCount] = useState<number | null>(null);
   const [listening, setListening] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
   const threadRef = useRef<HTMLDivElement>(null);
   const recogRef = useRef<any>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Restore an in-progress conversation within the same browser tab. sessionStorage ONLY — it is
+  // never sent anywhere and is erased when the tab closes, so continuation (pop out to a fellowship
+  // page, come back) doesn't compromise Fellow's no-tracking promise. Runs once on mount; the
+  // `hydrated` gate below keeps SSR and the first client render identical (both empty) to avoid a
+  // hydration mismatch, then swaps in the restored thread.
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(CHAT_STORE_KEY);
+      if (raw) { const parsed = JSON.parse(raw); if (Array.isArray(parsed)) setMsgs(parsed); }
+    } catch {}
+    setHydrated(true);
+  }, []);
+  // Persist after hydration; an empty thread (fresh or cleared) removes the store entirely.
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      if (msgs.length) sessionStorage.setItem(CHAT_STORE_KEY, JSON.stringify(msgs));
+      else sessionStorage.removeItem(CHAT_STORE_KEY);
+    } catch {}
+  }, [msgs, hydrated]);
+  // Clear the conversation on demand (also wipes the stored copy).
+  function newChat() {
+    setMsgs([]); setErr(""); setInput("");
+    try { sessionStorage.removeItem(CHAT_STORE_KEY); } catch {}
+    inputRef.current?.focus();
+  }
 
   // Auto-grow the composer: reset to one line, then grow to fit up to ~5 lines. Runs on every
   // input change (typing, voice fill, or clearing after send).
@@ -297,7 +329,7 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
       });
       const d = await r.json();
       if (!r.ok) { setErr(d?.error || (es ? "Perdona — algo falló de mi lado. ¿Lo intentas de nuevo?" : "Sorry — something went wrong on my end. Mind trying that again?")); setBusy(false); return; }
-      setMsgs((cur) => [...cur, { role: "assistant", content: d.reply || "", meetings: d.meetings || [], webSearch: d.webSearch }]);
+      setMsgs((cur) => [...cur, { role: "assistant", content: d.reply || "", meetings: d.meetings || [], webSearch: d.webSearch, fellowships: d.fellowships || [] }]);
     } catch {
       setErr(es ? "No pude conectar con Fellow ahora mismo. Revisa tu conexión e inténtalo otra vez — o usa la búsqueda clásica abajo." : "I couldn’t reach Fellow just now. Check your connection and try once more — or use classic Search below.");
     } finally {
@@ -309,9 +341,16 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
 
   return (
     <div className="chat-wrap">
-      <div className="chat-loc"><LocationBar place={place} onSet={setPlace} /></div>
+      <div className="chat-loc">
+        <LocationBar place={place} onSet={setPlace} />
+        {msgs.length > 0 && (
+          <button type="button" className="chat-new" onClick={newChat} aria-label={es ? "Empezar una conversación nueva" : "Start a new chat"}>
+            <Icon name="add" size={16} /> {es ? "Nueva" : "New chat"}
+          </button>
+        )}
+      </div>
       <div className="chat-thread" ref={threadRef} role="log" aria-live="polite" aria-label="Conversation">
-        {msgs.length === 0 && (
+        {hydrated && msgs.length === 0 && (
           <div className="chat-intro">
             <div className="chat-greet">
               <span className="chat-ava" aria-hidden><Mark size={54} /></span>
@@ -344,6 +383,22 @@ export default function Chat({ onSwitchToSearch }: { onSwitchToSearch?: () => vo
         )}
         {msgs.map((m, i) => (
           <div key={i} className={`msg ${m.role}`}>
+            {/* Discovery flow: when the bot routes to 2+ fellowships, lead with tappable chips to
+                each one's page (/[fellowship]) so people can read about the options it named. */}
+            {m.role === "assistant" && m.fellowships && m.fellowships.length >= 2 && (
+              <div className="chat-fellows">
+                <span className="chat-fellows-label">{es ? "Grupos que podrían encajar" : "Groups that might fit"}</span>
+                <div className="chat-fellows-chips">
+                  {m.fellowships.map((code) => (
+                    <Link key={code} href={`/${code.toLowerCase()}`} className="chip chat-fellow-chip"
+                      onClick={() => track("fellowship_suggestion", { code })}>
+                      <span className="sug-dot" style={{ background: fellowshipColor(code) }} aria-hidden />
+                      {fellowshipName(code)}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
             {m.content && <div className="bubble">{m.content}</div>}
             {m.meetings && m.meetings.length > 0 && (
               <MeetingResults list={m.meetings} onOpen={setSelected} />
