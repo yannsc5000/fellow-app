@@ -691,7 +691,7 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .cov-tip-x:hover{background:var(--surface-2);color:var(--ink)}
 .cov-tip-cta{display:block;margin-top:9px;padding-top:9px;border-top:1px solid var(--line);color:var(--brand-ink);font-weight:800;font-size:13.5px;text-decoration:none}
 .cov-tip-cta:hover{text-decoration:underline;text-underline-offset:3px}
-.cov-fresh{margin:10px 0 0;color:var(--ink-soft);font-size:13.5px;text-align:center}
+.cov-fresh{margin:22px 0;color:var(--ink-soft);font-size:13.5px;text-align:left}
 .cov-foot-note{margin:22px 0 8px}
 .cov-foot-note p{color:var(--ink-soft);font-size:13.5px;line-height:1.55;margin:0 0 10px;max-width:720px}
 .cov-links a{color:var(--brand-ink);font-weight:700;text-decoration:none}
