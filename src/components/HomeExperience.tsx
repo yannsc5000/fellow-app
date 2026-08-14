@@ -19,11 +19,13 @@ export default function HomeExperience() {
   const [mode, setMode] = useState<"search" | "chat">("chat");
   const [resetKey, setResetKey] = useState(0);
   // The page is server-rendered, so the initializer above can't see the URL — land on Search
-  // whenever there's a ?q= (a shared search link or the sitelinks box) once we're on the client.
+  // whenever the URL asks for it once we're on the client: ?q= (a shared search link or the
+  // sitelinks box), ?fellowship= (a fellowship/problem page's "search meetings" CTA — Browse
+  // pre-filtered to that fellowship), or ?browse= (open Browse near-you, unfiltered).
   useEffect(() => {
-    if (typeof window !== "undefined" && new URLSearchParams(window.location.search).has("q")) {
-      setMode("search");
-    }
+    if (typeof window === "undefined") return;
+    const sp = new URLSearchParams(window.location.search);
+    if (sp.has("q") || sp.has("fellowship") || sp.has("browse")) setMode("search");
   }, []);
   // Clicking the logo resets to the default home screen (default tab + fresh state).
   const goHome = (e: React.MouseEvent) => {

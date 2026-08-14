@@ -425,6 +425,11 @@ export default function Finder() {
   // Seed from ?q= so shared search links and the sitelinks search box land pre-filled.
   const [raw, setRaw] = useState(() =>
     typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("q") || "" : "");
+  // Seed the fellowship facet from ?fellowship=CODE so a fellowship/problem page's "search
+  // meetings" CTA lands on Browse already filtered to that fellowship near the user.
+  const initialFellowship = typeof window !== "undefined"
+    ? (new URLSearchParams(window.location.search).get("fellowship") || "").trim()
+    : "";
   const parsed = useMemo(() => parseQuery(raw), [raw]);     // → filters + residual text
   // Keep the URL in sync with the query so any search is a copy-pasteable link.
   useEffect(() => {
@@ -513,7 +518,8 @@ export default function Finder() {
   const wide = !!timeWindow;
 
   return (
-    <InstantSearch searchClient={searchClient} indexName={COLLECTION} future={{ preserveSharedStateOnUnmount: true }}>
+    <InstantSearch searchClient={searchClient} indexName={COLLECTION} future={{ preserveSharedStateOnUnmount: true }}
+      initialUiState={initialFellowship ? { [COLLECTION]: { refinementList: { fellowship: [initialFellowship] } } } : undefined}>
       <GeoConfigure place={place} wide={wide} searching={searching} />
       <QueryDriver text={queryText} />
       <DaySync days={days} />

@@ -79,7 +79,9 @@ export default async function FellowshipPage({ params }: { params: Promise<{ loc
 
   const hub = await getFellowshipHub();
   const cities = hub[code] || [];
-  const liveSearch = `/?q=${encodeURIComponent(name)}`;
+  // Browse pre-filtered to this fellowship (facet-precise). Only rendered when hasMeetings, so it
+  // always lands on real results near the user.
+  const liveSearch = `/?fellowship=${encodeURIComponent(code)}`;
   const submitHref = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`Submit a ${code} group or meeting`)}&body=${encodeURIComponent(`I'd like to submit a ${name} (${code}) group or meeting to Fellow.\n\nMeeting name:\nDay & time:\nLocation or online link:\nWebsite or contact (optional):\n`)}`;
 
   // "At a glance" facts (entity clarity for humans + AI). Derived from real data — no fabricated dates.

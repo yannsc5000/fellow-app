@@ -4,6 +4,7 @@ import { setRequestLocale, getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { alts } from "@/lib/meta";
 import { PROBLEMS, getProblems, getProblem, type Route } from "@/lib/problems";
+import fellowshipStats from "@/lib/fellowship-stats.json";
 import { fellowshipName, fellowshipColor } from "@/lib/fellowships";
 import { fellowshipSlug } from "@/lib/cities";
 import { Icon } from "@/components/Icon";
@@ -54,6 +55,13 @@ export default async function ProblemPage({ params }: { params: Promise<{ locale
   if (!p) notFound();
   const t = await getTranslations("problem");
 
+  // "Search recovery meetings near you" → open Browse, pre-filtered to the first of this problem's
+  // fellowships that Fellow actually indexes (so it lands on real results). If none are indexed
+  // yet (e.g. marijuana → MA), fall back to Browse near-you unfiltered rather than a dead end.
+  const counts = (fellowshipStats as { counts: Record<string, number> }).counts;
+  const indexedPrimary = [...p.self, ...(p.affected ?? [])].map((r) => r.code).find((c) => (counts[c] || 0) > 0);
+  const searchHref = indexedPrimary ? `/?fellowship=${encodeURIComponent(indexedPrimary)}` : "/?browse=1";
+
   const others = getProblems(locale).filter((x) => x.slug !== p.slug);
   const jsonld = {
     "@context": "https://schema.org",
@@ -103,7 +111,7 @@ export default async function ProblemPage({ params }: { params: Promise<{ locale
       ) : null}
 
       <p style={{ margin: "22px 0 6px" }}>
-        <Link href="/" className="city-chip city-chip-all">{t("searchNearYou")}</Link>
+        <Link href={searchHref} className="city-chip city-chip-all">{t("searchNearYou")}</Link>
       </p>
 
       <p className="safety-note" style={{ marginTop: 18 }}>
