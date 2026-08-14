@@ -24,7 +24,7 @@ const problemSlugs = [...read("../src/lib/problems.ts").matchAll(/slug:\s*"([^"]
 const fellowshipCodes = [...read("../src/lib/fellowships.ts").matchAll(/code:\s*"([^"]+)"/g)].map((m) => m[1]);
 
 const paths = [
-  "", "meetings", "fellowships", "coverage", "taxonomy", "support-groups",
+  "", "meetings", "fellowships", "coverage", "support-groups",
   ...problemSlugs.map((s) => `support-groups/${s}`),
   ...fellowshipCodes.map((c) => c.toLowerCase()),
 ];
