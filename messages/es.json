@@ -27,7 +27,8 @@
     "introChipNoTracking": "Sin rastreo",
     "introChipInPersonOnline": "Presencial y en línea",
     "introChipStates": "50 estados + DC",
-    "introCta": "¿No sabes cuál es para ti? Empieza por <sg>lo que estás enfrentando</sg>",
+    "introCtaKicker": "¿No sabes cuál es para ti?",
+    "introCtaAction": "Empieza por lo que estás enfrentando",
     "cityBrowseHeading": "Explora reuniones por ciudad",
     "allCities": "Todas las ciudades →"
   },

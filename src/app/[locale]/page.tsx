@@ -73,11 +73,22 @@ export default async function Page({ params }: { params: Promise<{ locale: strin
             </li>
           ))}
         </ul>
-        <p className="home-intro-cta">
-          {t.rich("introCta", {
-            sg: (chunks) => <Link href="/support-groups">{chunks}</Link>,
-          })}
-        </p>
+        <Link href="/support-groups" className="sg-promo" aria-label={`${t("introCtaKicker")} ${t("introCtaAction")}`}>
+          <span className="sg-promo-tile" aria-hidden>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2v3M12 19v3" />
+              <path d="M6 5h9l3 2.5L15 10H6z" />
+              <path d="M18 12H8l-3 2.5L8 17h10z" opacity=".55" />
+            </svg>
+          </span>
+          <span className="sg-promo-txt">
+            <span className="sg-promo-k">{t("introCtaKicker")}</span>
+            <span className="sg-promo-m">{t("introCtaAction")}</span>
+          </span>
+          <svg className="sg-promo-chev" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M9 6l6 6-6 6" />
+          </svg>
+        </Link>
       </section>
 
       <CoveragePromo data={coverage} />

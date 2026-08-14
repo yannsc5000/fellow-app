@@ -27,7 +27,8 @@
     "introChipNoTracking": "No tracking",
     "introChipInPersonOnline": "In person & online",
     "introChipStates": "50 states + DC",
-    "introCta": "Not sure which group fits? Start with <sg>what you're facing</sg>",
+    "introCtaKicker": "Not sure which group fits?",
+    "introCtaAction": "Start with what you're facing",
     "cityBrowseHeading": "Browse meetings by city",
     "allCities": "All cities →"
   },
