@@ -55,12 +55,16 @@ export default async function ProblemPage({ params }: { params: Promise<{ locale
   if (!p) notFound();
   const t = await getTranslations("problem");
 
-  // "Search recovery meetings near you" → open Browse, pre-filtered to the first of this problem's
-  // fellowships that Fellow actually indexes (so it lands on real results). If none are indexed
-  // yet (e.g. marijuana → MA), fall back to Browse near-you unfiltered rather than a dead end.
+  // "Search recovery meetings near you" → open Browse pre-filtered to a fellowship that Fellow
+  // actually indexes, so it lands on real, on-topic results. Prefer one of THIS problem's own
+  // fellowships; if none are indexed yet (e.g. marijuana → MA), fall back to the problem's umbrella
+  // fellowship (a specific drug → NA, "drug addiction of any kind") when that's indexed; only if
+  // there's still nothing sensible, open Browse near-you unfiltered rather than dead-end.
   const counts = (fellowshipStats as { counts: Record<string, number> }).counts;
-  const indexedPrimary = [...p.self, ...(p.affected ?? [])].map((r) => r.code).find((c) => (counts[c] || 0) > 0);
-  const searchHref = indexedPrimary ? `/?fellowship=${encodeURIComponent(indexedPrimary)}` : "/?browse=1";
+  const isIndexed = (c?: string): c is string => !!c && (counts[c] || 0) > 0;
+  const searchTarget = [...p.self, ...(p.affected ?? [])].map((r) => r.code).find(isIndexed)
+    ?? (isIndexed(p.searchFallback) ? p.searchFallback : undefined);
+  const searchHref = searchTarget ? `/?fellowship=${encodeURIComponent(searchTarget)}` : "/?browse=1";
 
   const others = getProblems(locale).filter((x) => x.slug !== p.slug);
   const jsonld = {

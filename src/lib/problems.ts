@@ -16,6 +16,8 @@ export type Problem = {
   self: Route[];        // fellowships for the person themselves
   affected?: Route[];   // fellowships for people affected by someone else
   short?: string;       // short label for chips (set by the localizer; EN strips the h1 suffix)
+  searchFallback?: string; // umbrella fellowship for the "search near you" CTA when none of this
+                           // problem's own fellowships are indexed yet (e.g. a specific drug → NA).
 };
 
 export const PROBLEMS: Problem[] = [
@@ -70,6 +72,7 @@ export const PROBLEMS: Problem[] = [
     lede: "Cocaine Anonymous (CA) is for anyone who wants to stop using cocaine and other substances. If you're affected by someone else's cocaine use, Co-Anon is the family-and-friends fellowship.",
     self: [{ code: "CA", note: "For anyone who wants to stop using cocaine and other substances." }],
     affected: [{ code: "Co-Anon", note: "For families & friends affected by someone's cocaine use." }],
+    searchFallback: "NA", // CA isn't indexed yet → NA covers drug addiction of any kind
   },
   {
     slug: "marijuana",
@@ -79,6 +82,7 @@ export const PROBLEMS: Problem[] = [
     keywords: ["marijuana support groups", "weed addiction support group", "cannabis addiction help", "marijuana anonymous near me"],
     lede: "Marijuana Anonymous (MA) is a 12-step fellowship for anyone who wants to stop using cannabis. “Marijuana,” “cannabis,” and “weed” all point to the same place — you don't need a particular label to come.",
     self: [{ code: "MA", note: "For anyone who wants to stop using cannabis." }],
+    searchFallback: "NA", // MA isn't indexed yet → NA covers drug addiction of any kind, incl. cannabis
   },
   {
     slug: "crystal-meth",
@@ -88,6 +92,7 @@ export const PROBLEMS: Problem[] = [
     keywords: ["crystal meth support groups", "meth addiction meetings", "crystal meth anonymous near me"],
     lede: "Crystal Meth Anonymous (CMA) is centered on recovery from crystal meth and other mind-altering substances. Its only requirement is a desire to stop using.",
     self: [{ code: "CMA", note: "Recovery from crystal meth and other substances." }],
+    searchFallback: "NA", // if CMA coverage lapses → NA covers drug addiction of any kind
   },
   {
     slug: "nicotine-and-vaping",
@@ -97,6 +102,7 @@ export const PROBLEMS: Problem[] = [
     keywords: ["quit smoking support group", "nicotine anonymous near me", "vaping addiction support", "stop smoking meetings"],
     lede: "Nicotine Anonymous (NicA) is a peer-support fellowship for living free of nicotine in any form, including smoking and vaping. People often use it alongside other quit tools.",
     self: [{ code: "NicA", note: "For living free of nicotine — smoking or vaping." }],
+    searchFallback: "RD", // NicA isn't indexed yet → Recovery Dharma welcomes any addiction/habit
   },
   {
     slug: "prescription-pills",
@@ -106,6 +112,7 @@ export const PROBLEMS: Problem[] = [
     keywords: ["pill addiction support group", "prescription drug support group", "pills anonymous near me", "painkiller addiction help"],
     lede: "Pills Anonymous (PA) is for anyone who wants to stop using pills, prescription or otherwise. One important note: some medications shouldn't be stopped suddenly, so talk to a doctor before changing a prescription.",
     self: [{ code: "PA", note: "Recovery from pill addiction, prescription or otherwise." }],
+    searchFallback: "NA", // PA isn't indexed yet → NA covers drug addiction of any kind
   },
   {
     slug: "gambling",
@@ -116,6 +123,7 @@ export const PROBLEMS: Problem[] = [
     lede: "Gamblers Anonymous (GA) is for people who want to recover from their own gambling. If it's a loved one's gambling that's affecting you, Gam-Anon is the fellowship for family and friends.",
     self: [{ code: "GA", note: "For your own recovery from compulsive gambling." }],
     affected: [{ code: "Gam-Anon", note: "For families & friends affected by someone's gambling." }],
+    searchFallback: "RD", // GA isn't indexed yet → Recovery Dharma welcomes process addictions
   },
   {
     slug: "food-and-eating",
@@ -145,6 +153,7 @@ export const PROBLEMS: Problem[] = [
       { code: "SRA", note: "Sexual Recovery Anonymous — has its own sobriety definition." },
     ],
     affected: [{ code: "COSLAA", note: "For those affected by someone else's sex or love addiction." }],
+    searchFallback: "SLAA", // SAA/SA/SCA/SRA aren't indexed yet → SLAA is the indexed sex-&-love fellowship
   },
   {
     slug: "love-and-relationships",
@@ -183,6 +192,7 @@ export const PROBLEMS: Problem[] = [
       { code: "WA", note: "Workaholics Anonymous — compulsive working and overwork." },
       { code: "CLA", note: "Clutterers Anonymous — clutter and chronic disorganization." },
     ],
+    searchFallback: "RD", // DA/UA/WA/CLA aren't indexed yet → Recovery Dharma welcomes any compulsion
   },
   {
     slug: "emotional-wellbeing",
@@ -192,6 +202,7 @@ export const PROBLEMS: Problem[] = [
     keywords: ["emotional support groups", "anxiety support group", "depression peer support", "emotions anonymous near me"],
     lede: "Emotions Anonymous (EA) is a 12-step peer-support fellowship for emotional wellbeing — for people dealing with things like anxiety, depression, or stress. It isn't therapy or crisis care, and works well alongside professional support.",
     self: [{ code: "EA", note: "Peer support for emotional wellbeing." }],
+    searchFallback: "RD", // EA isn't indexed yet → Recovery Dharma's mindfulness practice fits emotional wellbeing
   },
   {
     slug: "family-of-someone-struggling",
