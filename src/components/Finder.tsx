@@ -12,7 +12,7 @@ import { officialFinder } from "@/lib/finders";
 import { CONTACT_EMAIL } from "@/lib/config";
 import { parseQuery, type Parsed } from "@/lib/parseQuery";
 import { track, meetingDims } from "@/lib/track";
-import { fetchCalendarWeek, type CalWeekResult } from "@/lib/calendarQuery";
+import { fetchCalendarWeek, CAL_BANDS, type CalWeekResult } from "@/lib/calendarQuery";
 import { Icon } from "./Icon";
 import { Loader } from "./Loader";
 import { ErrorBoundary } from "./ErrorBoundary";
@@ -483,11 +483,7 @@ function ResultsCount({ place, startsSoon, timeWindow }: { place: Place; startsS
 // recurring, navigation is forward-only within a bounded horizon (CAL_MAX_WEEKS) and "Today" is
 // marked (burnt orange) only on the current week/day; both views show the same meetings re-dated.
 const CAL_DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-const CAL_BANDS: [string, number, number][] = [
-  ["Morning", 0, 720], ["Midday", 720, 1020], ["Evening", 1020, 1260], ["Late", 1260, 1440],
-];
 const CAL_MAX_WEEKS = 6; // how far ahead you can browse (weekly-recurring data → a bounded horizon)
-const calMins = (t: string) => { const [h, m] = String(t).split(":").map(Number); return (h || 0) * 60 + (m || 0); };
 
 function CalendarView({ onOpen, onOpenDay, timeWindow, place, searching, weekOffset, setWeekOffset, onLeaveThisWeek }: {
   onOpen: (m: any) => void; onOpenDay: (d: number) => void; timeWindow: { lo: number; hi: number } | null;
@@ -507,8 +503,8 @@ function CalendarView({ onOpen, onOpenDay, timeWindow, place, searching, weekOff
   const [loading, setLoading] = useState(true);
   const [fetchErr, setFetchErr] = useState(false);
 
-  // Rebuild the list's active filter straight from InstantSearch's UI state, then load a
-  // day-balanced week (one search per day) so dense areas fill all seven columns — not just Sun/Mon.
+  // Rebuild the list's active filter straight from InstantSearch's UI state, then load the week as
+  // per-band cells (one search per day-part) so every band fills independently — not just Morning.
   const rl = (indexUiState.refinementList || {}) as Record<string, string[]>;
   const online = (rl.online || [])[0];
   const onlineOnly = online === "true";
@@ -523,9 +519,12 @@ function CalendarView({ onOpen, onOpenDay, timeWindow, place, searching, weekOff
     // Geo: mirror GeoConfigure — constrain to the near-me radius only while browsing in-person
     // (drop it for online-only, or when actively searching a different place by free text).
     if (place && !onlineOnly && !searching) c.push(`_geoloc:(${place.lat}, ${place.lng}, ${(AREA_RADIUS_M / 1000).toFixed(3)} km)`);
+    // Time-of-day window (tonight / starts-soon / ?time=) as a server-side minute range, so the
+    // per-band cells and their counts reflect it (bands fully outside the window come back empty).
+    if (timeWindow) c.push(`minutes:>=${Math.max(0, Math.floor(timeWindow.lo))} && minutes:<=${Math.ceil(timeWindow.hi)}`);
     return c.join(" && ");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(rl), place?.lat, place?.lng, onlineOnly, searching]);
+  }, [JSON.stringify(rl), place?.lat, place?.lng, onlineOnly, searching, timeWindow?.lo, timeWindow?.hi]);
 
   const sig = JSON.stringify([query, filterBy, wantDays]);
   useEffect(() => {
@@ -551,29 +550,19 @@ function CalendarView({ onOpen, onOpenDay, timeWindow, place, searching, weekOff
     const sun = new Date(now); sun.setDate(now.getDate() - now.getDay() + weekOffset * 7);
     return CAL_DOW.map((_, i) => { const d = new Date(sun); d.setDate(sun.getDate() + i); return d; });
   }, [now, weekOffset]);
-  // Fetched week → per-day lists (apply the client-side time-of-day window; re-sort by time defensively).
-  const byDay = useMemo(() => {
-    const src = week?.byDay;
-    const g: Record<number, any[]> = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
-    for (let d = 0; d < 7; d++) {
-      const base = (src && src[d]) || [];
-      const list = timeWindow ? base.filter((m: any) => inWindow(m, timeWindow)) : base;
-      g[d] = [...list].sort((a, b) => calMins(a.time) - calMins(b.time));
-    }
-    return g;
-  }, [week, timeWindow]);
-  // Per-hour counts (6am–10pm) per day → the mini "when's it busy" sparkline; shared max scales them.
-  const perHour = useMemo(() => {
-    const g: Record<number, number[]> = {}; let max = 1;
-    for (let d = 0; d < 7; d++) {
-      const arr = new Array(17).fill(0);
-      for (const m of byDay[d]) { const h = Math.floor(calMins(m.time) / 60); if (h >= 6 && h <= 22) { arr[h - 6]++; if (arr[h - 6] > max) max = arr[h - 6]; } }
-      g[d] = arr;
-    }
-    return { g, max };
-  }, [byDay]);
+  // Per-band cells for a day (Morning/Midday/Evening/Late), each { hits, found }.
+  const cellsFor = (dow: number): CalWeekResult["cells"][number] =>
+    week?.cells?.[dow] || CAL_BANDS.map(() => ({ hits: [], found: 0 }));
+  const bandCell = (dow: number, bandIdx: number) => cellsFor(dow)[bandIdx] || { hits: [], found: 0 };
+  const dayTotal = (dow: number) => cellsFor(dow).reduce((n, c) => n + c.found, 0);
+  // Shared sparkline max across all loaded days so bar heights are comparable.
+  const sparkMax = useMemo(() => {
+    let mx = 1;
+    if (week?.spark) for (const k of Object.keys(week.spark)) for (const n of week.spark[+k]) if (n > mx) mx = n;
+    return mx;
+  }, [week]);
 
-  const anyItems = Object.values(byDay).some((l) => l.length);
+  const anyItems = !!week && Object.values(week.cells).some((bands) => bands.some((c) => c.found > 0));
   if (fetchErr) return (
     <div className="state" role="alert"><h2>We’re having trouble loading meetings</h2>
       <p>Switch to List to keep browsing, or reload the page.</p></div>
@@ -584,14 +573,16 @@ function CalendarView({ onOpen, onOpenDay, timeWindow, place, searching, weekOff
       <p>Widen your search or clear a filter to see the week.</p></div>
   );
 
-  const spark = (dow: number) => (
-    <span className="cal-spark" aria-hidden>
-      {perHour.g[dow].map((n, i) => (
-        <i key={i} style={{ height: `${Math.max(2, (n / perHour.max) * 14)}px`, background: "var(--brand)", opacity: n ? 0.35 + 0.65 * Math.min(1, n / perHour.max) : 0.14 }} />
-      ))}
-    </span>
-  );
-  const bandOf = (dow: number, a: number, b: number) => byDay[dow].filter((m) => { const t = calMins(m.time); return t >= a && t < b; });
+  const spark = (dow: number) => {
+    const arr = week?.spark?.[dow] || CAL_BANDS.map(() => 0);
+    return (
+      <span className="cal-spark" aria-hidden>
+        {arr.map((n, i) => (
+          <i key={i} style={{ height: `${Math.max(2, (n / sparkMax) * 14)}px`, background: "var(--brand)", opacity: n ? 0.35 + 0.65 * Math.min(1, n / sparkMax) : 0.14 }} />
+        ))}
+      </span>
+    );
+  };
   const MRow = (m: any) => {
     const t = to12(m.time);
     return (
@@ -638,17 +629,17 @@ function CalendarView({ onOpen, onOpenDay, timeWindow, place, searching, weekOff
               </div>
             );
           })}
-          {CAL_BANDS.map(([label, a, b]) => (
+          {CAL_BANDS.map(([label], bandIdx) => (
             <Fragment key={label}>
               <div className="cal-llabel">{label}</div>
               {CAL_DOW.map((_, d) => {
                 const isToday = weekOffset === 0 && d === todayDow;
-                const list = bandOf(d, a, b);
-                if (!list.length) return <div key={d} className={`cal-cell is-empty${isToday ? " is-today" : ""}`} aria-hidden />;
-                const show = list.slice(0, 5); const more = list.length - show.length;
+                const cell = bandCell(d, bandIdx);
+                if (!cell.hits.length) return <div key={d} className={`cal-cell is-empty${isToday ? " is-today" : ""}`} aria-hidden />;
+                const more = cell.found - cell.hits.length;
                 return (
                   <div key={d} className={`cal-cell${isToday ? " is-today" : ""}`}>
-                    {show.map(MRow)}
+                    {cell.hits.map(MRow)}
                     {more > 0 && <button className="cal-more" onClick={() => onOpenDay(d)}>+{more} more →</button>}
                   </div>
                 );
@@ -678,11 +669,18 @@ function CalendarView({ onOpen, onOpenDay, timeWindow, place, searching, weekOff
           {weekOffset === 0 && selDow === todayDow ? <span className="cal-todaytag">Today</span> : null}
         </div>
         <div className="cal-mcard">
-          {byDay[selDow].length === 0
+          {dayTotal(selDow) === 0
             ? <div className="cal-mempty">No meetings listed for this day.</div>
-            : CAL_BANDS.map(([label, a, b]) => {
-                const list = bandOf(selDow, a, b); if (!list.length) return null;
-                return <Fragment key={label}><div className="cal-mband">{label}</div>{list.map(MRow)}</Fragment>;
+            : CAL_BANDS.map(([label], bandIdx) => {
+                const cell = bandCell(selDow, bandIdx); if (!cell.hits.length) return null;
+                const more = cell.found - cell.hits.length;
+                return (
+                  <Fragment key={label}>
+                    <div className="cal-mband">{label}</div>
+                    {cell.hits.map(MRow)}
+                    {more > 0 && <button className="cal-more cal-more-m" onClick={() => onOpenDay(selDow)}>+{more} more →</button>}
+                  </Fragment>
+                );
               })}
         </div>
       </div>
