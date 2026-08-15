@@ -12,6 +12,7 @@ import { officialFinder } from "@/lib/finders";
 import { CONTACT_EMAIL } from "@/lib/config";
 import { parseQuery, type Parsed } from "@/lib/parseQuery";
 import { track, meetingDims } from "@/lib/track";
+import { fetchCalendarWeek, type CalWeekResult } from "@/lib/calendarQuery";
 import { Icon } from "./Icon";
 import { Loader } from "./Loader";
 import { ErrorBoundary } from "./ErrorBoundary";
@@ -488,15 +489,53 @@ const CAL_BANDS: [string, number, number][] = [
 const CAL_MAX_WEEKS = 6; // how far ahead you can browse (weekly-recurring data → a bounded horizon)
 const calMins = (t: string) => { const [h, m] = String(t).split(":").map(Number); return (h || 0) * 60 + (m || 0); };
 
-function CalendarView({ onOpen, onOpenDay, timeWindow }: {
+function CalendarView({ onOpen, onOpenDay, timeWindow, place, searching }: {
   onOpen: (m: any) => void; onOpenDay: (d: number) => void; timeWindow: { lo: number; hi: number } | null;
+  place: Place; searching: boolean;
 }) {
-  const { items: rawItems } = useHits();
-  const items = timeWindow ? rawItems.filter((m: any) => inWindow(m, timeWindow)) : rawItems;
-  const { status, error } = useInstantSearch();
-  const busy = status === "loading" || status === "stalled";
+  const { indexUiState } = useInstantSearch();
   const [weekOffset, setWeekOffset] = useState(0); // week paging (0 = this week), shared by desktop + mobile
   const [selDow, setSelDow] = useState(TODAY);     // mobile: which weekday of the viewed week is expanded
+  const [week, setWeek] = useState<CalWeekResult | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [fetchErr, setFetchErr] = useState(false);
+
+  // Rebuild the list's active filter straight from InstantSearch's UI state, then load a
+  // day-balanced week (one search per day) so dense areas fill all seven columns — not just Sun/Mon.
+  const rl = (indexUiState.refinementList || {}) as Record<string, string[]>;
+  const online = (rl.online || [])[0];
+  const onlineOnly = online === "true";
+  const wantDays = rl.day && rl.day.length ? rl.day.map(Number).filter((n) => n >= 0 && n <= 6) : [0, 1, 2, 3, 4, 5, 6];
+  const query = (indexUiState.query || "").trim();
+  const filterBy = useMemo(() => {
+    const c: string[] = [];
+    if (rl.fellowship?.length) c.push(`fellowship:=[${rl.fellowship.map((v) => `\`${v}\``).join(",")}]`);
+    if (online === "true") c.push("online:=true");
+    else if (online === "false") c.push("online:=false");
+    if (rl.types?.length) c.push(`types:=[${rl.types.map((v) => `\`${v}\``).join(",")}]`);
+    // Geo: mirror GeoConfigure — constrain to the near-me radius only while browsing in-person
+    // (drop it for online-only, or when actively searching a different place by free text).
+    if (place && !onlineOnly && !searching) c.push(`_geoloc:(${place.lat}, ${place.lng}, ${(AREA_RADIUS_M / 1000).toFixed(3)} km)`);
+    return c.join(" && ");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(rl), place?.lat, place?.lng, onlineOnly, searching]);
+
+  const sig = JSON.stringify([query, filterBy, wantDays]);
+  useEffect(() => {
+    let cancelled = false;
+    const ctrl = new AbortController();
+    setLoading(true); setFetchErr(false);
+    // Small debounce so rapid state settling (geolocation resolving, query driver) coalesces into
+    // one request instead of firing an expensive national fetch first.
+    const t = setTimeout(() => {
+      fetchCalendarWeek({ q: query, filterBy, days: wantDays }, ctrl.signal)
+        .then((w) => { if (!cancelled) { setWeek(w); setLoading(false); } })
+        .catch((e) => { if (!cancelled && e?.name !== "AbortError") { setFetchErr(true); setLoading(false); } });
+    }, 160);
+    return () => { cancelled = true; ctrl.abort(); clearTimeout(t); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sig]);
+  const busy = loading;
 
   const now = useMemo(() => new Date(), []);
   const todayDow = now.getDay();
@@ -505,13 +544,17 @@ function CalendarView({ onOpen, onOpenDay, timeWindow }: {
     const sun = new Date(now); sun.setDate(now.getDate() - now.getDay() + weekOffset * 7);
     return CAL_DOW.map((_, i) => { const d = new Date(sun); d.setDate(sun.getDate() + i); return d; });
   }, [now, weekOffset]);
-  // Group the loaded hits by day-of-week, chronological within each day.
+  // Fetched week → per-day lists (apply the client-side time-of-day window; re-sort by time defensively).
   const byDay = useMemo(() => {
+    const src = week?.byDay;
     const g: Record<number, any[]> = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] };
-    for (const m of items) { const d = Number(m.day); if (g[d]) g[d].push(m); }
-    for (let d = 0; d < 7; d++) g[d].sort((a, b) => calMins(a.time) - calMins(b.time));
+    for (let d = 0; d < 7; d++) {
+      const base = (src && src[d]) || [];
+      const list = timeWindow ? base.filter((m: any) => inWindow(m, timeWindow)) : base;
+      g[d] = [...list].sort((a, b) => calMins(a.time) - calMins(b.time));
+    }
     return g;
-  }, [items]);
+  }, [week, timeWindow]);
   // Per-hour counts (6am–10pm) per day → the mini "when's it busy" sparkline; shared max scales them.
   const perHour = useMemo(() => {
     const g: Record<number, number[]> = {}; let max = 1;
@@ -523,12 +566,13 @@ function CalendarView({ onOpen, onOpenDay, timeWindow }: {
     return { g, max };
   }, [byDay]);
 
-  if (error) return (
+  const anyItems = Object.values(byDay).some((l) => l.length);
+  if (fetchErr) return (
     <div className="state" role="alert"><h2>We’re having trouble loading meetings</h2>
       <p>Switch to List to keep browsing, or reload the page.</p></div>
   );
-  if (busy && !items.length) return <Skeletons />;
-  if (!items.length) return (
+  if (busy && !week) return <Skeletons />;
+  if (!anyItems) return (
     <div className="state"><h2>Nothing to show on the calendar</h2>
       <p>Widen your search or clear a filter to see the week.</p></div>
   );
@@ -835,7 +879,7 @@ export default function Finder() {
       </div>
 
       {view === "calendar" ? (
-        <CalendarView onOpen={setSelected} timeWindow={timeWindow}
+        <CalendarView onOpen={setSelected} timeWindow={timeWindow} place={place} searching={searching}
           onOpenDay={(d) => { setSoon(false); setDayToggles([d]); setView("list"); }} />
       ) : view === "list" ? (
         <Results onOpen={setSelected} user={user} onClearLocation={() => setPlace(null)} startsSoon={soleSoon} timeWindow={timeWindow} />

@@ -1,36 +1,44 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import dynamic from "next/dynamic";
 import { Icon } from "@/components/Icon";
 import { Mark } from "@/components/Mark";
 
-// Finder pulls in InstantSearch + MapLibre; Chat calls the /api/chat route — client-only.
-const Finder = dynamic(() => import("@/components/Finder"), { ssr: false });
+// Chat calls the /api/chat route — client-only. The Browse tool now lives on its own /search route
+// (a real, deep-linkable page with an SSR header), so the homepage no longer mounts the Finder
+// inline; the "Browse" tab navigates there instead.
 const Chat = dynamic(() => import("@/components/Chat"), { ssr: false });
 
-// The brand header + the Ask Fellow / Search tab shell — the interactive island of the home
-// page. Kept as its own client component so the page itself can be a server component (and
-// fetch coverage data for the promo below).
+// The brand header + the Ask Fellow / Browse shell — the interactive island of the home page. Kept
+// as its own client component so the page itself can be a server component (and fetch coverage data
+// for the promo below).
 export default function HomeExperience() {
   const t = useTranslations("common");
-  // Default to chat deterministically (same on server + client — no hydration mismatch); the
-  // effect below flips to Search when there's a ?q=.
-  const [mode, setMode] = useState<"search" | "chat">("chat");
+  const router = useRouter();
   const [resetKey, setResetKey] = useState(0);
-  // The page is server-rendered, so the initializer above can't see the URL — land on Search
-  // whenever the URL asks for it once we're on the client: ?q= (a shared search link or the
-  // sitelinks box), ?fellowship= (a fellowship/problem page's "search meetings" CTA — Browse
-  // pre-filtered to that fellowship), or ?browse= (open Browse near-you, unfiltered).
+  // Inbound deep-links that used to open Browse inline now belong to the /search route: send
+  // ?q= / ?fellowship= / ?browse= straight there (this also serves as the legacy redirect). ?q= is a
+  // shared search link or the sitelinks box; ?fellowship= is a fellowship/problem "search" CTA;
+  // ?browse= just opens the tool near-you.
   useEffect(() => {
     if (typeof window === "undefined") return;
     const sp = new URLSearchParams(window.location.search);
-    if (sp.has("q") || sp.has("fellowship") || sp.has("browse")) setMode("search");
-  }, []);
-  // Clicking the logo resets to the default home screen (default tab + fresh state).
+    const q = sp.get("q");
+    const fellowship = sp.get("fellowship");
+    if (q || fellowship || sp.has("browse")) {
+      const dest = new URLSearchParams();
+      if (q) dest.set("q", q);
+      if (fellowship) dest.set("fellowship", fellowship);
+      const qs = dest.toString();
+      router.replace(`/search${qs ? `?${qs}` : ""}`);
+    }
+  }, [router]);
+  const goSearch = () => router.push("/search");
+  // Clicking the logo resets to a fresh chat.
   const goHome = (e: React.MouseEvent) => {
     e.preventDefault();
-    setMode("chat");
     setResetKey((k) => k + 1);
     if (typeof window !== "undefined") window.scrollTo({ top: 0 });
   };
@@ -47,37 +55,31 @@ export default function HomeExperience() {
       </header>
 
       <div className="experience">
-        {/* Arrow keys move between tabs (ARIA tablist contract); each tab controls the shared panel. */}
+        {/* Ask Fellow is the home panel; Browse is a link out to the /search tool. */}
         <div
           className="exp-tabs"
           role="tablist"
           aria-label="Find meetings by"
-          onKeyDown={(e) => {
-            if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
-              e.preventDefault();
-              setMode((m) => (m === "chat" ? "search" : "chat"));
-            }
-          }}
+          onKeyDown={(e) => { if (e.key === "ArrowRight") { e.preventDefault(); goSearch(); } }}
         >
           <button
-            role="tab" id="tab-chat" aria-controls="exp-panel" aria-selected={mode === "chat"}
-            tabIndex={mode === "chat" ? 0 : -1} className="exp-tab" onClick={() => setMode("chat")}
+            role="tab" id="tab-chat" aria-controls="exp-panel" aria-selected={true}
+            tabIndex={0} className="exp-tab" onClick={goHome}
           >
             <Icon name="chatdots" size={22} /> {t("askFellow")}
           </button>
           <button
-            role="tab" id="tab-search" aria-controls="exp-panel" aria-selected={mode === "search"}
-            tabIndex={mode === "search" ? 0 : -1} className="exp-tab" onClick={() => setMode("search")}
+            role="tab" id="tab-search" aria-selected={false}
+            tabIndex={-1} className="exp-tab" onClick={goSearch}
           >
             <Icon name="searchtab" size={22} /> {t("find")}
           </button>
         </div>
         <div
           id="exp-panel" role="tabpanel" tabIndex={0}
-          aria-labelledby={mode === "search" ? "tab-search" : "tab-chat"}
-          className={`exp-body ${mode === "search" ? "is-search" : "is-chat"}`}
+          aria-labelledby="tab-chat" className="exp-body is-chat"
         >
-          {mode === "search" ? <Finder key={resetKey} /> : <Chat key={resetKey} onSwitchToSearch={() => setMode("search")} />}
+          <Chat key={resetKey} onSwitchToSearch={goSearch} />
         </div>
       </div>
     </>
