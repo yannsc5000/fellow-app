@@ -1100,10 +1100,10 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .cal-spark i{flex:1;border-radius:2px;min-height:2px}
 .cal-llabel{display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:10px;
   font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);text-align:right}
-.cal-cell{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:5px;min-height:60px;
+.cal-cell{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:5px;min-height:88px;
   display:flex;flex-direction:column;gap:1px;transition:transform var(--dur-1) var(--ease-out),box-shadow var(--dur-1) var(--ease-out)}
 .cal-cell:hover{transform:translateY(var(--lift));box-shadow:var(--shadow-md);position:relative;z-index:2}
-.cal-cell.is-empty{background:transparent;border-style:dashed;border-color:color-mix(in srgb,var(--line) 75%,transparent);min-height:44px}
+.cal-cell.is-empty{background:transparent;border-style:dashed;border-color:color-mix(in srgb,var(--line) 75%,transparent);min-height:88px}
 .cal-cell.is-today{background:color-mix(in srgb, var(--action) 7%, var(--surface));border-color:color-mix(in srgb, var(--action) 32%, var(--line))}
 .cal-cell.is-empty.is-today{background:color-mix(in srgb, var(--action) 5%, transparent)}
 .cal-mrow{display:flex;align-items:center;gap:6px;text-align:left;background:transparent;border:0;cursor:pointer;
@@ -1166,5 +1166,4 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .search-head{margin:2px 0 14px}
 .search-h1{font-size:23px;font-weight:850;letter-spacing:-.02em;margin:0 0 4px;line-height:1.2}
 .search-sub{font-size:14.5px;color:var(--ink-soft);margin:0}
-.search-back{margin:18px 0 0}
 @media(max-width:560px){ .search-h1{font-size:20px} }

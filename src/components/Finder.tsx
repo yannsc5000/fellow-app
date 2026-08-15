@@ -11,6 +11,7 @@ import { parseSearchState, EMPTY_STATE, type SearchState } from "@/lib/searchSta
 import { officialFinder } from "@/lib/finders";
 import { CONTACT_EMAIL } from "@/lib/config";
 import { parseQuery, type Parsed } from "@/lib/parseQuery";
+import { track, meetingDims } from "@/lib/track";
 import { Icon } from "./Icon";
 import { Loader } from "./Loader";
 import { ErrorBoundary } from "./ErrorBoundary";
@@ -28,6 +29,8 @@ const MapView = dynamic(() => import("./MapView"), {
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const FULL_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+// Lowercase weekday tokens for the URL `when` param (0=Sun..6=Sat) — inverse of WEEKDAY_TOKEN.
+const DOW_TOKEN = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 function to12(t: string) {
   let [h, m] = t.split(":").map(Number);
   const ap = h < 12 ? "AM" : "PM"; h = h % 12 || 12;
@@ -177,6 +180,56 @@ function DaySync({ days }: { days: number[] }) {
     haveSet.forEach((v) => { if (!wantSet.has(v)) refine(v); });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [want]);
+  return null;
+}
+
+// Outbound URL sync: reflect the live toggle state back into the address bar so any adjusted search
+// is a shareable / bookmarkable link and analytics see a meaningful URL. Deliberately QUERY-ONLY —
+// it never rewrites the path (the location/fellowship slugs from the landing stay intact) and never
+// touches params it doesn't own, so inbound campaign tags (utm_*, gclid, msclkid) and the ?near/
+// ?fellowship fallbacks survive untouched. It owns exactly: q, when, format, type, access, view.
+function UrlSync({ soon, dayToggles, todayDow, view, q }: {
+  soon: boolean; dayToggles: number[]; todayDow: number; view: string; q: string;
+}) {
+  const { indexUiState } = useInstantSearch();
+  const rl = indexUiState.refinementList || {};
+  const online = (rl.online || [])[0];
+  const types = rl.types || [];
+  // Serialize the owned dimensions to a stable signal so the effect only runs on real change.
+  const sig = JSON.stringify([q, soon, [...dayToggles].sort(), view, online, [...types].sort()]);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const u = new URL(window.location.href);
+    const p = u.searchParams;
+    // q
+    if (q.trim()) p.set("q", q); else p.delete("q");
+    // when (from the day chips only; free-text days ride along in ?q)
+    const when: string[] = [];
+    if (soon) when.push("soon");
+    for (const d of dayToggles) {
+      if (d === todayDow) when.push("today");
+      else if (d === (todayDow + 1) % 7) when.push("tomorrow");
+      else if (DOW_TOKEN[d]) when.push(DOW_TOKEN[d]);
+    }
+    const whenU = [...new Set(when)].sort();
+    if (whenU.length) p.set("when", whenU.join(",")); else p.delete("when");
+    // format
+    if (online === "true") p.set("format", "online");
+    else if (online === "false") p.set("format", "in-person");
+    else p.delete("format");
+    // type / access
+    const t: string[] = [];
+    if (types.includes("Open")) t.push("open");
+    if (types.includes("Closed")) t.push("closed");
+    if (t.length) p.set("type", t.sort().join(",")); else p.delete("type");
+    if (types.includes("Wheelchair")) p.set("access", "wheelchair"); else p.delete("access");
+    // view (calendar is the default → omit for clean URLs)
+    if (view === "list" || view === "map") p.set("view", view); else p.delete("view");
+
+    const next = u.toString();
+    if (next !== window.location.href) window.history.replaceState(null, "", next);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sig]);
   return null;
 }
 
@@ -541,7 +594,7 @@ function CalendarView({ onOpen, onOpenDay, timeWindow }: {
                 const isToday = weekOffset === 0 && d === todayDow;
                 const list = bandOf(d, a, b);
                 if (!list.length) return <div key={d} className={`cal-cell is-empty${isToday ? " is-today" : ""}`} aria-hidden />;
-                const show = list.slice(0, 3); const more = list.length - show.length;
+                const show = list.slice(0, 5); const more = list.length - show.length;
                 return (
                   <div key={d} className={`cal-cell${isToday ? " is-today" : ""}`}>
                     {show.map(MRow)}
@@ -630,13 +683,8 @@ export default function Finder() {
   const [raw, setRaw] = useState(urlState.q || "");
   const initialFellowship = urlState.fellowship ? (CODE_BY_SLUG[urlState.fellowship] || "") : "";
   const parsed = useMemo(() => parseQuery(raw), [raw]);     // → filters + residual text
-  // Keep the URL in sync with the query so any search is a copy-pasteable link.
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const u = new URL(window.location.href);
-    if (raw.trim()) u.searchParams.set("q", raw); else u.searchParams.delete("q");
-    window.history.replaceState(null, "", u.toString());
-  }, [raw]);
+  // URL-sync now lives in <UrlSync> inside InstantSearch, so it can also mirror the toggle facets
+  // (format/type/access) and the day/view state — not just ?q — into a shareable link.
   const [placeMiss, setPlaceMiss] = useState(false);        // a named place that didn't geocode
   const nearMeRef = useRef(false);
 
@@ -754,6 +802,7 @@ export default function Finder() {
       <GeoConfigure place={place} wide={wide} searching={searching} />
       <QueryDriver text={queryText} />
       <DaySync days={days} />
+      <UrlSync soon={soon} dayToggles={dayToggles} todayDow={TODAY} view={view} q={raw} />
       <SearchBox value={raw} onChange={setRaw} onClear={() => setRaw("")} onSubmit={() => { if (!raw.trim()) nearMe(); }} />
       {parsed.labels.length > 0 && (
         <div className="parse-hint">
@@ -812,6 +861,12 @@ export function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => 
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
+  // Conversion: the sheet is a fresh mount per meeting opened, so an empty-dep effect fires once
+  // per open — the "meeting_opened" micro-conversion for SEM/analytics (coarse dims only).
+  useEffect(() => {
+    track("meeting_opened", meetingDims(m));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function share() {
     const when = `${FULL_DAYS[m.day]}, ${t.hh} ${t.ap}`;
@@ -870,7 +925,8 @@ export function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => 
 
         <div className="sheet-body">
           <div className="sheet-facts">
-            <a className="fact fact-when" href={calendarUrl(m)} target="_blank" rel="noopener" aria-label={`Add ${m.name} to your calendar`}>
+            <a className="fact fact-when" href={calendarUrl(m)} target="_blank" rel="noopener" aria-label={`Add ${m.name} to your calendar`}
+              onClick={() => track("meeting_add_to_calendar", meetingDims(m))}>
               <span className="fact-ico"><Icon name="calmonth" size={18} /></span>
               <span className="fact-body">
                 <span className="fact-main">{FULL_DAYS[m.day]}, {t.hh} {t.ap}</span>
@@ -983,9 +1039,9 @@ export function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => 
           <div className="sheet-actions">
             {m.online
               ? (m.conference_url
-                  ? <a className="btn btn-fc" href={m.conference_url} target="_blank" rel="noopener"><Icon name="video" size={18} /> Join online</a>
-                  : <a className="btn btn-fc" href={learnMoreUrl} target="_blank" rel="noopener"><Icon name="search" size={18} /> Find this meeting online</a>)
-              : <a className="btn btn-fc" href={mapsAddr} target="_blank" rel="noopener"><Icon name="route" size={18} /> Directions</a>}
+                  ? <a className="btn btn-fc" href={m.conference_url} target="_blank" rel="noopener" onClick={() => track("meeting_join_online", meetingDims(m))}><Icon name="video" size={18} /> Join online</a>
+                  : <a className="btn btn-fc" href={learnMoreUrl} target="_blank" rel="noopener" onClick={() => track("meeting_join_online", meetingDims(m))}><Icon name="search" size={18} /> Find this meeting online</a>)
+              : <a className="btn btn-fc" href={mapsAddr} target="_blank" rel="noopener" onClick={() => track("meeting_directions", meetingDims(m))}><Icon name="route" size={18} /> Directions</a>}
             <button className="btn btn-soft" onClick={onClose}><Icon name="close" size={18} /> Close</button>
           </div>
           <a className="report-link" href={correctionHref}>

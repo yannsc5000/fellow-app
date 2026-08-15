@@ -4,7 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { Mark } from "@/components/Mark";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SearchClient } from "@/components/SearchClient";
-import { parseSearchState, isEmptyState, type SearchState } from "@/lib/searchState";
+import { parseSearchState, type SearchState } from "@/lib/searchState";
 import { CODE_BY_SLUG, fellowshipName } from "@/lib/fellowships";
 
 // The live-search route. This is the interactive tool + the stable landing surface for shared links
@@ -111,9 +111,6 @@ export default async function SearchPage({ params, searchParams }: {
 
       <SearchClient />
 
-      {isEmptyState(s) ? null : (
-        <p className="search-back"><Link href="/" className="back">← Fellow home</Link></p>
-      )}
       <SiteFooter />
     </main>
   );
