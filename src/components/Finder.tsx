@@ -528,6 +528,9 @@ function CalendarView({ onOpen, onOpenDay, timeWindow, place, searching, weekOff
   const rl = (indexUiState.refinementList || {}) as Record<string, string[]>;
   const online = (rl.online || [])[0];
   const onlineOnly = online === "true";
+  // When exactly one fellowship is filtered, every row is that fellowship — so the per-row code is
+  // redundant (the active chip + page header already say it). Drop it and give the width to the name.
+  const singleFellowship = (rl.fellowship?.length || 0) === 1;
   const wantDays = rl.day && rl.day.length ? rl.day.map(Number).filter((n) => n >= 0 && n <= 6) : [0, 1, 2, 3, 4, 5, 6];
   const query = (indexUiState.query || "").trim();
   const filterBy = useMemo(() => {
@@ -604,14 +607,20 @@ function CalendarView({ onOpen, onOpenDay, timeWindow, place, searching, weekOff
     );
   };
   const MRow = (m: any) => {
-    const t = to12(m.time);
+    // Compact time: on-the-hour meetings drop ":00" ("7a", "12p"); minutes only shown when non-zero
+    // ("6:45a"). Reclaims a couple chars for the name on the majority of (on-hour) rows.
+    const [H, M] = String(m.time).split(":").map(Number);
+    const ap = (H || 0) < 12 ? "a" : "p";
+    const h12 = (((H || 0) + 11) % 12) + 1;
+    const timeLabel = M ? `${h12}:${String(M).padStart(2, "0")}${ap}` : `${h12}${ap}`;
     return (
       <button key={m.objectID} className="cal-mrow" style={{ ["--fc" as any]: fellowshipColor(m.fellowship) }}
         onClick={() => onOpen(m)} title={`${m.name} · ${fellowshipName(m.fellowship)}`}>
-        <span className="cal-dot" aria-hidden />
-        <span className="cal-mtime">{t.hh}{t.ap[0].toLowerCase()}</span>
+        <span className="cal-mtime">{timeLabel}</span>
         <span className="cal-mname">{m.name}</span>
-        <span className="cal-mfel">{m.fellowship}</span>
+        {/* No dot (it duplicated the colored code). Fellowship code only when the view is mixed —
+            in a single-fellowship view it's redundant, so the name reclaims the space. */}
+        {!singleFellowship && <span className="cal-mfel">{m.fellowship}</span>}
       </button>
     );
   };

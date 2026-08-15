@@ -1110,8 +1110,9 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
   padding:4px 5px;border-radius:8px;width:100%;font-family:inherit;transition:background var(--dur-1) var(--ease-out)}
 .cal-mrow:hover{background:color-mix(in srgb,var(--fc) 12%, var(--surface-2))}
 .cal-dot{flex:0 0 auto;width:7px;height:7px;border-radius:50%;background:var(--fc,var(--brand))}
-.cal-mtime{flex:0 0 auto;font-size:11px;font-weight:850;color:var(--ink);white-space:nowrap}
-.cal-mname{flex:1;min-width:0;font-size:11.5px;font-weight:700;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Type rebalance: the meeting NAME is the primary/bright text and reads first; the time is recessive. */
+.cal-mtime{flex:0 0 auto;font-size:11px;font-weight:800;color:var(--ink-soft);white-space:nowrap}
+.cal-mname{flex:1;min-width:0;font-size:12px;font-weight:750;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cal-mfel{flex:0 0 auto;font-size:10px;font-weight:800;color:var(--fc,var(--brand))}
 .cal-more{align-self:flex-start;margin-top:auto;background:transparent;border:0;cursor:pointer;font-family:inherit;
   font-size:10.5px;font-weight:800;color:var(--brand-ink);padding:3px 5px;border-radius:6px}
