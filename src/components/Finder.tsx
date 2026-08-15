@@ -489,13 +489,20 @@ const CAL_BANDS: [string, number, number][] = [
 const CAL_MAX_WEEKS = 6; // how far ahead you can browse (weekly-recurring data → a bounded horizon)
 const calMins = (t: string) => { const [h, m] = String(t).split(":").map(Number); return (h || 0) * 60 + (m || 0); };
 
-function CalendarView({ onOpen, onOpenDay, timeWindow, place, searching }: {
+function CalendarView({ onOpen, onOpenDay, timeWindow, place, searching, weekOffset, setWeekOffset, onLeaveThisWeek }: {
   onOpen: (m: any) => void; onOpenDay: (d: number) => void; timeWindow: { lo: number; hi: number } | null;
   place: Place; searching: boolean;
+  weekOffset: number; setWeekOffset: (v: number) => void; onLeaveThisWeek: () => void;
 }) {
   const { indexUiState } = useInstantSearch();
-  const [weekOffset, setWeekOffset] = useState(0); // week paging (0 = this week), shared by desktop + mobile
   const [selDow, setSelDow] = useState(TODAY);     // mobile: which weekday of the viewed week is expanded
+  // Stepping to a different week clears the now-relative "when" chips (Starts soon/Today/Tomorrow),
+  // which only apply to the current week — so the target week shows its full schedule.
+  const stepWeek = (delta: number) => {
+    const next = Math.min(CAL_MAX_WEEKS - 1, Math.max(0, weekOffset + delta));
+    if (next !== weekOffset && next !== 0) onLeaveThisWeek();
+    setWeekOffset(next);
+  };
   const [week, setWeek] = useState<CalWeekResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [fetchErr, setFetchErr] = useState(false);
@@ -608,10 +615,10 @@ function CalendarView({ onOpen, onOpenDay, timeWindow, place, searching }: {
   const weekNav = (
     <div className="cal-weeknav">
       <button className="cal-nav" aria-label="Previous week" disabled={weekOffset === 0}
-        onClick={() => setWeekOffset((w) => Math.max(0, w - 1))}>‹</button>
+        onClick={() => stepWeek(-1)}>‹</button>
       <span className="cal-weeklabel">{weekOffset === 0 ? "This week" : weekLabel}</span>
       <button className="cal-nav" aria-label="Next week" disabled={weekOffset >= CAL_MAX_WEEKS - 1}
-        onClick={() => setWeekOffset((w) => Math.min(CAL_MAX_WEEKS - 1, w + 1))}>›</button>
+        onClick={() => stepWeek(1)}>›</button>
       {weekOffset !== 0 && <button className="cal-reset" onClick={() => setWeekOffset(0)}>Jump to this week</button>}
     </div>
   );
@@ -722,6 +729,14 @@ export default function Finder() {
   const [soon, setSoon] = useState(whenSeed.soon);            // "Starts soon" (from when=soon)
   const [dayToggles, setDayToggles] = useState<number[]>(whenSeed.days); // Today / Tomorrow / weekday
   const toggleDay = (d: number) => setDayToggles((cur) => (cur.includes(d) ? cur.filter((x) => x !== d) : [...cur, d]));
+  // Calendar week paging lives here (not inside CalendarView) so it can stay coherent with the
+  // now-relative "when" chips: Starts soon / Today / Tomorrow only mean anything on the current week.
+  const [weekOffset, setWeekOffset] = useState(0);
+  // Selecting a now-relative chip snaps the calendar back to this week (that's the only week it maps
+  // to); the week stepper clears these chips when you leave this week (see onLeaveThisWeek below).
+  const pickSoon = () => { setWeekOffset(0); setSoon((v) => !v); };
+  const pickDay = (d: number) => { setWeekOffset(0); toggleDay(d); };
+  const onLeaveThisWeek = () => { setSoon(false); setDayToggles([]); };
   // Free text seeds from ?q=; the fellowship slug (pretty path or ?fellowship=) resolves to its
   // canonical facet code.
   const [raw, setRaw] = useState(urlState.q || "");
@@ -856,11 +871,11 @@ export default function Finder() {
 
       <FellowshipChips />
       <div className="filter-row" role="group" aria-label="Day, type and format">
-        <button className="chip chip-soon" aria-pressed={soon} onClick={() => setSoon((v) => !v)}>
+        <button className="chip chip-soon" aria-pressed={soon} onClick={pickSoon}>
           <span className="livedot" aria-hidden="true" /> Starts soon
         </button>
-        <button className="chip" aria-pressed={dayToggles.includes(TODAY)} onClick={() => toggleDay(TODAY)}>Today</button>
-        <button className="chip" aria-pressed={dayToggles.includes((TODAY + 1) % 7)} onClick={() => toggleDay((TODAY + 1) % 7)}>Tomorrow</button>
+        <button className="chip" aria-pressed={dayToggles.includes(TODAY)} onClick={() => pickDay(TODAY)}>Today</button>
+        <button className="chip" aria-pressed={dayToggles.includes((TODAY + 1) % 7)} onClick={() => pickDay((TODAY + 1) % 7)}>Tomorrow</button>
         <Toggle attribute="online" value="false" label="In person" />
         <Toggle attribute="online" value="true" label="Online" />
         <Toggle attribute="types" value="Open" label="Open" />
@@ -880,6 +895,7 @@ export default function Finder() {
 
       {view === "calendar" ? (
         <CalendarView onOpen={setSelected} timeWindow={timeWindow} place={place} searching={searching}
+          weekOffset={weekOffset} setWeekOffset={setWeekOffset} onLeaveThisWeek={onLeaveThisWeek}
           onOpenDay={(d) => { setSoon(false); setDayToggles([d]); setView("list"); }} />
       ) : view === "list" ? (
         <Results onOpen={setSelected} user={user} onClearLocation={() => setPlace(null)} startsSoon={soleSoon} timeWindow={timeWindow} />

@@ -51,5 +51,16 @@
       "ACA": 55,
       "CoDA": 6
     }
+  },
+  {
+    "generatedAt": "2026-08-15T00:44:02.043Z",
+    "total": 19,
+    "inPerson": 18,
+    "placed": 18,
+    "online": 1,
+    "counts": {
+      "AA": 16,
+      "NA": 3
+    }
   }
 ]
