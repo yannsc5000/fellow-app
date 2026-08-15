@@ -386,17 +386,37 @@ async function zipToPlace(zip: string): Promise<Place> {
   } catch { return null; }
 }
 
+// State abbrev → the geocoder's admin1 name, for disambiguating a city slug's state (Open-Meteo
+// returns multiple "Washington"s — DC's admin1 is "District of Columbia", not "Washington").
+const GEO_STATE: Record<string, string> = {
+  AL: "Alabama", AK: "Alaska", AZ: "Arizona", AR: "Arkansas", CA: "California", CO: "Colorado",
+  CT: "Connecticut", DE: "Delaware", FL: "Florida", GA: "Georgia", HI: "Hawaii", ID: "Idaho",
+  IL: "Illinois", IN: "Indiana", IA: "Iowa", KS: "Kansas", KY: "Kentucky", LA: "Louisiana",
+  ME: "Maine", MD: "Maryland", MA: "Massachusetts", MI: "Michigan", MN: "Minnesota", MS: "Mississippi",
+  MO: "Missouri", MT: "Montana", NE: "Nebraska", NV: "Nevada", NH: "New Hampshire", NJ: "New Jersey",
+  NM: "New Mexico", NY: "New York", NC: "North Carolina", ND: "North Dakota", OH: "Ohio", OK: "Oklahoma",
+  OR: "Oregon", PA: "Pennsylvania", RI: "Rhode Island", SC: "South Carolina", SD: "South Dakota",
+  TN: "Tennessee", TX: "Texas", UT: "Utah", VT: "Vermont", VA: "Virginia", WA: "Washington",
+  WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming", DC: "District of Columbia",
+};
+
 // City/place name → coordinates (keyless, Open-Meteo geocoding). Powers "aa in phoenix":
-// the named place recenters the whole search instead of leaking into the text query.
-async function geocodePlace(name: string): Promise<Place> {
+// the named place recenters the whole search instead of leaking into the text query. When a
+// `stateHint` (from a location slug) is given, query the bare city and pick the result whose state
+// matches — Open-Meteo often fails on a "City, ST" string and returns the wrong or no match.
+async function geocodePlace(name: string, stateHint?: string): Promise<Place> {
   try {
-    const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=5&language=en&format=json`);
+    const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=10&language=en&format=json`);
     if (!r.ok) return null;
     const d = await r.json();
     const list: any[] = d?.results || [];
     if (!list.length) return null;
-    const pick = list.find((x) => x.country_code === "US") || list[0];
-    const label = pick.admin1 ? `${pick.name}, ${pick.admin1}` : pick.name;
+    const wantState = stateHint ? (GEO_STATE[stateHint] || "").toLowerCase() : "";
+    const pick =
+      (wantState && list.find((x) => x.country_code === "US" && String(x.admin1 || "").toLowerCase() === wantState)) ||
+      list.find((x) => x.country_code === "US") ||
+      list[0];
+    const label = stateHint ? `${name}, ${stateHint}` : (pick.admin1 ? `${pick.name}, ${pick.admin1}` : pick.name);
     return { lat: Number(pick.latitude), lng: Number(pick.longitude), label };
   } catch { return null; }
 }
@@ -706,12 +726,12 @@ function whenToSeed(when: string[]) {
   return { days: [...new Set(days)], soon, tonight };
 }
 // "washington-dc" → "Washington, DC" (a ZIP passes through) for geocoding the search center.
-function slugToPlaceLabel(slug: string): string {
-  if (/^\d{5}$/.test(slug)) return slug;
+// A location slug ("washington-dc", "st-louis-mo") → its city + state parts for geocoding.
+function slugToCityState(slug: string): { city: string; state?: string } {
   const parts = slug.split("-");
-  const st = parts.length > 1 ? parts[parts.length - 1].toUpperCase() : "";
+  const state = parts.length > 1 ? parts[parts.length - 1].toUpperCase() : undefined;
   const city = parts.slice(0, parts.length > 1 ? -1 : undefined).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
-  return st ? `${city}, ${st}` : city;
+  return { city, state };
 }
 
 export default function Finder() {
@@ -771,7 +791,9 @@ export default function Finder() {
     if (!near) return;
     let cancelled = false;
     (async () => {
-      const p = /^\d{5}$/.test(near) ? await zipToPlace(near) : await geocodePlace(slugToPlaceLabel(near));
+      let p: Place;
+      if (/^\d{5}$/.test(near)) p = await zipToPlace(near);
+      else { const { city, state } = slugToCityState(near); p = await geocodePlace(city, state); }
       if (!cancelled && p) setPlace(p);
     })();
     return () => { cancelled = true; };
