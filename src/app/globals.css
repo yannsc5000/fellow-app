@@ -202,7 +202,7 @@ body::before{
 @media (prefers-reduced-motion: reduce){.sk{animation:none}.card{transition:none}}
 
 /* Detail sheet */
-.sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:grid;place-items:end center;z-index:100}
+.sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:grid;place-items:end center;z-index:1100}
 .sheet-panel{background:var(--surface);width:100%;max-width:860px;border-radius:28px 28px 0 0;padding:0;max-height:90vh;overflow:auto;box-shadow:var(--shadow-md)}
 @media(min-width:760px){.sheet-overlay{place-items:center;padding:24px}.sheet-panel{border-radius:24px;max-height:86vh}}
 /* Fellowship-color header band. --fc is set on the panel per meeting; a soft top sheen adds depth. */
@@ -1025,6 +1025,9 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .chat-fab:hover{transform:translateY(-1px);box-shadow:0 10px 26px rgba(0,0,0,.24)}
 .chat-fab:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
 .chat-fab-label{font-size:15px}
+/* Hide the floating launcher while a meeting sheet (modal) is open so it never overlaps the
+   sheet's Close button. Toggled by MeetingSheet via a body class. */
+body.sheet-open .chat-fab{display:none}
 
 .chat-launcher{position:fixed;inset:0;z-index:1001;pointer-events:none}
 .chat-launcher:not(.is-open){display:none}
@@ -1114,6 +1117,9 @@ a.park-item:hover{border-color:var(--fc,var(--brand))}
 .cal-mtime{flex:0 0 auto;font-size:11px;font-weight:800;color:var(--ink-soft);white-space:nowrap}
 .cal-mname{flex:1;min-width:0;font-size:12px;font-weight:750;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cal-mfel{flex:0 0 auto;font-size:10px;font-weight:800;color:var(--fc,var(--brand))}
+/* Next-date tag on an overnight (after-midnight) row in the Late-night band. */
+.cal-mnext{flex:0 0 auto;font-size:9.5px;font-weight:850;letter-spacing:.02em;color:var(--ink-soft);
+  background:var(--surface-2);border-radius:5px;padding:1px 5px;line-height:1.5}
 .cal-more{align-self:flex-start;margin-top:auto;background:transparent;border:0;cursor:pointer;font-family:inherit;
   font-size:10.5px;font-weight:800;color:var(--brand-ink);padding:3px 5px;border-radius:6px}
 .cal-more:hover{text-decoration:underline}

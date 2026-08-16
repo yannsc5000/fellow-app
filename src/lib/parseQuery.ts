@@ -50,6 +50,12 @@ export function parseQuery(raw: string): Parsed {
   const zm = text.match(/\b(\d{5})\b/);
   if (zm) { zip = zm[1]; strip(/\b\d{5}\b/g); labels.push(zip); }
 
+  // Relative week/month phrases carry no filter in a weekly-recurring calendar (the same set of
+  // meetings repeats every week), but if left in the text they pollute the place/query parse —
+  // e.g. "aa in dc in the evening next week" would otherwise read "dc in the next week" as a place.
+  // Strip them up front. (Mapping "weekend" → Sat/Sun is a future enhancement; stripping is safe.)
+  strip(/\b(next|this|last|coming)\s+(week|weekend|month)\b/g);
+
   const now = new Date();
   const today = now.getDay();
   if (/\btonight\b/.test(text)) { day = today; window = { lo: 1020, hi: 1439 }; strip(/\btonight\b/g); labels.push("tonight"); }
@@ -62,7 +68,14 @@ export function parseQuery(raw: string): Parsed {
   }
 
   for (const [w, v] of Object.entries(TIME_WORDS)) {
-    if (new RegExp(`\\b${w}\\b`).test(text)) { window = window || { lo: v.lo, hi: v.hi }; if (!labels.includes(v.label)) labels.push(v.label); strip(new RegExp(`\\b${w}\\b`, "g")); break; }
+    if (new RegExp(`\\b${w}\\b`).test(text)) {
+      window = window || { lo: v.lo, hi: v.hi };
+      if (!labels.includes(v.label)) labels.push(v.label);
+      // Consume an optional connective ("in the evening", "at noon", "during the morning") along
+      // with the time word, so no dangling "in the" is left to confuse the place parse below.
+      strip(new RegExp(`\\b(?:in|during)\\s+the\\s+${w}\\b|\\bat\\s+${w}\\b|\\b${w}\\b`, "g"));
+      break;
+    }
   }
 
   // A place named explicitly with "in <place>" / "near <place>" (but "near me" was already

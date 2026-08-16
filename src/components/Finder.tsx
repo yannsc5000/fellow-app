@@ -617,6 +617,9 @@ function CalendarView({ onOpen, onOpenDay, timeWindow, place, searching, weekOff
       <button key={m.objectID} className="cal-mrow" style={{ ["--fc" as any]: fellowshipColor(m.fellowship) }}
         onClick={() => onOpen(m)} title={`${m.name} · ${fellowshipName(m.fellowship)}`}>
         <span className="cal-mtime">{timeLabel}</span>
+        {/* Overnight row shown under the previous evening's Late-night band → tag it with its own
+            (next) date so "1a" doesn't read as this column's day. */}
+        {m._nextDay && <span className="cal-mnext" title={`After midnight — ${FULL_DAYS[m.day]}`}>{DAYS[m.day]}</span>}
         <span className="cal-mname">{m.name}</span>
         {/* No dot (it duplicated the colored code). Fellowship code only when the view is mixed —
             in a single-fellowship view it's redundant, so the name reclaims the space. */}
@@ -658,9 +661,9 @@ function CalendarView({ onOpen, onOpenDay, timeWindow, place, searching, weekOff
               </div>
             );
           })}
-          {CAL_BANDS.map(([label], bandIdx) => (
-            <Fragment key={label}>
-              <div className="cal-llabel">{label}</div>
+          {CAL_BANDS.map((band, bandIdx) => (
+            <Fragment key={band.label}>
+              <div className="cal-llabel">{band.label}</div>
               {CAL_DOW.map((_, d) => {
                 const isToday = weekOffset === 0 && d === todayDow;
                 const cell = bandCell(d, bandIdx);
@@ -700,12 +703,12 @@ function CalendarView({ onOpen, onOpenDay, timeWindow, place, searching, weekOff
         <div className="cal-mcard">
           {dayTotal(selDow) === 0
             ? <div className="cal-mempty">No meetings listed for this day.</div>
-            : CAL_BANDS.map(([label], bandIdx) => {
+            : CAL_BANDS.map((band, bandIdx) => {
                 const cell = bandCell(selDow, bandIdx); if (!cell.hits.length) return null;
                 const more = cell.found - cell.hits.length;
                 return (
-                  <Fragment key={label}>
-                    <div className="cal-mband">{label}</div>
+                  <Fragment key={band.label}>
+                    <div className="cal-mband">{band.label}</div>
                     {cell.hits.map(MRow)}
                     {more > 0 && <button className="cal-more cal-more-m" onClick={() => onOpenDay(selDow)}>+{more} more →</button>}
                   </Fragment>
@@ -950,6 +953,12 @@ export function MeetingSheet({ m, onClose, onSeeAll }: { m: any; onClose: () => 
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
+  // While the sheet is open, hide the floating "Ask Fellow" launcher — it's fixed to the
+  // bottom-right and otherwise overlaps the sheet's Close button (see .chat-fab in globals.css).
+  useEffect(() => {
+    document.body.classList.add("sheet-open");
+    return () => document.body.classList.remove("sheet-open");
+  }, []);
   // Conversion: the sheet is a fresh mount per meeting opened, so an empty-dep effect fires once
   // per open — the "meeting_opened" micro-conversion for SEM/analytics (coarse dims only).
   useEffect(() => {

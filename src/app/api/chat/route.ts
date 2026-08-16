@@ -192,14 +192,16 @@ export async function POST(req: Request) {
 
   // When Fellow's index has nothing, offer a Google search the user can open in a new tab.
   // Built from what they were actually looking for (fellowship + place), never personal data.
-  const lastUserMsg = [...trimmed].reverse().find((m) => m.role === "user")?.content || "";
   const buildWebSearch = () => {
     const fCode = lastInput?.fellowship ? String(lastInput.fellowship) : (recommended[0] || "");
     const fName = fCode ? fellowshipName(fCode) : "";
     const place = (lastInput?.query && String(lastInput.query).trim())
       || (body?.location?.label && body.location.label !== "your area" ? String(body.location.label) : "");
+    // Build the fallback query from STRUCTURED signals only (fellowship + place) — never echo the
+    // raw user message, which produces nonsensical chips like "Search the web for '…so you tell me
+    // meetings'". When we have neither signal, a clean generic search is the honest fallback.
     let q = [fName, "meetings", place].filter(Boolean).join(" ").trim();
-    if (!q || q === "meetings") q = lastUserMsg ? `${lastUserMsg} meetings` : "recovery meetings";
+    if (!q || q === "meetings") q = "recovery meetings";
     // Prefer the fellowship's official, verified finder over a generic web search.
     // Pass coordinates so location-aware finders (e.g. SMART Recovery) deep-link to
     // pre-filled results near the user.

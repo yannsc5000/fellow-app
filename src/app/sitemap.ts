@@ -58,5 +58,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now, changeFrequency: "weekly" as const, priority: 0.6,
     })),
   ];
+
+  // Build guard: a gutted or missing data file (see the Aug-15 coverage + sitemap incident) collapses
+  // this sitemap from ~4,300 URLs to a few dozen, which then ships to search engines and tanks
+  // discovery. Fail the build rather than deploy a near-empty sitemap. The floor sits far below the
+  // real count and far above any collapsed build; override with SITEMAP_MIN_URLS if coverage is ever
+  // intentionally reduced.
+  const MIN_URLS = Number(process.env.SITEMAP_MIN_URLS ?? 500);
+  if (entries.length < MIN_URLS) {
+    throw new Error(
+      `sitemap.ts: only ${entries.length} URLs generated (floor ${MIN_URLS}). This almost always means ` +
+      `public/data/meetings.json.gz is gutted or missing — refusing to build a near-empty sitemap. ` +
+      `If this reduction is intentional, set SITEMAP_MIN_URLS lower.`,
+    );
+  }
+
   return entries.map((e) => ({ ...e, alternates: { languages: { es: esUrl(e.url) } } }));
 }

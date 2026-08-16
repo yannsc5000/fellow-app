@@ -4,7 +4,7 @@
 //   node scripts/ingest.mjs          # live fetch every source
 //   node scripts/ingest.mjs --local  # use bundled snapshots (skips live-only sources)
 import { readFile, writeFile } from "node:fs/promises";
-import { gzipSync } from "node:zlib";
+import { gzipSync, gunzipSync } from "node:zlib";
 import { SOURCES } from "./lib/registry.mjs";
 import { normalizeSource, dedupe } from "./lib/normalize.mjs";
 import { loadGTFS, enrichMetro } from "./lib/gtfs.mjs";
@@ -215,6 +215,30 @@ if (dropped > 0) console.log(`· dropped ${dropped} records — ${midnight} plac
 const meetings = usable
   .sort((a, b) => (a.day - b.day) || String(a.time).localeCompare(String(b.time)))
   .map((m, i) => ({ ...m, id: String(i + 1) }));
+
+// --- Shrink guard: never overwrite the committed dataset with a collapsed run ------------------
+// public/data/meetings.json(.gz) is what the Vercel BUILD reads for the static /coverage, city and
+// fellowship pages. On a cloud/CI runner (or any run behind a blocked IP) most intergroup feeds get
+// WAF-blocked and a run can collapse from ~70k meetings across 51 states to a few hundred across 3 —
+// which, unguarded, would overwrite good data and ship a gutted coverage map. index.mjs already
+// guards Typesense (INDEX_MIN_RATIO); this guards the committed file the same way: compare against
+// the currently-committed gz and abort (exit 1, NOTHING written) if this run is below
+// INGEST_MIN_RATIO of it. Override a legitimately large drop with FORCE_INGEST=1.
+const INGEST_MIN_RATIO = Number(process.env.INGEST_MIN_RATIO || 0.7);
+let priorCount = 0;
+try {
+  const prev = JSON.parse(gunzipSync(await readFile(new URL("../public/data/meetings.json.gz", import.meta.url))).toString("utf8"));
+  priorCount = Array.isArray(prev) ? prev.length : 0;
+} catch { priorCount = 0; }
+if (priorCount > 0 && meetings.length < priorCount * INGEST_MIN_RATIO && process.env.FORCE_INGEST !== "1") {
+  console.error(
+    `\n✋ Refusing to write meetings.json: this run has ${meetings.length} meetings but the committed ` +
+    `dataset has ${priorCount} (below ${Math.round(INGEST_MIN_RATIO * 100)}%). ` +
+    `${empty.length}/${report.length} sources returned 0 — almost always feeds blocking this runner's IP. ` +
+    `Nothing was written. If this drop is real, re-run with FORCE_INGEST=1.`,
+  );
+  process.exit(1);
+}
 
 // Write a compact raw file (for local use — gitignored) plus a gzipped copy that IS
 // committed and read by the Vercel build. Gzip keeps the repo small (~9% of raw) and well
