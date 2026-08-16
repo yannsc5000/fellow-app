@@ -71,14 +71,21 @@
     }
   },
   {
-    "generatedAt": "2026-08-16T04:11:42.473Z",
-    "total": 19,
-    "inPerson": 18,
-    "placed": 18,
-    "online": 1,
+    "generatedAt": "2026-08-16T11:22:33.385Z",
+    "total": 79746,
+    "inPerson": 65056,
+    "placed": 63410,
+    "online": 14690,
     "counts": {
-      "AA": 16,
-      "NA": 3
+      "AA": 58460,
+      "NA": 19236,
+      "RD": 946,
+      "Al-Anon": 700,
+      "CMA": 162,
+      "SLAA": 99,
+      "SIA": 82,
+      "ACA": 55,
+      "CoDA": 6
     }
   }
 ]
