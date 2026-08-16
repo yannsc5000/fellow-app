@@ -62,5 +62,16 @@
       "AA": 16,
       "NA": 3
     }
+  },
+  {
+    "generatedAt": "2026-08-16T03:23:59.518Z",
+    "total": 19,
+    "inPerson": 18,
+    "placed": 18,
+    "online": 1,
+    "counts": {
+      "AA": 16,
+      "NA": 3
+    }
   }
 ]
