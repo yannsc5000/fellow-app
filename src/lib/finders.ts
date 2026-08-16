@@ -46,7 +46,7 @@ const DEFS: Record<string, FinderDef> = {
   SIA: { label: "Find an SIA meeting (siawso.org)", url: "https://siawso.org/meetings/" },
   WA: { label: "Find a WA meeting (workaholics-anonymous.org)", url: "https://workaholics-anonymous.org/meetings/" },
   CLA: { label: "Find a CLA meeting (clutterersanonymous.org)", url: "https://clutterersanonymous.org/meetings/" },
-  EA: { label: "Find an EA meeting (emotionsanonymous.org)", url: "https://emotionsanonymous.org/find-an-ea-meeting.html" },
+  EA: { label: "Find an EA meeting (emotionsanonymous.org)", url: "https://emotionsanonymous.org/find-an-ea-meeting/" },
   "Gam-Anon": { label: "Find a Gam-Anon meeting (gam-anon.org)", url: "https://www.gam-anon.org/meeting-directory" },
   "Co-Anon": { label: "Find a Co-Anon meeting (co-anon.org)", url: "https://co-anon.org/meetings/find-a-meeting" },
   FA: { label: "Find a Families Anonymous meeting (familiesanonymous.org)", url: "https://familiesanonymous.org/meetings/" },
