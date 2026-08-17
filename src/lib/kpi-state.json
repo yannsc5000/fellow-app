@@ -1,15 +1,15 @@
 {
-  "updatedAt": "2026-08-15T11:42:42.903Z",
+  "updatedAt": "2026-08-17T11:54:22.066Z",
   "statuses": {
-    "meetings": "at_risk",
-    "states": "at_risk",
-    "fellowships": "at_risk",
-    "thin_states": "met",
-    "freshness": "na",
-    "joinlink": "at_risk",
+    "meetings": "on_track",
+    "states": "met",
+    "fellowships": "on_track",
+    "thin_states": "on_track",
+    "freshness": "on_track",
+    "joinlink": "on_track",
     "impressions": "at_risk",
     "clicks": "at_risk",
-    "position": "met",
+    "position": "at_risk",
     "chat_queries": "na",
     "chat_hit": "na"
   }
