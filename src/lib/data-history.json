@@ -87,5 +87,24 @@
       "ACA": 55,
       "CoDA": 6
     }
+  },
+  {
+    "generatedAt": "2026-08-17T10:41:10.337Z",
+    "total": 84580,
+    "inPerson": 68783,
+    "placed": 67123,
+    "online": 15797,
+    "counts": {
+      "AA": 63128,
+      "NA": 19235,
+      "RD": 946,
+      "Al-Anon": 700,
+      "EDA": 167,
+      "CMA": 162,
+      "SLAA": 99,
+      "SIA": 82,
+      "ACA": 55,
+      "CoDA": 6
+    }
   }
 ]
