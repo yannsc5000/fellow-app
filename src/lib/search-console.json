@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-08-24T11:13:35.356Z",
-  "range": "2026-07-25 → 2026-08-21",
-  "clicks": 17,
-  "impressions": 1067,
-  "ctr": 0.0159,
-  "position": 35.9,
+  "generatedAt": "2026-08-31T10:03:23.927Z",
+  "range": "2026-08-01 → 2026-08-28",
+  "clicks": 18,
+  "impressions": 1198,
+  "ctr": 0.015,
+  "position": 36,
   "topQueries": [
     {
       "query": "aca meetings near me",
@@ -69,8 +69,8 @@
     {
       "query": "aa columbus ohio",
       "clicks": 0,
-      "impressions": 1,
-      "position": 46
+      "impressions": 2,
+      "position": 38.5
     },
     {
       "query": "aa el paso",
@@ -82,38 +82,38 @@
   "opportunities": [
     {
       "page": "/meetings/san-diego-ca",
-      "impressions": 78,
-      "position": 49.2,
-      "ctr": 0
-    },
-    {
-      "page": "/meetings/nashville-tn",
-      "impressions": 49,
-      "position": 44.3,
+      "impressions": 94,
+      "position": 50.8,
       "ctr": 0
     },
     {
       "page": "/meetings/tucson-az",
-      "impressions": 46,
-      "position": 41.8,
-      "ctr": 0.0217
+      "impressions": 51,
+      "position": 40.2,
+      "ctr": 0.0196
+    },
+    {
+      "page": "/meetings/nashville-tn",
+      "impressions": 51,
+      "position": 44.9,
+      "ctr": 0
     },
     {
       "page": "/meetings/phoenix-az",
-      "impressions": 41,
-      "position": 39.4,
+      "impressions": 45,
+      "position": 39,
       "ctr": 0
     },
     {
       "page": "/fellowships",
-      "impressions": 30,
-      "position": 70.3,
+      "impressions": 39,
+      "position": 67.2,
       "ctr": 0
     },
     {
       "page": "/meetings/columbus-oh",
-      "impressions": 29,
-      "position": 54.8,
+      "impressions": 34,
+      "position": 49.6,
       "ctr": 0
     },
     {
@@ -123,33 +123,33 @@
       "ctr": 0
     },
     {
+      "page": "/cma",
+      "impressions": 28,
+      "position": 27.6,
+      "ctr": 0.0357
+    },
+    {
       "page": "/aa/lexington-ky",
       "impressions": 28,
       "position": 26,
       "ctr": 0
     },
     {
-      "page": "/cma",
-      "impressions": 26,
-      "position": 29,
-      "ctr": 0.0385
-    },
-    {
       "page": "/meetings/atlanta-ga",
-      "impressions": 26,
-      "position": 37,
+      "impressions": 27,
+      "position": 35.9,
       "ctr": 0
     },
     {
-      "page": "/aca/tucson-az",
-      "impressions": 22,
-      "position": 22.5,
-      "ctr": 0.0909
+      "page": "/aa/raleigh-nc",
+      "impressions": 23,
+      "position": 33.1,
+      "ctr": 0
     },
     {
-      "page": "/aa/raleigh-nc",
-      "impressions": 21,
-      "position": 34.1,
+      "page": "/meetings/louisville-ky",
+      "impressions": 23,
+      "position": 41.2,
       "ctr": 0
     }
   ]
