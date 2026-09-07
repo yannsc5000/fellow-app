@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-08-31T10:03:23.927Z",
-  "range": "2026-08-01 → 2026-08-28",
+  "generatedAt": "2026-09-07T10:05:54.551Z",
+  "range": "2026-08-08 → 2026-09-04",
   "clicks": 18,
-  "impressions": 1198,
+  "impressions": 1203,
   "ctr": 0.015,
-  "position": 36,
+  "position": 36.2,
   "topQueries": [
     {
       "query": "aca meetings near me",
@@ -141,15 +141,15 @@
       "ctr": 0
     },
     {
+      "page": "/",
+      "impressions": 23,
+      "position": 38.9,
+      "ctr": 0.1304
+    },
+    {
       "page": "/aa/raleigh-nc",
       "impressions": 23,
       "position": 33.1,
-      "ctr": 0
-    },
-    {
-      "page": "/meetings/louisville-ky",
-      "impressions": 23,
-      "position": 41.2,
       "ctr": 0
     }
   ]
