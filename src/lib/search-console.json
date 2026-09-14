@@ -1,17 +1,11 @@
 {
-  "generatedAt": "2026-09-07T10:05:54.551Z",
-  "range": "2026-08-08 → 2026-09-04",
-  "clicks": 18,
-  "impressions": 1203,
-  "ctr": 0.015,
-  "position": 36.2,
+  "generatedAt": "2026-09-14T10:05:53.557Z",
+  "range": "2026-08-15 → 2026-09-11",
+  "clicks": 13,
+  "impressions": 896,
+  "ctr": 0.0145,
+  "position": 36.6,
   "topQueries": [
-    {
-      "query": "aca meetings near me",
-      "clicks": 1,
-      "impressions": 4,
-      "position": 34.3
-    },
     {
       "query": "meth meetings",
       "clicks": 1,
@@ -25,40 +19,22 @@
       "position": 38
     },
     {
+      "query": "\"temple street yoga\" rockland maine",
+      "clicks": 0,
+      "impressions": 1,
+      "position": 7
+    },
+    {
+      "query": "%\"temple street yoga\" rockland maine",
+      "clicks": 0,
+      "impressions": 2,
+      "position": 8
+    },
+    {
       "query": "12 step fellowship",
       "clicks": 0,
       "impressions": 1,
       "position": 97
-    },
-    {
-      "query": "12 step program fort worth",
-      "clicks": 0,
-      "impressions": 1,
-      "position": 97
-    },
-    {
-      "query": "4607 prospect ave",
-      "clicks": 0,
-      "impressions": 1,
-      "position": 63
-    },
-    {
-      "query": "500 club council bluffs",
-      "clicks": 0,
-      "impressions": 1,
-      "position": 30
-    },
-    {
-      "query": "8111 club",
-      "clicks": 0,
-      "impressions": 1,
-      "position": 40
-    },
-    {
-      "query": "8111 clubhouse",
-      "clicks": 0,
-      "impressions": 1,
-      "position": 51
     },
     {
       "query": "aa classes san diego",
@@ -69,87 +45,111 @@
     {
       "query": "aa columbus ohio",
       "clicks": 0,
-      "impressions": 2,
-      "position": 38.5
+      "impressions": 1,
+      "position": 31
     },
     {
-      "query": "aa el paso",
+      "query": "aa fayetteville nc",
       "clicks": 0,
       "impressions": 1,
-      "position": 46
+      "position": 67
+    },
+    {
+      "query": "aa fellowship connection",
+      "clicks": 0,
+      "impressions": 2,
+      "position": 74.5
+    },
+    {
+      "query": "aa groups san diego",
+      "clicks": 0,
+      "impressions": 5,
+      "position": 35
+    },
+    {
+      "query": "aa intergroup meetings",
+      "clicks": 0,
+      "impressions": 2,
+      "position": 12
+    },
+    {
+      "query": "aa meeting columbus ohio",
+      "clicks": 0,
+      "impressions": 1,
+      "position": 31
     }
   ],
   "opportunities": [
     {
       "page": "/meetings/san-diego-ca",
-      "impressions": 94,
-      "position": 50.8,
+      "impressions": 89,
+      "position": 51,
       "ctr": 0
-    },
-    {
-      "page": "/meetings/tucson-az",
-      "impressions": 51,
-      "position": 40.2,
-      "ctr": 0.0196
     },
     {
       "page": "/meetings/nashville-tn",
-      "impressions": 51,
-      "position": 44.9,
-      "ctr": 0
-    },
-    {
-      "page": "/meetings/phoenix-az",
-      "impressions": 45,
-      "position": 39,
+      "impressions": 34,
+      "position": 45.8,
       "ctr": 0
     },
     {
       "page": "/fellowships",
-      "impressions": 39,
+      "impressions": 33,
       "position": 67.2,
       "ctr": 0
     },
     {
-      "page": "/meetings/columbus-oh",
-      "impressions": 34,
-      "position": 49.6,
+      "page": "/meetings/tucson-az",
+      "impressions": 32,
+      "position": 45.4,
+      "ctr": 0.0313
+    },
+    {
+      "page": "/meetings/phoenix-az",
+      "impressions": 27,
+      "position": 33.9,
       "ctr": 0
     },
     {
       "page": "/na/all",
-      "impressions": 29,
-      "position": 81.1,
+      "impressions": 26,
+      "position": 81,
       "ctr": 0
     },
     {
       "page": "/cma",
-      "impressions": 28,
-      "position": 27.6,
-      "ctr": 0.0357
+      "impressions": 24,
+      "position": 28.9,
+      "ctr": 0.0417
     },
     {
       "page": "/aa/lexington-ky",
-      "impressions": 28,
-      "position": 26,
+      "impressions": 24,
+      "position": 24.6,
+      "ctr": 0
+    },
+    {
+      "page": "/eda/all",
+      "impressions": 22,
+      "position": 8.8,
+      "ctr": 0
+    },
+    {
+      "page": "/meetings/columbus-oh",
+      "impressions": 20,
+      "position": 50.9,
+      "ctr": 0
+    },
+    {
+      "page": "/meetings/washington-dc",
+      "impressions": 17,
+      "position": 41.2,
       "ctr": 0
     },
     {
       "page": "/meetings/atlanta-ga",
-      "impressions": 27,
-      "position": 35.9,
-      "ctr": 0
-    },
-    {
-      "page": "/",
-      "impressions": 23,
-      "position": 38.9,
-      "ctr": 0.1304
-    },
-    {
-      "page": "/aa/raleigh-nc",
-      "impressions": 23,
-      "position": 33.1,
+      "impressions": 16,
+      "position": 34.8,
       "ctr": 0
     }
   ]
