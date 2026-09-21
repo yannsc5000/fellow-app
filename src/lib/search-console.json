@@ -1,23 +1,11 @@
 {
-  "generatedAt": "2026-09-14T10:05:53.557Z",
-  "range": "2026-08-15 → 2026-09-11",
-  "clicks": 13,
-  "impressions": 896,
-  "ctr": 0.0145,
-  "position": 36.6,
+  "generatedAt": "2026-09-21T16:10:28.159Z",
+  "range": "2026-08-22 → 2026-09-18",
+  "clicks": 1,
+  "impressions": 162,
+  "ctr": 0.0062,
+  "position": 34.4,
   "topQueries": [
-    {
-      "query": "meth meetings",
-      "clicks": 1,
-      "impressions": 1,
-      "position": 37
-    },
-    {
-      "query": "na meeting san antonio",
-      "clicks": 1,
-      "impressions": 1,
-      "position": 38
-    },
     {
       "query": "\"temple street yoga\" rockland maine",
       "clicks": 0,
@@ -31,125 +19,137 @@
       "position": 8
     },
     {
-      "query": "12 step fellowship",
-      "clicks": 0,
-      "impressions": 1,
-      "position": 97
-    },
-    {
-      "query": "aa classes san diego",
-      "clicks": 0,
-      "impressions": 1,
-      "position": 39
-    },
-    {
       "query": "aa columbus ohio",
       "clicks": 0,
       "impressions": 1,
       "position": 31
     },
     {
-      "query": "aa fayetteville nc",
-      "clicks": 0,
-      "impressions": 1,
-      "position": 67
-    },
-    {
       "query": "aa fellowship connection",
       "clicks": 0,
-      "impressions": 2,
-      "position": 74.5
+      "impressions": 1,
+      "position": 85
     },
     {
       "query": "aa groups san diego",
       "clicks": 0,
-      "impressions": 5,
-      "position": 35
+      "impressions": 1,
+      "position": 32
     },
     {
-      "query": "aa intergroup meetings",
+      "query": "aa meeting near me",
       "clicks": 0,
-      "impressions": 2,
+      "impressions": 1,
       "position": 12
     },
     {
-      "query": "aa meeting columbus ohio",
+      "query": "aa meeting phoenix",
       "clicks": 0,
       "impressions": 1,
-      "position": 31
+      "position": 38
+    },
+    {
+      "query": "aa meetings cartersville ga",
+      "clicks": 0,
+      "impressions": 1,
+      "position": 24
+    },
+    {
+      "query": "aa meetings cincinnati",
+      "clicks": 0,
+      "impressions": 1,
+      "position": 35
+    },
+    {
+      "query": "aa meetings columbus ohio",
+      "clicks": 0,
+      "impressions": 1,
+      "position": 28
+    },
+    {
+      "query": "aa meetings council bluffs",
+      "clicks": 0,
+      "impressions": 1,
+      "position": 34
+    },
+    {
+      "query": "aa meetings council bluffs ia",
+      "clicks": 0,
+      "impressions": 1,
+      "position": 37
     }
   ],
   "opportunities": [
     {
-      "page": "/meetings/san-diego-ca",
-      "impressions": 89,
-      "position": 51,
+      "page": "/meetings/rockland-me",
+      "impressions": 17,
+      "position": 8.5,
       "ctr": 0
     },
     {
-      "page": "/meetings/nashville-tn",
-      "impressions": 34,
-      "position": 45.8,
+      "page": "/meetings/san-diego-ca",
+      "impressions": 16,
+      "position": 58.4,
       "ctr": 0
+    },
+    {
+      "page": "/",
+      "impressions": 12,
+      "position": 67.4,
+      "ctr": 0.0833
     },
     {
       "page": "/fellowships",
-      "impressions": 33,
-      "position": 67.2,
-      "ctr": 0
-    },
-    {
-      "page": "/meetings/tucson-az",
-      "impressions": 32,
-      "position": 45.4,
-      "ctr": 0.0313
-    },
-    {
-      "page": "/meetings/phoenix-az",
-      "impressions": 27,
-      "position": 33.9,
-      "ctr": 0
-    },
-    {
-      "page": "/na/all",
-      "impressions": 26,
-      "position": 81,
-      "ctr": 0
-    },
-    {
-      "page": "/cma",
-      "impressions": 24,
-      "position": 28.9,
-      "ctr": 0.0417
-    },
-    {
-      "page": "/aa/lexington-ky",
-      "impressions": 24,
-      "position": 24.6,
-      "ctr": 0
-    },
-    {
-      "page": "/eda/all",
-      "impressions": 22,
-      "position": 8.8,
+      "impressions": 9,
+      "position": 57,
       "ctr": 0
     },
     {
       "page": "/meetings/columbus-oh",
-      "impressions": 20,
-      "position": 50.9,
+      "impressions": 5,
+      "position": 19.6,
+      "ctr": 0
+    },
+    {
+      "page": "/meetings/louisville-ky",
+      "impressions": 5,
+      "position": 31.4,
+      "ctr": 0
+    },
+    {
+      "page": "/meetings/minneapolis-mn",
+      "impressions": 5,
+      "position": 55,
+      "ctr": 0
+    },
+    {
+      "page": "/meetings/tucson-az",
+      "impressions": 5,
+      "position": 24.8,
+      "ctr": 0
+    },
+    {
+      "page": "/eda/all",
+      "impressions": 4,
+      "position": 9,
+      "ctr": 0
+    },
+    {
+      "page": "/meetings/phoenix-az",
+      "impressions": 4,
+      "position": 35,
       "ctr": 0
     },
     {
       "page": "/meetings/washington-dc",
-      "impressions": 17,
-      "position": 41.2,
+      "impressions": 4,
+      "position": 53.8,
       "ctr": 0
     },
     {
-      "page": "/meetings/atlanta-ga",
-      "impressions": 16,
-      "position": 34.8,
+      "page": "/aa/council-bluffs-ia",
+      "impressions": 3,
+      "position": 43,
       "ctr": 0
     }
   ]
