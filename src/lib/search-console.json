@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-09-21T16:10:28.159Z",
-  "range": "2026-08-22 → 2026-09-18",
-  "clicks": 1,
-  "impressions": 162,
-  "ctr": 0.0062,
-  "position": 34.4,
+  "generatedAt": "2026-09-28T17:54:21.922Z",
+  "range": "2026-08-29 → 2026-09-25",
+  "clicks": 0,
+  "impressions": 56,
+  "ctr": 0,
+  "position": 23.8,
   "topQueries": [
     {
       "query": "\"temple street yoga\" rockland maine",
@@ -19,137 +19,71 @@
       "position": 8
     },
     {
-      "query": "aa columbus ohio",
+      "query": "+\"temple street yoga\" rockland maine",
       "clicks": 0,
-      "impressions": 1,
-      "position": 31
+      "impressions": 14,
+      "position": 9.2
     },
     {
       "query": "aa fellowship connection",
       "clicks": 0,
       "impressions": 1,
-      "position": 85
+      "position": 100
     },
     {
-      "query": "aa groups san diego",
+      "query": "fellowship aa meetings",
       "clicks": 0,
       "impressions": 1,
-      "position": 32
+      "position": 98
     },
     {
-      "query": "aa meeting near me",
+      "query": "fellowship hall meetings",
       "clicks": 0,
       "impressions": 1,
-      "position": 12
+      "position": 83
     },
     {
-      "query": "aa meeting phoenix",
+      "query": "meetings for codependents anonymous",
       "clicks": 0,
       "impressions": 1,
-      "position": 38
-    },
-    {
-      "query": "aa meetings cartersville ga",
-      "clicks": 0,
-      "impressions": 1,
-      "position": 24
-    },
-    {
-      "query": "aa meetings cincinnati",
-      "clicks": 0,
-      "impressions": 1,
-      "position": 35
-    },
-    {
-      "query": "aa meetings columbus ohio",
-      "clicks": 0,
-      "impressions": 1,
-      "position": 28
-    },
-    {
-      "query": "aa meetings council bluffs",
-      "clicks": 0,
-      "impressions": 1,
-      "position": 34
-    },
-    {
-      "query": "aa meetings council bluffs ia",
-      "clicks": 0,
-      "impressions": 1,
-      "position": 37
+      "position": 70
     }
   ],
   "opportunities": [
     {
       "page": "/meetings/rockland-me",
-      "impressions": 17,
-      "position": 8.5,
-      "ctr": 0
-    },
-    {
-      "page": "/meetings/san-diego-ca",
-      "impressions": 16,
-      "position": 58.4,
+      "impressions": 37,
+      "position": 8.9,
       "ctr": 0
     },
     {
       "page": "/",
-      "impressions": 12,
-      "position": 67.4,
-      "ctr": 0.0833
-    },
-    {
-      "page": "/fellowships",
-      "impressions": 9,
-      "position": 57,
+      "impressions": 11,
+      "position": 79.1,
       "ctr": 0
     },
     {
-      "page": "/meetings/columbus-oh",
-      "impressions": 5,
-      "position": 19.6,
-      "ctr": 0
-    },
-    {
-      "page": "/meetings/louisville-ky",
-      "impressions": 5,
-      "position": 31.4,
-      "ctr": 0
-    },
-    {
-      "page": "/meetings/minneapolis-mn",
-      "impressions": 5,
-      "position": 55,
-      "ctr": 0
-    },
-    {
-      "page": "/meetings/tucson-az",
-      "impressions": 5,
-      "position": 24.8,
-      "ctr": 0
-    },
-    {
-      "page": "/eda/all",
-      "impressions": 4,
-      "position": 9,
-      "ctr": 0
-    },
-    {
-      "page": "/meetings/phoenix-az",
-      "impressions": 4,
-      "position": 35,
-      "ctr": 0
-    },
-    {
-      "page": "/meetings/washington-dc",
-      "impressions": 4,
-      "position": 53.8,
-      "ctr": 0
-    },
-    {
-      "page": "/aa/council-bluffs-ia",
+      "page": "/meetings/arlington-wa",
       "impressions": 3,
-      "position": 43,
+      "position": 9.3,
+      "ctr": 0
+    },
+    {
+      "page": "/meetings/peoria-az/all",
+      "impressions": 2,
+      "position": 10,
+      "ctr": 0
+    },
+    {
+      "page": "/coda",
+      "impressions": 1,
+      "position": 70,
+      "ctr": 0
+    },
+    {
+      "page": "/es/na/bridgeport-ct",
+      "impressions": 1,
+      "position": 10,
       "ctr": 0
     }
   ]
