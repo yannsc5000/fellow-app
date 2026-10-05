@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-09-28T17:54:21.922Z",
-  "range": "2026-08-29 → 2026-09-25",
+  "generatedAt": "2026-10-05T19:00:09.544Z",
+  "range": "2026-09-05 → 2026-10-02",
   "clicks": 0,
-  "impressions": 56,
+  "impressions": 76,
   "ctr": 0,
-  "position": 23.8,
+  "position": 16.3,
   "topQueries": [
     {
       "query": "\"temple street yoga\" rockland maine",
@@ -21,14 +21,14 @@
     {
       "query": "+\"temple street yoga\" rockland maine",
       "clicks": 0,
-      "impressions": 14,
-      "position": 9.2
+      "impressions": 35,
+      "position": 8.9
     },
     {
       "query": "aa fellowship connection",
       "clicks": 0,
-      "impressions": 1,
-      "position": 100
+      "impressions": 2,
+      "position": 99.5
     },
     {
       "query": "fellowship aa meetings",
@@ -52,14 +52,14 @@
   "opportunities": [
     {
       "page": "/meetings/rockland-me",
-      "impressions": 37,
-      "position": 8.9,
+      "impressions": 61,
+      "position": 8.8,
       "ctr": 0
     },
     {
       "page": "/",
-      "impressions": 11,
-      "position": 79.1,
+      "impressions": 7,
+      "position": 80.7,
       "ctr": 0
     },
     {
