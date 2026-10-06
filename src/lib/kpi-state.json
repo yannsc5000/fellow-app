@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-28T18:31:50.773Z",
+  "updatedAt": "2026-10-06T17:04:36.511Z",
   "statuses": {
     "meetings": "on_track",
     "states": "met",
@@ -9,7 +9,7 @@
     "joinlink": "on_track",
     "impressions": "at_risk",
     "clicks": "at_risk",
-    "position": "on_track",
+    "position": "approaching",
     "chat_queries": "na",
     "chat_hit": "na"
   }
