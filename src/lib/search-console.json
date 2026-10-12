@@ -1,23 +1,11 @@
 {
-  "generatedAt": "2026-10-05T19:00:09.544Z",
-  "range": "2026-09-05 → 2026-10-02",
+  "generatedAt": "2026-10-12T19:32:37.712Z",
+  "range": "2026-09-12 → 2026-10-09",
   "clicks": 0,
-  "impressions": 76,
+  "impressions": 56,
   "ctr": 0,
-  "position": 16.3,
+  "position": 18.8,
   "topQueries": [
-    {
-      "query": "\"temple street yoga\" rockland maine",
-      "clicks": 0,
-      "impressions": 1,
-      "position": 7
-    },
-    {
-      "query": "%\"temple street yoga\" rockland maine",
-      "clicks": 0,
-      "impressions": 2,
-      "position": 8
-    },
     {
       "query": "+\"temple street yoga\" rockland maine",
       "clicks": 0,
@@ -52,26 +40,14 @@
   "opportunities": [
     {
       "page": "/meetings/rockland-me",
-      "impressions": 61,
-      "position": 8.8,
+      "impressions": 45,
+      "position": 8.9,
       "ctr": 0
     },
     {
       "page": "/",
-      "impressions": 7,
-      "position": 80.7,
-      "ctr": 0
-    },
-    {
-      "page": "/meetings/arlington-wa",
-      "impressions": 3,
-      "position": 9.3,
-      "ctr": 0
-    },
-    {
-      "page": "/meetings/peoria-az/all",
-      "impressions": 2,
-      "position": 10,
+      "impressions": 8,
+      "position": 70.8,
       "ctr": 0
     },
     {
