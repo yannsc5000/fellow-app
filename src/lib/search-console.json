@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-10-12T19:32:37.712Z",
-  "range": "2026-09-12 → 2026-10-09",
+  "generatedAt": "2026-10-19T16:43:30.354Z",
+  "range": "2026-09-19 → 2026-10-16",
   "clicks": 0,
-  "impressions": 56,
+  "impressions": 52,
   "ctr": 0,
-  "position": 18.8,
+  "position": 18.1,
   "topQueries": [
     {
       "query": "+\"temple street yoga\" rockland maine",
@@ -25,10 +25,10 @@
       "position": 98
     },
     {
-      "query": "fellowship hall meetings",
+      "query": "fellowship connection",
       "clicks": 0,
       "impressions": 1,
-      "position": 83
+      "position": 90
     },
     {
       "query": "meetings for codependents anonymous",
@@ -40,26 +40,20 @@
   "opportunities": [
     {
       "page": "/meetings/rockland-me",
-      "impressions": 45,
-      "position": 8.9,
+      "impressions": 44,
+      "position": 9,
       "ctr": 0
     },
     {
       "page": "/",
-      "impressions": 8,
-      "position": 70.8,
+      "impressions": 7,
+      "position": 68.4,
       "ctr": 0
     },
     {
       "page": "/coda",
       "impressions": 1,
       "position": 70,
-      "ctr": 0
-    },
-    {
-      "page": "/es/na/bridgeport-ct",
-      "impressions": 1,
-      "position": 10,
       "ctr": 0
     }
   ]
