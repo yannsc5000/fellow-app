@@ -1,59 +1,41 @@
 {
-  "generatedAt": "2026-10-19T16:43:30.354Z",
-  "range": "2026-09-19 → 2026-10-16",
+  "generatedAt": "2026-10-26T16:23:53.422Z",
+  "range": "2026-09-26 → 2026-10-23",
   "clicks": 0,
-  "impressions": 52,
+  "impressions": 30,
   "ctr": 0,
-  "position": 18.1,
+  "position": 21,
   "topQueries": [
     {
       "query": "+\"temple street yoga\" rockland maine",
       "clicks": 0,
-      "impressions": 35,
-      "position": 8.9
+      "impressions": 21,
+      "position": 8.7
     },
     {
       "query": "aa fellowship connection",
       "clicks": 0,
-      "impressions": 2,
-      "position": 99.5
-    },
-    {
-      "query": "fellowship aa meetings",
-      "clicks": 0,
       "impressions": 1,
-      "position": 98
+      "position": 99
     },
     {
       "query": "fellowship connection",
       "clicks": 0,
       "impressions": 1,
       "position": 90
-    },
-    {
-      "query": "meetings for codependents anonymous",
-      "clicks": 0,
-      "impressions": 1,
-      "position": 70
     }
   ],
   "opportunities": [
     {
       "page": "/meetings/rockland-me",
-      "impressions": 44,
-      "position": 9,
+      "impressions": 24,
+      "position": 8.6,
       "ctr": 0
     },
     {
       "page": "/",
-      "impressions": 7,
-      "position": 68.4,
-      "ctr": 0
-    },
-    {
-      "page": "/coda",
-      "impressions": 1,
-      "position": 70,
+      "impressions": 6,
+      "position": 70.7,
       "ctr": 0
     }
   ]
