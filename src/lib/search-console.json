@@ -1,29 +1,23 @@
 {
-  "generatedAt": "2026-11-09T20:19:18.868Z",
-  "range": "2026-10-10 → 2026-11-06",
+  "generatedAt": "2026-11-16T19:57:04.010Z",
+  "range": "2026-10-17 → 2026-11-13",
   "clicks": 0,
-  "impressions": 9,
+  "impressions": 8,
   "ctr": 0,
-  "position": 47.3,
+  "position": 42,
   "topQueries": [
     {
       "query": "aa fellowship connection",
       "clicks": 0,
       "impressions": 1,
       "position": 98
-    },
-    {
-      "query": "fellowship connection",
-      "clicks": 0,
-      "impressions": 1,
-      "position": 90
     }
   ],
   "opportunities": [
     {
       "page": "/",
-      "impressions": 9,
-      "position": 47.3,
+      "impressions": 8,
+      "position": 42,
       "ctr": 0
     }
   ]
